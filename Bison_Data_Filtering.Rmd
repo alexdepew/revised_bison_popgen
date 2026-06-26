@@ -425,15 +425,24 @@ herd_fix <- year_fix %>%
       )
   )
 ```
- 
+
+# Filter and Assemble final dataset
 ```{r}
 wb_filtered <- herd_fix %>% 
   # Remove samples without collection year metadata
   filter(
     !is.na(Year.Collected),
-    !Herd == "WBNP")
+    !Herd == "WBNP") %>% 
+  # Assign a "Spreadsheet.ID" Column so each sample has unique name
+  mutate(Spreadsheet.ID = row_number()) %>% 
+  relocate(Spreadsheet.ID, .before = Year.Genotyped)
+
+# Write out cleaned dataset to csv file
+write.csv(wb_filtered, "./datafiles/Cleaned_data_2026.06.25.csv",
+          row.names = FALSE)
 ```
  
+
 # Format into GENIND Object
 For allele frequencies / pop
 ```{r}

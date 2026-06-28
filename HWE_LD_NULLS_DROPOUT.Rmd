@@ -480,7 +480,7 @@ ggsave(
 
 
 ## Test for allelic dropout
-Microdrop requires structure input files, yet the structure input files do not work unless they are delimited with EXACTLY one space. Note: you must delete the "POP" and "IND" column headers in nano text editor prior to running the program, as the input requires N-2 column names (colnames = locnames = 49).
+Microdrop requires structure input files, yet the st ructure input files do not work unless they are delimited with EXACTLY one space. Note: you must delete the "POP" and "IND" column headers in nano text editor prior to running the program, as the input requires N-2 column names (colnames = locnames = 49).
 ```{r}
 # Microdrop requires STRUCTURE input files but they need to be space delimited
 temp1.str <- temp1
@@ -497,8 +497,8 @@ pop(temp2.str) <- as.numeric(as.factor(pop(temp2.str)))
 temp1_pop_list <- seppop(temp1.str)
 
 lapply(names(temp1_pop_list), function(pop) {
-    out_path <- paste0("./microdrop_2/temp/temp1_", pop, ".struct.txt")
-    final_path <- paste0("./microdrop_2/input/temp1_", pop, ".microdrop.txt") # Define final_path
+    out_path <- paste0("./microdrop/temp/temp1_", pop, ".struct.txt")
+    final_path <- paste0("./microdrop/input/temp1_", pop, ".microdrop.txt") # Define final_path
     
     genind_to_structure(temp1_pop_list[[pop]], output = out_path)
     temp_data <- read.table(out_path, skip = 1)
@@ -523,8 +523,8 @@ lapply(names(temp1_pop_list), function(pop) {
 temp2_pop_list <- seppop(temp2.str)
 
 lapply(names(temp2_pop_list), function(pop) {
-    out_path <- paste0("./microdrop_2/temp/temp2_", pop, ".struct.txt")
-    final_path <- paste0("./microdrop_2/input/temp2_", pop, ".microdrop.txt")
+    out_path <- paste0("./microdrop/temp/temp2_", pop, ".struct.txt")
+    final_path <- paste0("./microdrop/input/temp2_", pop, ".microdrop.txt")
     
     genind_to_structure(temp2_pop_list[[pop]], output = out_path)
     temp_data <- read.table(out_path, skip = 1)
@@ -560,9 +560,9 @@ lapply(names(data_sets), function(prefix) {
     # 1. Setup paths and data
     pop_obj <- pop_list[[pop]]
     file_name <- paste0(prefix, "_", pop, ".microdrop.txt")
-    data_path <- paste0("./microdrop_2/input/", file_name)
-    param_path <- paste0("./microdrop_2/params/param_", prefix, "_", pop, ".txt")
-    temp_struct <- paste0("./microdrop_2/temp/", prefix, "_", pop, ".struct.txt")
+    data_path <- paste0("./microdrop/input/", file_name)
+    param_path <- paste0("./microdrop/params/param_", prefix, "_", pop, ".txt")
+    temp_struct <- paste0("./microdrop/temp/", prefix, "_", pop, ".struct.txt")
     
     # 2. Generate the Data File (with header)
     genind_to_structure(pop_obj, output = temp_struct)
@@ -578,7 +578,7 @@ lapply(names(data_sets), function(prefix) {
     num_loci <- nLoc(pop_obj)
     out_folder <- paste0(prefix, "_", pop, "_results")
     
-# 4. Create the Param File content (Note the added ./input/ path)
+# 4. Create the Param File for microdrop
     param_content <- c(
       "# This is a paramfile for MicroDrop generated automatically",
       "###----Main Parameters----###",
@@ -612,7 +612,7 @@ lapply(names(data_sets), function(prefix) {
 ```{r}
 # 1. Find all MLE_Rates_loc files
 # Adjust the path to match your structure (looking inside each _results folder)
-mle_files <- list.files(path = "./microdrop_2/results", 
+mle_files <- list.files(path = "./microdrop/results", 
                         pattern = "MLE_Rates_loc", 
                         recursive = TRUE, 
                         full.names = TRUE)
@@ -713,7 +713,7 @@ comb_dropout <- temp1.loc.avg %>%
          sd_temp2 = sd_dropout.y)
 
 # Write out to csv
-write.csv(comb_dropout, "./tables/LOC_DROPOUT_RATES.csv")
+write.csv(comb_dropout, "./output/tables/LOC_DROPOUT_RATES.csv")
 
 # Prepare and Truncate Data
 locus_plot_data <- comb_dropout %>%
@@ -771,7 +771,7 @@ p_drop <- ggplot(locus_plot_data,
 
 
 ggsave(
-  filename = "./plots/Locus_Dropout.svg", 
+  filename = "./output/plots/Locus_Dropout.svg", 
   plot = last_plot(),
   device = "svg",
   width = 10,      

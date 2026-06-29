@@ -1,0 +1,1986 @@
+---
+title: "PCA_STRUCT_2"
+author: "Alex Depew"
+date: "2026-03-05"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# File information
+This script is used to evaluate temporal patterns in population structure in all wood bison herds in Canada. 
+
+Files used described below:
+
+- `Revised_cleandata_11.03.2026.csv`
+   - Contains all samples for population genetic analyses, post-filtering
+   
+## Load Required Packages
+```{r}
+rm(list = ls())
+library(adegenet)
+library(graph4lg)
+library(poppr)
+library(hierfstat)
+library(pophelper)
+library(tidyverse)
+library(gridExtra)
+library(factoextra)
+library(ggplot2)
+library(ggpubr)
+library(grid)
+```
+
+## Load Required Data
+```{r}
+cleaned.data <- read.csv("./datafiles/Revised_cleandata_11.03.2026.csv",
+                         check.names = F)
+```
+
+#### Convert data to Genind object
+```{r}
+# Make genind object
+bison.genind <- df2genind(X=cleaned.data[,c(19:ncol(cleaned.data))],
+                              sep = "/",
+                              ind.names = cleaned.data$Spreadsheet_ID,
+                              loc.names = NULL,
+                              pop = cleaned.data$HERD,
+                              NA.char = "NA",
+                              ploidy = 2,
+                              type = "codom",
+                              strata = NULL,
+                              hierarchy = NULL)
+
+# Attach collection year metadata
+idx <- match(indNames(bison.genind), cleaned.data$Spreadsheet_ID)
+stopifnot(!any(is.na(idx)))
+bison.genind@other$YEAR.ASSIGN <- cleaned.data$YEAR.ASSIGN[idx]
+```
+
+#### Subset data 
+Data is subset into two temporal groups. Temporal groups are: 1: pre-1999, 2: pre-2016, and 3: post-2016
+```{r}
+# Create datasets containing samples of interest for temporal comparisons
+temp1 <- bison.genind[bison.genind@other$YEAR.ASSIGN <=2015,]
+temp1.sum <- summary(temp1) # Create summary of genind object
+
+temp2 <- bison.genind[bison.genind@other$YEAR.ASSIGN >=2016,]
+temp2.sum <- summary(temp2)
+```
+
+# Principal Coordinate Analysis (PCA)
+Visualize population structure without assumptions of HWE or LD, to identify clusters in the data. 
+
+```{r}
+# List of all herds
+all_herds <- sort(unique(cleaned.data$HERD))
+
+# Colour Palette selection for PCA
+herd_palette <- c("#0026FF", 
+                  "#FF5F00",
+                  "#FF00FF", 
+                  "#005000",
+                  "#333333", 
+                  "#660099", 
+                  "#00E5FF", 
+                  "#A52A2A", 
+                  "#DAA520", 
+                  "#1E90FF", 
+                  "#228B22", 
+                  "#cecece", 
+                  "#a559aa", 
+                  "#59a89c", 
+                  "#f0c571", 
+                  "#e02b35", 
+                  "#082a54"
+                  )
+
+# 3. Assign names to the colors so they are "locked" to the herd ID
+herd_cols <- setNames(as.character(herd_palette), all_herds)
+
+
+# STRUCTURE colours
+master_cols <- c("#ee964c", "#3b96cf", "#7d2a7c", "#e39bc1", "#e73f4e", 
+                 "#4b9b46", "#f5df93", "#858434", "#ba552b", "#81c7c7", 
+                 "#2d4a5e", "#44c29a", "#542e44", "#ff7f32", "#607d8b", "#1b4332")
+
+master_cols2 <- c("#3b96cf", "#ee964c", "#7d2a7c", "#e39bc1", "#e73f4e", 
+                 "#4b9b46", "#f5df93", "#858434", "#ba552b", "#81c7c7", 
+                 "#2d4a5e", "#44c29a", "#542e44", "#ff7f32", "#607d8b", "#1b4332")
+
+```
+
+# PCA
+### Perform PCA on both datasets
+```{r}
+# Perform PCA
+x.temp1 <- tab(temp1, freq = TRUE, NA.method = "mean")
+pca.temp1 <- dudi.pca(x.temp1, center = T, scale = F, scannf = F, nf = 2)
+
+# Axes % Variance
+eig.perc.temp1 <- 100*pca.temp1$eig/sum(pca.temp1$eig)
+
+x.temp2 <- tab(temp2, freq = TRUE, NA.method = "mean")
+pca.temp2 <- dudi.pca(x.temp2, center = T, scale = F, scannf = F, nf = 2)
+
+# Axes % Variance
+eig.perc.temp2 <- 100*pca.temp2$eig/sum(pca.temp2$eig)
+
+##### -------
+# Strictly for plotting (legend)
+x.global <- tab(bison.genind, freq = TRUE, NA.method = "mean")
+pca.global <- dudi.pca(x.global, center = T, scale = F, scannf = F, nf =2)
+# Axes % Variance
+eig.perc.global <- 100*pca.global$eig/sum(pca.global$eig)
+
+#### axis limits
+xlims <- c(-2.5, 3.5)
+ylims <- c(-3, 2.1)
+```
+
+
+## PCA plot with ggplot
+```{r}
+temp1@pop <- factor(temp1@pop, levels = sort(unique(as.character(temp1@pop))))
+levels_temp1 <- levels(temp1@pop)
+temp1_cols <- herd_cols[levels_temp1]
+
+
+# Plot PCA object
+pca1 <- fviz_pca_ind(pca.temp1,
+             axes = c(1, 2),
+             geom = "blank",
+             habillage = temp1@pop,
+             repel = TRUE,
+             palette = temp1_cols,
+             alpha.ind = 1,) + 
+  stat_ellipse(aes(color = temp1@pop), type = "norm", level = 0.68) + 
+  geom_point(aes(colour = temp1@pop),
+             shape = 19,
+             alpha = 0.75,
+             size = 1.2) + 
+coord_fixed(ratio = 1, xlim = xlims, ylim = ylims) +
+  
+theme(
+    plot.title = element_blank(),
+    legend.title = element_text(face = "bold", size = 15),
+    legend.text = element_text(size = 15),
+    axis.title = element_text(face = "bold", size = 20),
+    text = element_text(size = 20),
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),  ) + 
+
+  labs(title = "(1986 - 2015)",
+       x = paste0("PC1 (", round(eig.perc.temp1[1], 2), "%)"),
+       y = paste0("PC2 (", round(eig.perc.temp1[2], 2), "%)"),
+       colour = "Herd") + 
+    guides(colour = guide_legend(override.aes = list(size = 4, shape = 19)))
+
+       
+
+pca1
+```
+
+```{r}
+temp2@pop <- factor(temp2@pop, levels = sort(unique(as.character(temp2@pop))))
+levels_temp2 <- levels(temp2@pop)
+temp2_cols <- herd_cols[levels_temp2]
+
+# Invert Y axis
+pca.temp2$li[ , 2] <- pca.temp2$li[ , 2] * -1
+
+# Plot PCA object
+pca2 <- fviz_pca_ind(pca.temp2,
+             axes = c(1, 2),
+             geom = "blank",
+             habillage = temp2@pop,
+             repel = TRUE,
+             palette = temp2_cols,
+             alpha.ind = 1,) + 
+  stat_ellipse(aes(color = temp2@pop), type = "norm", level = 0.68) + 
+  geom_point(aes(colour = temp2@pop),
+             shape = 19,
+             alpha = 0.75,
+             size = 1.2) + 
+coord_fixed(ratio = 1, xlim = xlims, ylim = ylims) +
+  
+theme(
+    plot.title = element_blank(),
+    legend.title = element_text(face = "bold", size = 15),
+    legend.text = element_text(size = 15),
+    axis.title = element_text(face = "bold", size = 20),
+    text = element_text(size = 20),
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),  ) + 
+
+  labs(title = "(2016 - 2025)",
+       x = paste0("PC1 (", round(eig.perc.temp2[1], 2), "%)"),
+       y = paste0("PC2 (", round(eig.perc.temp2[2], 2), "%)"),
+       colour = "Herd") + 
+    guides(colour = guide_legend(override.aes = list(size = 4, shape = 19)))
+
+       
+
+pca2
+```
+
+```{r}
+bison.genind@pop <- factor(bison.genind@pop, levels = sort(unique(as.character(bison.genind@pop))))
+sorted_levels <- levels(bison.genind@pop)
+sorted_cols <- herd_cols[sorted_levels]
+
+global_cols <- herd_cols[sorted_levels]
+
+# Plot PCA object
+pcag <- fviz_pca_ind(pca.global,
+             axes = c(1, 2),
+             geom = "blank",
+             habillage = bison.genind@pop,
+             repel = TRUE,
+             palette = global_cols,
+             alpha.ind = 1,) + 
+  stat_ellipse(aes(color = bison.genind@pop), type = "norm", level = 0.68) + 
+  geom_point(aes(colour = bison.genind@pop),
+             shape = 19,
+             alpha = 0.75,
+             size = 1.2) + 
+  coord_fixed(ratio = 1) +
+  
+theme(
+    plot.title = element_blank(),
+    legend.title = element_text(face = "bold", size = 15),
+    legend.text = element_text(size = 15),
+    axis.title = element_text(face = "bold", size = 20),
+    text = element_text(size = 20),
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),  ) + 
+  
+  labs(title = NULL,
+       # Fixed the placement of closing parentheses and commas below
+       x = paste0("PC1 (", round(eig.perc.global[1], 2), "%)"),
+       y = paste0("PC2 (", round(eig.perc.global[2], 2), "%)"),
+       colour = "Herd") + 
+    guides(colour = guide_legend(override.aes = list(size = 6, shape = 19)))
+
+```
+
+### Arrange Plots together
+```{r}
+pca1_nl <- pca1 + theme(legend.position = "none")
+pca2_nl <- pca2 + theme(legend.position = "none")
+
+legend1 <- get_legend(pcag)
+
+global_pcas <- grid.arrange(pca1_nl, legend1, pca2_nl, # Set out grid
+                            ncol = 3, 
+                            widths = c(10, 2.5, 10)
+                            )
+                            
+# Save plot
+library(svglite)
+ggsave("./plots/global_pcas.svg",
+       plot = global_pcas, 
+       device = "svg", 
+       width = 16, 
+       height = 12, 
+       units = "in")
+```
+Remove Elk Island Plains for Structure Analyses
+```{r}
+temp1.noEINPP <- temp1[temp1@pop != "EINPP"]
+
+temp2.noEINPP <- temp2[temp2@pop != "EINPP"]
+
+bison.genind.noEINPP <- bison.genind[bison.genind@pop != "EINPP"]
+```
+
+
+### Perform PCA on both datasets (No EINPP)
+```{r}
+# Perform PCA
+x.temp1.noEINPP <- tab(temp1.noEINPP, freq = TRUE, NA.method = "mean")
+pca.temp1.noEINPP <- dudi.pca(x.temp1.noEINPP, center = T, scale = F, scannf = F, nf = 2)
+
+# Axes % Variance
+eig.perc.temp1.noEINPP <- 100*pca.temp1.noEINPP$eig/sum(pca.temp1.noEINPP$eig)
+
+x.temp2.noEINPP <- tab(temp2.noEINPP, freq = TRUE, NA.method = "mean")
+pca.temp2.noEINPP <- dudi.pca(x.temp2.noEINPP, center = T, scale = F, scannf = F, nf = 2)
+
+# Axes % Variance
+eig.perc.temp2.noEINPP <- 100*pca.temp2.noEINPP$eig/sum(pca.temp2.noEINPP$eig)
+
+##### -------
+# Strictly for plotting (legend)
+x.global.noEINPP <- tab(bison.genind.noEINPP, freq = TRUE, NA.method = "mean")
+pca.global.noEINPP <- dudi.pca(x.global.noEINPP, center = T, scale = F, scannf = F, nf =2)
+# Axes % Variance
+eig.perc.global.noEINPP <- 100*pca.global.noEINPP$eig/sum(pca.global.noEINPP$eig)
+```
+
+#### Reset xlim and ylim
+```{r}
+xlims.noEINPP <- c(-2.5, 3.5)
+ylims.noEINPP <- c(-3, 2.1)
+```
+
+
+#### Temp1 (No EINPP)
+```{r}
+temp1.noEINPP@pop <- factor(temp1.noEINPP@pop, levels = sort(unique(as.character(temp1.noEINPP@pop))))
+levels_temp1.noEINPP <- levels(temp1.noEINPP@pop)
+temp1.noEINPP_cols <- herd_cols[levels_temp1.noEINPP]
+
+
+# Plot PCA object
+pca1.noEINPP <- fviz_pca_ind(pca.temp1.noEINPP,
+             axes = c(1, 2),
+             geom = "blank",
+             habillage = temp1.noEINPP@pop,
+             repel = TRUE,
+             palette = temp1.noEINPP_cols,
+             alpha.ind = 1,) + 
+  stat_ellipse(aes(color = temp1.noEINPP@pop), type = "norm", level = 0.68) + 
+  geom_point(aes(colour = temp1.noEINPP@pop),
+             shape = 19,
+             alpha = 0.75,
+             size = 1.2) + 
+coord_fixed(ratio = 1, xlim = xlims.noEINPP, ylim = ylims.noEINPP) +
+  
+theme(
+    plot.title = element_blank(),
+    legend.title = element_text(face = "bold", size = 15),
+    legend.text = element_text(size = 15),
+    axis.title = element_text(face = "bold", size = 20),
+    text = element_text(size = 20),
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),  ) + 
+
+  labs(title = "(1986 - 2015)",
+       x = paste0("PC1 (", round(eig.perc.temp1.noEINPP[1], 2), "%)"),
+       y = paste0("PC2 (", round(eig.perc.temp1.noEINPP[2], 2), "%)"),
+       colour = "Herd") + 
+    guides(colour = guide_legend(override.aes = list(size = 6, shape = 19)))
+
+       
+
+pca1.noEINPP
+```
+
+#### Temp2 (No EINPP)
+```{r}
+temp2.noEINPP@pop <- factor(temp2.noEINPP@pop, levels = sort(unique(as.character(temp2.noEINPP@pop))))
+levels_temp2.noEINPP <- levels(temp2.noEINPP@pop)
+temp2.noEINPP_cols <- herd_cols[levels_temp2.noEINPP]
+
+pca.temp2.noEINPP$li[ ,2] <- pca.temp2.noEINPP$li[ , 2] *-1
+
+# Plot PCA object
+pca2.noEINPP <- fviz_pca_ind(pca.temp2.noEINPP,
+             axes = c(1, 2),
+             geom = "blank",
+             habillage = temp2.noEINPP@pop,
+             repel = TRUE,
+             palette = temp2.noEINPP_cols,
+             alpha.ind = 1,) + 
+  stat_ellipse(aes(color = temp2.noEINPP@pop), type = "norm", level = 0.68) + 
+  geom_point(aes(colour = temp2.noEINPP@pop),
+             shape = 19,
+             alpha = 0.75,
+             size = 1.2) + 
+coord_fixed(ratio = 1, xlim = xlims.noEINPP, ylim = ylims.noEINPP) +
+  
+theme(
+    plot.title = element_blank(),
+    legend.title = element_text(face = "bold", size = 15),
+    legend.text = element_text(size = 15),
+    axis.title = element_text(face = "bold", size = 20),
+    text = element_text(size = 20),
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),  ) + 
+
+  labs(title = "(2016 - 2025)",
+       x = paste0("PC1 (", round(eig.perc.temp2.noEINPP[1], 2), "%)"),
+       y = paste0("PC2 (", round(eig.perc.temp2.noEINPP[2], 2), "%)"),
+       colour = "Herd") + 
+    guides(colour = guide_legend(override.aes = list(size = 6, shape = 19)))
+
+       
+
+pca2.noEINPP
+```
+
+#### Global Dataset (No EINPP)
+```{r}
+bison.genind.noEINPP@pop <- factor(bison.genind.noEINPP@pop, levels = sort(unique(as.character(bison.genind.noEINPP@pop))))
+sorted_levels.noEINPP <- levels(bison.genind.noEINPP@pop)
+sorted_cols.noEINPP <- herd_cols[sorted_levels.noEINPP]
+
+global_cols.noEINPP <- herd_cols[sorted_levels.noEINPP]
+
+# Plot PCA object
+pcag.noEINPP <- fviz_pca_ind(pca.global.noEINPP,
+             axes = c(1, 2),
+             geom = "blank",
+             habillage = bison.genind.noEINPP@pop,
+             repel = TRUE,
+             palette = global_cols,
+             alpha.ind = 1,) + 
+  stat_ellipse(aes(color = bison.genind.noEINPP@pop), type = "norm", level = 0.68) + 
+  geom_point(aes(colour = bison.genind.noEINPP@pop),
+             shape = 19,
+             alpha = 0.75,
+             size = 1.2) + 
+  coord_fixed(ratio = 1) +
+  
+theme(
+    plot.title = element_blank(),
+    legend.title = element_text(face = "bold", size = 15),
+    legend.text = element_text(size = 15),
+    axis.title = element_text(face = "bold", size = 20),
+    text = element_text(size = 20),
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),  ) + 
+  
+  labs(title = NULL,
+       # Fixed the placement of closing parentheses and commas below
+       x = paste0("PC1 (", round(eig.perc.global.noEINPP[1], 2), "%)"),
+       y = paste0("PC2 (", round(eig.perc.global.noEINPP[2], 2), "%)"),
+       colour = "Herd") + 
+    guides(colour = guide_legend(override.aes = list(size = 6, shape = 19)))
+
+```
+
+### Arrange Plots together (No EINPP)
+```{r}
+pca1_nl.noEINPP <- pca1.noEINPP + theme(legend.position = "none")
+pca2_nl.noEINPP <- pca2.noEINPP + theme(legend.position = "none")
+
+legend2 <- get_legend(pcag.noEINPP)
+
+global_pcas.noEINPP <- grid.arrange(pca1_nl.noEINPP, legend2, pca2_nl.noEINPP, # Set out grid
+                            ncol = 3, 
+                            widths = c(10, 2.5, 10)
+                            )
+                            
+# Save plot
+ggsave("./plots/global_pcas.noEINPP.svg",
+       plot = global_pcas.noEINPP, 
+       device = "svg", 
+       width = 16, 
+       height = 12, 
+       units = "in")
+```
+# STRUCTURE Analysis 
+```{r}
+# Temp1 structure
+temp1.str <- temp1
+pop(temp1.str) <- as.numeric(as.factor(pop(temp1.str)))
+
+genind_to_structure(temp1.str,
+                    output = "STRUCTURE_files/temp1.w_plains.structure.txt")
+# Temp2 structure
+temp2.str <- temp2
+pop(temp2.str) <- as.numeric(as.factor(pop(temp2.str)))
+
+genind_to_structure(temp2.str,
+                    output = "STRUCTURE_files/temp2.w_plains.structure.txt")
+
+# Temp1.noEINPP
+temp1.noEINPP.str <- temp1.noEINPP
+pop(temp1.noEINPP.str) <- as.numeric(as.factor(pop(temp1.noEINPP.str)))
+
+genind_to_structure(temp1.noEINPP.str,
+                    output = "STRUCTURE_files/temp1.no_plains.structure.txt")
+
+# Temp2.noEINPP
+temp2.noEINPP.str <- temp2.noEINPP
+pop(temp2.noEINPP.str) <- as.numeric(as.factor(pop(temp2.noEINPP.str)))
+
+genind_to_structure(temp2.noEINPP.str,
+                    output = "STRUCTURE_files/temp2.no_plains.structure.txt")
+
+```
+
+#### Load Data
+```{r}
+# List files
+# Full datasets
+sfiles_temp1 <- list.files("./STRUCTURE_files/results/temp1_w_plains/", full.names = TRUE)
+sfiles_temp2 <- list.files("./STRUCTURE_files/results/temp2_w_plains/", full.names = TRUE)
+
+# Qlist (pophelper)
+slist_temp1 <- readQ(files = sfiles_temp1, filetype = "structure")
+slist_temp2 <- readQ(files = sfiles_temp2, filetype = "structure")
+
+# Summarise runs
+struct_sum_temp1 <- summariseQ(tabulateQ(slist_temp1))
+struct_sum_temp2 <- summariseQ(tabulateQ(slist_temp2))
+```
+
+#### Likelihood Plots
+```{r}
+## Temp1 With plains ----
+# K plots
+p1 <- evannoMethodStructure(data = struct_sum_temp1, exportplot = T,
+                           returnplot = T, returndata = F,
+                           basesize = 25, linesize = 0.7,
+                           height = 25, width = 25, units = "cm",
+                           outputfilename = "Temp1_K",
+                           exportpath = "./plots/K_plots/",
+                           imgtype = "pdf")
+
+p_lik <- p1$grobs[[1]]
+p_dk <- p1$grobs[[4]]
+
+
+# Label Likelihood as 'a'
+panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.80, "npc"), 
+                                             just = c("left", "top"), 
+                                             gp = gpar(fontsize = 35, fontface = "bold")))
+
+# Label Delta K as 'b'
+panel_b <- arrangeGrob(p_dk, top = textGrob("B", x = unit(0.5, "line"), y = unit(0.80, "npc"), 
+                                             just = c("left", "top"), 
+                                             gp = gpar(fontsize = 35, fontface = "bold")))
+
+evanno_w1 <- grid.arrange(panel_a, panel_b, 
+                         ncol = 2, 
+                         widths = c(1, 1))
+
+ggsave("./plots/K_plots/temp1.k.svg", 
+       plot = evanno_w1, 
+       width = 27, 
+       height = 11)
+
+# Temp2 With Plains ----
+# K plots
+p2 <- evannoMethodStructure(data = struct_sum_temp2, exportplot = T,
+                           returnplot = T, returndata = F,
+                           basesize = 25, linesize = 0.7,
+                           height = 25, width = 25, units = "cm",
+                           outputfilename = "Temp2_K",
+                           exportpath = "./plots/K_plots/",
+                           imgtype = "pdf")
+
+p_lik <- p2$grobs[[1]]
+p_dk <- p2$grobs[[4]]
+
+
+# Label Likelihood as 'a'
+panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+                                             just = c("left", "top"), 
+                                             gp = gpar(fontsize = 35, fontface = "bold")))
+
+# Label Delta K as 'b'
+panel_b <- arrangeGrob(p_dk, top = textGrob("B", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+                                             just = c("left", "top"), 
+                                             gp = gpar(fontsize = 35, fontface = "bold")))
+
+evanno_w2 <- grid.arrange(panel_a, panel_b, 
+                         ncol = 2, 
+                         widths = c(1, 1))
+
+ggsave("./plots/K_plots/temp2.k.svg", 
+       plot = evanno_w2, 
+       width = 27, 
+       height = 11)
+```
+
+## STRUCTURE Plots (All K)
+#### Temp 1 (With Plains)
+```{r}
+temp1.data <- cleaned.data %>% 
+  select(-ID) %>% 
+  filter(YEAR.ASSIGN <=2015) %>%
+  rename(ID = Spreadsheet_ID) %>% 
+  mutate(ID = as.character(ID))
+# Align runs
+slist_temp1 <- alignK(slist_temp1, "auto")
+
+# Merge runs (average over 10 replicates)
+temp1.mk2 <- mergeQ(slist_temp1[11:20])
+temp1.mk3 <- mergeQ(slist_temp1[21:30])
+temp1.mk4 <- mergeQ(slist_temp1[31:40])
+temp1.mk5 <- mergeQ(slist_temp1[41:50])
+temp1.mk6 <- mergeQ(slist_temp1[51:60])
+temp1.mk7 <- mergeQ(slist_temp1[61:70])
+temp1.mk8 <- mergeQ(slist_temp1[71:80])
+temp1.mk9 <- mergeQ(slist_temp1[81:90])
+temp1.mk10 <- mergeQ(slist_temp1[91:100])
+temp1.mk11 <- mergeQ(slist_temp1[101:110])
+temp1.mk12 <- mergeQ(slist_temp1[111:120])
+
+
+temp1.merged.list <- as.qlist(list(temp1.mk2[[1]], temp1.mk3[[1]], temp1.mk4[[1]], 
+                          temp1.mk5[[1]], temp1.mk6[[1]], temp1.mk7[[1]], temp1.mk8[[1]],
+                          temp1.mk9[[1]], temp1.mk10[[1]], temp1.mk11[[1]], temp1.mk12[[1]]))
+
+ind_label_temp1 <- readQ(files = sfiles_temp1[1], indlabfrom = TRUE) %>% as.data.frame()
+ind_label_temp1 <- rownames_to_column(ind_label_temp1, "ID")
+locations_temp1 <- left_join(ind_label_temp1, temp1.data, by = "ID")
+
+loc_labels_temp1 <- locations_temp1$HERD %>% as.data.frame()
+
+herd_order_temp1 <- c("EINPP", "EINPW", "HZ", "MBS", "RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT")
+struct_temp1_cols <- c("#ee964c", "#3b96cf", "#7d2a7c","#e39bc1", "#e73f4e", "#4b9b46",  "#f5df93","#858434", "#ba552b", "#81c7c7",  "#2d4a5e", "#44c29a")
+
+plotQ(temp1.merged.list, 
+      imgoutput = "join",
+            basesize = 10, 
+            grplab = loc_labels_temp1, 
+            subsetgrp = herd_order_temp1, 
+            clustercol = master_cols,
+            ordergrp = TRUE,
+      
+      # Side "K" Labels
+            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6", "K = 7", "K = 8", "K = 9", "K = 10", "K = 11", "K = 12"),
+            splabsize = 35,
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+            # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 4,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 10, 
+            grplabangle =45,
+            grplabpos = 0.65,
+            grplabheight = 1,      
+            grplabspacer = 0.1,
+            grplabcol = "black",
+      
+            linesize = 2,          
+            pointsize = 15,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 3, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Plot settings
+            height = 7,             
+            width = 50,
+            panelspacer = 1,
+            panelratio = c(1,1),
+      
+      
+      # File settings
+            imgtype = "tiff",
+            outputfilename = "Temp1_w_plains",
+            exportpath = "./plots/STRUCTURE_PLOTS")
+```
+
+#### Temp 2 (With Plains)
+```{r}
+temp2.data <- cleaned.data %>% 
+  select(-ID) %>% 
+  filter(YEAR.ASSIGN >=2016) %>%
+  rename(ID = Spreadsheet_ID) %>% 
+  mutate(ID = as.character(ID))
+# Align runs
+slist_temp2 <- alignK(slist_temp2, type = "across")
+
+# Merge runs (average over 10 replicates)
+temp2.mk2 <- mergeQ(slist_temp2[11:20])
+temp2.mk3 <- mergeQ(slist_temp2[21:30])
+temp2.mk4 <- mergeQ(slist_temp2[31:40])
+temp2.mk5 <- mergeQ(slist_temp2[41:50])
+temp2.mk6 <- mergeQ(slist_temp2[51:60])
+temp2.mk7 <- mergeQ(slist_temp2[61:70])
+temp2.mk8 <- mergeQ(slist_temp2[71:80])
+temp2.mk9 <- mergeQ(slist_temp2[81:90])
+temp2.mk10 <- mergeQ(slist_temp2[91:100])
+temp2.mk11 <- mergeQ(slist_temp2[101:110])
+temp2.mk12 <- mergeQ(slist_temp2[111:120])
+temp2.mk13 <- mergeQ(slist_temp2[121:130])
+temp2.mk14 <- mergeQ(slist_temp2[131:140])
+temp2.mk15 <- mergeQ(slist_temp2[141:150])
+temp2.mk16 <- mergeQ(slist_temp2[151:160])
+
+temp2.merged.list <- as.qlist(list(temp2.mk2[[1]], temp2.mk3[[1]], temp2.mk4[[1]], 
+                          temp2.mk5[[1]], temp2.mk6[[1]], temp2.mk7[[1]], temp2.mk8[[1]],
+                          temp2.mk9[[1]], temp2.mk10[[1]], temp2.mk11[[1]], temp2.mk12[[1]],
+                          temp2.mk13[[1]], temp2.mk14[[1]], temp2.mk15[[1]], temp2.mk16[[1]]))
+
+ind_label_temp2 <- readQ(files = sfiles_temp2[1], indlabfrom = TRUE) %>% as.data.frame()
+ind_label_temp2 <- rownames_to_column(ind_label_temp2, "ID")
+locations_temp2 <- left_join(ind_label_temp2, temp2.data, by = "ID")
+
+loc_labels_temp2 <- locations_temp2$HERD %>% as.data.frame()
+
+herd_order_temp2 <- c("EINPP", "AISH", "CL", "EINPW", "ETH", "HZ", "NAH", "NORD", "RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT")
+
+struct_temp2_cols <- c("#3b96cf", 
+  "#ee964c", "#7d2a7c","#e39bc1", "#e73f4e", 
+  "#4b9b46",  "#f5df93","#858434", "#ba552b", 
+  "#81c7c7",  "#2d4a5e", "#44c29a",
+  "#542e44", "#ff7f32", "#607d8b", "#1b4332"
+)
+
+plotQ(alignK(temp2.merged.list), 
+      imgoutput = "join",
+            basesize = 10, 
+            grplab = loc_labels_temp2, 
+            subsetgrp = herd_order_temp2, 
+            clustercol = master_cols,
+            ordergrp = TRUE,
+      
+      # Side "K" Labels
+            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6", "K = 7", 
+                      "K = 8", "K = 9", "K = 10", "K = 11", "K = 12", "K = 13",
+                      "K = 14", "K = 15", "K = 16"),
+            splabsize = 35,
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+            # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 4,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 10, 
+            grplabangle =45,
+            grplabpos = 0.65,
+            grplabheight = 1,      
+            grplabspacer = 0.1,
+            grplabcol = "black",
+      
+            linesize = 2,          
+            pointsize = 15,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 3, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Plot settings
+            height = 7,             
+            width = 50,
+            panelspacer = 1,
+            panelratio = c(1,1),
+      
+      
+      # File settings
+            imgtype = "tiff",
+            outputfilename = "Temp2_with_plains",
+            exportpath = "./plots/STRUCTURE_PLOTS")
+```
+
+# STRUCTURE Plots (No Elk Island Plains outgroup)
+#### Load Data
+```{r}
+# List files
+# Full datasets
+sfiles_temp1_no_plains <- list.files("./STRUCTURE_files/results/temp1_no_plains/", full.names = TRUE)
+sfiles_temp2_no_plains <- list.files("./STRUCTURE_files/results/temp2_no_plains/", full.names = TRUE)
+
+# Qlist (pophelper)
+slist_temp1_no_plains <- readQ(files = sfiles_temp1_no_plains, filetype = "structure")
+slist_temp2_no_plains <- readQ(files = sfiles_temp2_no_plains, filetype = "structure")
+
+# Summarise runs
+struct_sum_temp1_no_plains <- summariseQ(tabulateQ(slist_temp1_no_plains))
+struct_sum_temp2_no_plains <- summariseQ(tabulateQ(slist_temp2_no_plains))
+```
+
+#### Likelihood Plots
+```{r}
+## Temp1 Without plains ----
+# K plots
+t1 <- evannoMethodStructure(data = struct_sum_temp1_no_plains, exportplot = T,
+                           returnplot = T, returndata = F,
+                           basesize = 25, linesize = 0.7,
+                           height = 25, width = 25, units = "cm",
+                           outputfilename = "Temp1_no_plains_K",
+                           exportpath = "./plots/K_plots/",
+                           imgtype = "pdf")
+
+p_lik <- t1$grobs[[1]]
+p_dk <- t1$grobs[[4]]
+
+
+# Label Likelihood as 'a'
+panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+                                             just = c("left", "top"), 
+                                             gp = gpar(fontsize = 35, fontface = "bold")))
+
+# Label Delta K as 'b'
+panel_b <- arrangeGrob(p_dk, top = textGrob("B", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+                                             just = c("left", "top"), 
+                                             gp = gpar(fontsize = 35, fontface = "bold")))
+
+evanno_t1 <- grid.arrange(panel_a, panel_b, 
+                         ncol = 2, 
+                         widths = c(1, 1))
+
+ggsave("./plots/K_plots/temp1_no_plains.k.svg", 
+       plot = evanno_t1, 
+       width = 27, 
+       height = 11)
+
+# Temp2 Without Plains ----
+# K plots
+t2 <- evannoMethodStructure(data = struct_sum_temp2_no_plains, exportplot = T,
+                           returnplot = T, returndata = F,
+                           basesize = 25, linesize = 0.7,
+                           height = 25, width = 25, units = "cm",
+                           outputfilename = "Temp2_no_plains_K",
+                           exportpath = "./plots/K_plots/",
+                           imgtype = "pdf")
+
+p_lik <- t2$grobs[[1]]
+p_dk <- t2$grobs[[4]]
+
+
+# Label Likelihood as 'a'
+panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+                                             just = c("left", "top"), 
+                                             gp = gpar(fontsize = 35, fontface = "bold")))
+
+# Label Delta K as 'b'
+panel_b <- arrangeGrob(p_dk, top = textGrob("B", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+                                             just = c("left", "top"), 
+                                             gp = gpar(fontsize = 35, fontface = "bold")))
+
+evanno_t2 <- grid.arrange(panel_a, panel_b, 
+                         ncol = 2, 
+                         widths = c(1, 1))
+
+ggsave("./plots/K_plots/temp2_no_plains.k.svg", 
+       plot = evanno_t2, 
+       width = 27, 
+       height = 11)
+```
+
+## STRUCTURE Plots (All K)
+#### Temp 1 (Without Plains)
+```{r}
+temp1_no_plains.data <- cleaned.data %>% 
+  select(-ID) %>% 
+  filter(HERD != "EINPP") %>% 
+  filter(YEAR.ASSIGN <=2015) %>%
+  rename(ID = Spreadsheet_ID) %>% 
+  mutate(ID = as.character(ID))
+# Align runs
+slist_temp1_no_plains <- alignK(slist_temp1_no_plains, "auto")
+
+# Merge runs (average over 10 replicates)
+temp1_no_plains.mk2 <- mergeQ(slist_temp1_no_plains[11:20])
+temp1_no_plains.mk3 <- mergeQ(slist_temp1_no_plains[21:30])
+temp1_no_plains.mk4 <- mergeQ(slist_temp1_no_plains[31:40])
+temp1_no_plains.mk5 <- mergeQ(slist_temp1_no_plains[41:50])
+temp1_no_plains.mk6 <- mergeQ(slist_temp1_no_plains[51:60])
+temp1_no_plains.mk7 <- mergeQ(slist_temp1_no_plains[61:70])
+temp1_no_plains.mk8 <- mergeQ(slist_temp1_no_plains[71:80])
+temp1_no_plains.mk9 <- mergeQ(slist_temp1_no_plains[81:90])
+temp1_no_plains.mk10 <- mergeQ(slist_temp1_no_plains[91:100])
+temp1_no_plains.mk11 <- mergeQ(slist_temp1_no_plains[101:110])
+
+
+
+temp1.merged.list <- as.qlist(list(temp1_no_plains.mk2[[1]], temp1_no_plains.mk3[[1]], temp1_no_plains.mk4[[1]], 
+                          temp1_no_plains.mk5[[1]], temp1_no_plains.mk6[[1]], temp1_no_plains.mk7[[1]], temp1_no_plains.mk8[[1]],
+                          temp1_no_plains.mk9[[1]], temp1_no_plains.mk10[[1]], temp1_no_plains.mk11[[1]]))
+
+ind_label_temp1_no_plains <- readQ(files = sfiles_temp1_no_plains[1], indlabfrom = TRUE) %>% as.data.frame()
+ind_label_temp1_no_plains <- rownames_to_column(ind_label_temp1_no_plains, "ID")
+locations_temp1_no_plains <- left_join(ind_label_temp1_no_plains, temp1_no_plains.data, by = "ID")
+
+loc_labels_temp1_no_plains <- locations_temp1_no_plains$HERD %>% as.data.frame()
+
+herd_order_temp1_no_plains <- c("EINPW", "HZ", "MBS", "RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT")
+struct_temp1_no_plains_cols <- c(
+  "#ee964c", "#3b96cf", "#7d2a7c", "#e39bc1", "#e73f4e", 
+  "#4b9b46", "#f5df93", "#858434", "#ba552b", 
+  "#81c7c7", "#2d4a5e"
+)
+
+plotQ(temp1.merged.list, 
+      imgoutput = "join",
+            basesize = 10, 
+            grplab = loc_labels_temp1_no_plains, 
+            subsetgrp = herd_order_temp1_no_plains, 
+            clustercol = master_cols,
+            ordergrp = TRUE,
+      
+      # Side "K" Labels
+            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6", "K = 7", "K = 8", "K = 9", "K = 10", "K = 11"),
+            splabsize = 35,
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+            # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 4,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 10, 
+            grplabangle =45,
+            grplabpos = 0.65,
+            grplabheight = 1,      
+            grplabspacer = 0.1,
+            grplabcol = "black",
+      
+            linesize = 2,          
+            pointsize = 15,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 3, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Plot settings
+            height = 7,             
+            width = 50,
+            panelspacer = 1,
+            panelratio = c(1,1),
+      
+      
+      # File settings
+            imgtype = "tiff",
+            outputfilename = "Temp1_no_plains",
+            exportpath = "./plots/structure_plots/")
+```
+
+#### Temp 2 (Without Plains)
+```{r}
+temp2_no_plains.data <- cleaned.data %>% 
+  select(-ID) %>%
+  filter(HERD != "EINPP") %>% 
+  filter(YEAR.ASSIGN >=2016) %>%
+  rename(ID = Spreadsheet_ID) %>% 
+  mutate(ID = as.character(ID))
+# Align runs
+slist_temp2_no_plains <- alignK(slist_temp2_no_plains, "auto")
+
+# Merge runs (average over 10 replicates)
+temp2_no_plains.mk2 <- mergeQ(slist_temp2_no_plains[11:20])
+temp2_no_plains.mk3 <- mergeQ(slist_temp2_no_plains[21:30])
+temp2_no_plains.mk4 <- mergeQ(slist_temp2_no_plains[31:40])
+temp2_no_plains.mk5 <- mergeQ(slist_temp2_no_plains[41:50])
+temp2_no_plains.mk6 <- mergeQ(slist_temp2_no_plains[51:60])
+temp2_no_plains.mk7 <- mergeQ(slist_temp2_no_plains[61:70])
+temp2_no_plains.mk8 <- mergeQ(slist_temp2_no_plains[71:80])
+temp2_no_plains.mk9 <- mergeQ(slist_temp2_no_plains[81:90])
+temp2_no_plains.mk10 <- mergeQ(slist_temp2_no_plains[91:100])
+temp2_no_plains.mk11 <- mergeQ(slist_temp2_no_plains[101:110])
+temp2_no_plains.mk12 <- mergeQ(slist_temp2_no_plains[111:120])
+temp2_no_plains.mk13 <- mergeQ(slist_temp2_no_plains[121:130])
+temp2_no_plains.mk14 <- mergeQ(slist_temp2_no_plains[131:140])
+temp2_no_plains.mk15 <- mergeQ(slist_temp2_no_plains[141:150])
+
+
+temp2_no_plains.merged.list <- as.qlist(list(temp2_no_plains.mk2[[1]], temp2_no_plains.mk3[[1]], 
+                          temp2_no_plains.mk4[[1]], 
+                          temp2_no_plains.mk5[[1]], temp2_no_plains.mk6[[1]], 
+                          temp2_no_plains.mk7[[1]], temp2_no_plains.mk8[[1]],
+                          temp2_no_plains.mk9[[1]], temp2_no_plains.mk10[[1]], 
+                          temp2_no_plains.mk11[[1]], temp2_no_plains.mk12[[1]],
+                          temp2_no_plains.mk13[[1]], temp2_no_plains.mk14[[1]], 
+                          temp2_no_plains.mk15[[1]]))
+
+ind_label_temp2_no_plains <- readQ(files = sfiles_temp2_no_plains[1], indlabfrom = TRUE) %>% as.data.frame()
+ind_label_temp2_no_plains <- rownames_to_column(ind_label_temp2_no_plains, "ID")
+locations_temp2_no_plains <- left_join(ind_label_temp2_no_plains, temp2_no_plains.data, by = "ID")
+
+loc_labels_temp2_no_plains <- locations_temp2_no_plains$HERD %>% as.data.frame()
+
+herd_order_temp2_no_plains <- c("AISH", "CL", "EINPP", "EINPW", "ETH", "HZ", "NAH", "NORD", "RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT")
+
+struct_temp2_no_plains_cols <- c("#3b96cf",
+  "#ee964c",  "#7d2a7c","#e39bc1", "#e73f4e", 
+  "#4b9b46",  "#f5df93", "#858434", "#ba552b", 
+  "#81c7c7", "#2d4a5e", "#44c29a",
+  "#542e44", "#ff7f32", "#607d8b"
+)
+
+plotQ(temp2_no_plains.merged.list, 
+      imgoutput = "join",
+            basesize = 10, 
+            grplab = loc_labels_temp2_no_plains, 
+            subsetgrp = herd_order_temp2_no_plains, 
+            clustercol = master_cols,
+            ordergrp = TRUE,
+      
+      # Side "K" Labels
+            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6", "K = 7", 
+                      "K = 8", "K = 9", "K = 10", "K = 11", "K = 12", "K = 13",
+                      "K = 14", "K = 15"),
+            splabsize = 35,
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+            # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 4,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 10, 
+            grplabangle =45,
+            grplabpos = 0.65,
+            grplabheight = 1,      
+            grplabspacer = 0.1,
+            grplabcol = "black",
+      
+            linesize = 2,          
+            pointsize = 15,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 3, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Plot settings
+            height = 7,             
+            width = 50,
+            panelspacer = 1,
+            panelratio = c(1,1),
+      
+      
+      # File settings
+            imgtype = "tiff",
+            outputfilename = "Temp2_no_plains",
+            exportpath = "./plots/structure_plots/")
+```
+
+
+
+
+
+# Combined Plots
+```{r}
+### PCA w/ plains bison outgroup
+
+# PCA w/ plains T1
+pca1_tight <- pca1_nl + 
+  theme(
+    text = element_text(size = 20)
+    )
+
+
+# STRUCTURE T1 w/ plains
+plot1 <- plotQ(c(temp1.mk2, temp1.mk3, temp1.mk4, temp1.mk5, temp1.mk6),
+            imgout = "join",
+            basesize = 10, 
+            grplab = loc_labels_temp1, 
+            subsetgrp = herd_order_temp1, 
+            clustercol = master_cols,
+            ordergrp = TRUE,
+
+      # Side "K" Labels
+            splab = c("K=2", "K=3", "K=4", "K=5*", "K=6"),
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+      titleface = "bold",
+      
+      # Plot settings
+            height = 5,             
+            width = 50,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "plottemp1.k2-6",
+            exportpath = "./plots/temp")
+
+# Pull STRUCTURE Plot from object
+t1 <- plot1$plot[[1]]
+
+# Combine Global w/ plains T1
+row_1 <- grid.arrange(pca1_tight, t1,
+                      ncol = 2,
+                      widths = c(5, 7.5))
+
+
+
+# PCA w/ plains T2
+pca2_tight <- pca2_nl + 
+  theme(
+    text = element_text(size = 20)
+    )
+
+
+# STRUCTURE T1 w/ plains
+plot2 <- plotQ(c(temp2.mk2, temp2.mk3, temp2.mk4, temp2.mk5, temp2.mk6),
+            imgout = "join",
+            basesize = 10, 
+            grplab = loc_labels_temp2, 
+            subsetgrp = herd_order_temp2, 
+            clustercol = master_cols,
+            ordergrp = TRUE,
+
+      # Side "K" Labels
+            splab = c("K=2", "K=3", "K=4", "K=5*", "K=6"),
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+      titleface = "bold",
+      
+      # Plot settings
+            height = 5,             
+            width = 50,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "plottemp2.k2-6",
+            exportpath = "./plots/temp")
+
+# Pull STRUCTURE Plot from object
+t2 <- plot2$plot[[1]]
+
+
+# Combine Global w/ plains T1
+row_2 <- grid.arrange(pca2_tight, t2,
+                      ncol = 2,
+                      widths = c(10, 15))
+
+################ Without Plains from Elk Island
+
+# PCA w/ plains T1
+pca1.noEINPP_tight <- pca1_nl.noEINPP + 
+  theme(
+    text = element_text(size = 20)
+    )
+
+
+# STRUCTURE T1 w/ plains
+plot1_no_plains <- plotQ(c(temp1_no_plains.mk2, temp1_no_plains.mk3, temp1_no_plains.mk4, temp1_no_plains.mk5, temp1_no_plains.mk6),
+            imgout = "join",
+            basesize = 10, 
+            grplab = loc_labels_temp1_no_plains, 
+            subsetgrp = herd_order_temp1_no_plains, 
+            clustercol = master_cols,
+            ordergrp = TRUE,
+
+      # Side "K" Labels
+            splab = c("K=2", "K=3", "K=4*", "K=5", "K=6"),
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+      titleface = "bold",
+      
+      # Plot settings
+            height = 5,             
+            width = 50,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "plottemp1_no_plains.k2-6",
+            exportpath = "./plots/temp")
+
+# Pull STRUCTURE Plot from object
+t1_no_plains <- plot1_no_plains$plot[[1]]
+
+# Combine Global w/ plains T1
+row_3 <- grid.arrange(pca1.noEINPP_tight, t1_no_plains,
+                      ncol = 2,
+                      widths = c(10, 15))
+
+# PCA w/o plains T2
+pca2.noEINPP_tight <- pca2_nl.noEINPP + 
+  theme(
+    text = element_text(size = 20)
+    )
+
+# STRUCTURE T1 w/ plains
+plot2_no_plains <- plotQ(c(temp2_no_plains.mk2, temp2_no_plains.mk3, temp2_no_plains.mk4, temp2_no_plains.mk5, temp2_no_plains.mk6),
+            imgout = "join",
+            basesize = 10, 
+            grplab = loc_labels_temp2_no_plains, 
+            subsetgrp = herd_order_temp2_no_plains, 
+            clustercol = master_cols,
+            ordergrp = TRUE,
+
+      # Side "K" Labels
+            splab = c("K=2", "K=3", "K=4*", "K=5", "K=6"),
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+      titleface = "bold",
+      
+      # Plot settings
+            height = 5,             
+            width = 50,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "plottemp2_no_plains.k2-6",
+            exportpath = "./plots/temp")
+
+# Pull STRUCTURE Plot from object
+t2_no_plains <- plot2_no_plains$plot[[1]]
+
+# Combine Global w/ plains T1
+row_4 <- grid.arrange(pca2.noEINPP_tight, t2_no_plains,
+                      ncol = 2,
+                      widths = c(10, 15))
+
+
+#### Label Sections
+# 3. Apply the 'A' Label
+A_labeled <- arrangeGrob(row_1, 
+                         top = textGrob("A (1986 - 2015)", x = unit(0.02, "npc"), just = "left", 
+                                        gp = gpar(fontsize = 35, fontface = "bold")))
+
+B_labeled <- arrangeGrob(row_2, 
+                         top = textGrob("B (2016 - 2025)", x = unit(0.02, "npc"), just = "left", 
+                                        gp = gpar(fontsize = 35, fontface = "bold")))
+
+top_half <- arrangeGrob(A_labeled, 
+                        rectGrob(gp = gpar(col = NA)), # Spacer between rows
+                        B_labeled, 
+                        ncol = 1, 
+                        heights = c(10, 1.5, 10),
+                        top = textGrob("Including Plains Bison Outgroup", 
+                                       gp = gpar(fontsize = 35, fontface = "bold")))
+
+C_labeled <- arrangeGrob(row_3, 
+                         top = textGrob("C (1986 - 2015)", x = unit(0.02, "npc"), just = "left", 
+                                        gp = gpar(fontsize = 35, fontface = "bold")))
+
+D_labeled <- arrangeGrob(row_4, 
+                         top = textGrob("D (2016 - 2025)", x = unit(0.02, "npc"), just = "left", 
+                                        gp = gpar(fontsize = 35, fontface = "bold"))) 
+
+bottom_half <- arrangeGrob(C_labeled, 
+                           rectGrob(gp = gpar(col = NA)), # Spacer between rows
+                           D_labeled, 
+                           ncol = 1, 
+                           heights = c(10, 1.5, 10), 
+                           top = textGrob("Excluding Plains Bison Outgroup", 
+                                          gp = gpar(fontsize = 35, fontface = "bold")))
+
+#### Combine PCAs and STRUCTURE barplots
+comb <- arrangeGrob(top_half, 
+                    rectGrob(gp = gpar(col = NA)), # Blank space
+                    bottom_half,
+                    ncol = 1, 
+                    heights = c(20, 2, 20)) # Give the middle some space to account for the separating line
+
+
+#### Pull legend from global PCA
+pcag_horizontal <- pcag + 
+  theme(legend.direction = "horizontal", 
+        legend.position = "top",
+
+        legend.justification = "left", 
+        legend.box.just = "top",
+        legend.text = element_text(size = 20), 
+        legend.title = element_text(size = 25, face = "bold"),
+        legend.margin = margin(l = 0)) + 
+  guides(color = guide_legend(
+    title = "Herd", 
+    nrow = 3, 
+    byrow = TRUE,
+    override.aes = list(size = 7, alpha = 1) 
+  ))
+
+# Isolate legend
+legend_bottom <- get_legend(pcag_horizontal)
+
+# Legend move to left
+legend_shifted <- arrangeGrob(legend_bottom, 
+                              vp = viewport(x = 0.08, just = "left", width = 0.8)) 
+
+# Combine Structuring and legend
+comb_leg <- grid.arrange(
+  comb, 
+  legend_shifted,
+  ncol = 1, 
+  heights = c(46, 4), 
+  padding = unit(0, "line")
+)
+
+comb_leg_sep <-grobTree(comb_leg, linesGrob(x = unit(c(0, 1), "npc"), 
+                                       y = unit(0.543, "npc"), 
+                                       gp = gpar(col = "black", lwd = 2)))
+ 
+
+# Save plots
+ggsave("./plots/combined_global_leg_sep.svg",
+       plot = comb_leg_sep,
+       height = 25,
+       width = 20,
+       bg = "white",
+       units = "in")
+```
+# Plains Admixture
+#### Assess Q-values (membership probabilities of assigning to clusters)
+```{r}
+temp1.order <- data.frame(plot1$data$grplab[[2]]) %>% 
+  rownames_to_column("Ind")
+
+temp1.k2 <- data.frame(temp1.mk2) %>% 
+  rownames_to_column("Ind") %>% 
+  left_join(temp1.order, by = "Ind") %>% 
+  rename(Herd = ".",
+         Wood = X2.Cluster1,
+         Plains = X2.Cluster2) %>%
+  select(-Ind) %>% 
+  relocate(Herd, .before = Wood)
+  
+temp1.Q.sum <- temp1.k2 %>% 
+  group_by(Herd) %>% 
+  summarise(
+    QWood = paste0(round(mean(Wood), 3), "±", round(sd(Wood), 3)),
+    QPlains = paste0(round(mean(Plains), 3), "±", round(sd(Plains), 3))
+  )
+
+# Summary per herd of Q assignments
+temp1.Q.sum
+
+write.csv(temp1.Q.sum, "./tables/temp1.plains.Q.csv")
+
+temp2.order <- data.frame(plot2$data$grplab[[2]]) %>% 
+  rownames_to_column("Ind")
+
+temp2.k2 <- data.frame(temp2.mk2) %>% 
+  rownames_to_column("Ind") %>% 
+  left_join(temp2.order, by = "Ind") %>% 
+  rename(Herd = ".",
+         Wood = X2.Cluster2, # Swapped from previous
+         Plains = X2.Cluster1) %>% 
+  select(-Ind) %>% 
+  relocate(Herd, .before = Wood)
+  
+temp2.Q.sum <- temp2.k2 %>% 
+  group_by(Herd) %>% 
+  summarise(
+        QWood = paste0(round(mean(Wood), 3), "±", round(sd(Wood), 3)),
+        QPlains = paste0(round(mean(Plains), 3), "±", round(sd(Plains), 3))
+
+  )
+
+# Summary per herd of Q assignments
+temp2.Q.sum
+
+write.csv(temp2.Q.sum, "./tables/temp2.plains.Q.csv")
+
+```
+
+# Combined Plots (Revised)
+```{r}
+### PCA w/ plains bison outgroup
+
+# Presentation colours
+pres_cols <- c("#154734", "#cbc36d", "#7d2a7c", "#e39bc1", "#e73f4e", 
+                 "#4b9b46", "#f5df93", "#858434", "#ba552b", "#81c7c7", 
+                 "#2d4a5e", "#44c29a", "#542e44", "#ff7f32", "#607d8b", "#1b4332")
+
+# PCA w/ plains T1
+pca1_tight <- pca1_nl + 
+  theme(
+    text = element_text(size = 20)
+    )
+
+temp1.mk2$`2` <- temp1.mk2$`2`[, c("Cluster2", "Cluster1")]
+colnames(temp1.mk2$`2`) <- c("Cluster1", "Cluster2")
+
+# Reorder herds
+herd_order<- c("RL", "WAB", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD", "WBNPGR","WENT", "EINPP", "EINPW", "HZ","MBS","AISH", "CL",  "ETH", "NAH", "NORD" )
+
+# STRUCTURE T1 w/ plains
+plot1 <- plotQ(temp1.mk2,
+            basesize = 10, 
+            grplab = loc_labels_temp1, 
+            subsetgrp = herd_order, 
+            clustercol = pres_cols,
+            ordergrp = TRUE,
+
+      # Side "K" Labels
+            splab = "K=2",
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+      titleface = "bold",
+      
+      # Plot settings
+            height = 5,             
+            width = 50,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "plottemp1.k2",
+            exportpath = "./plots/temp")
+
+# Pull STRUCTURE Plot from object
+t1 <- plot1$plot[[1]]
+
+# Combine Global w/ plains T1
+row_1 <- grid.arrange(pca1_tight, t1,
+                      ncol = 2,
+                      widths = c(5, 7.5))
+
+
+
+# PCA w/ plains T2
+pca2_tight <- pca2_nl + 
+  theme(
+    text = element_text(size = 20)
+    )
+
+temp2.mk2$`2` <- temp2.mk2$`2`[, c("Cluster2", "Cluster1")]
+colnames(temp2.mk2$`2`) <- c("Cluster1", "Cluster2")
+
+# STRUCTURE T1 w/ plains
+plot2 <- plotQ(temp2.mk2,
+            basesize = 10, 
+            grplab = loc_labels_temp2, 
+            subsetgrp = herd_order, 
+            clustercol = pres_cols, # Cluster Switching - make EINPP as blue
+            ordergrp = TRUE,
+
+      # Side "K" Labels
+            splab = "K=2",
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+      titleface = "bold",
+      
+      # Plot settings
+            height = 5,             
+            width = 50,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "plottemp2.k2",
+            exportpath = "./plots/temp")
+
+# Pull STRUCTURE Plot from object
+t2 <- plot2$plot[[1]]
+
+
+# Combine Global w/ plains T1
+row_2 <- grid.arrange(pca2_tight, t2,
+                      ncol = 2,
+                      widths = c(10, 15))
+
+################ Without Plains from Elk Island
+
+# PCA w/ plains T1
+pca1.noEINPP_tight <- pca1_nl.noEINPP + 
+  theme(
+    text = element_text(size = 20)
+    )
+
+temp1_no_plains.mk2$`2` <- temp1_no_plains.mk2$`2`[, c("Cluster2", "Cluster1")]
+colnames(temp1_no_plains.mk2$`2`) <- c("Cluster1", "Cluster2")
+
+# STRUCTURE T1 w/ plains
+plot1_no_plains <- plotQ(c(temp1_no_plains.mk2, temp1_no_plains.mk3, temp1_no_plains.mk4, temp1_no_plains.mk5),
+            imgout = "join",
+            basesize = 10, 
+            grplab = loc_labels_temp1_no_plains, 
+            subsetgrp = herd_order, 
+            clustercol = master_cols,
+            ordergrp = TRUE,
+
+      # Side "K" Labels
+            splab = c("K=2", "K=3", "K=4*", "K=5"),
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+      titleface = "bold",
+      
+      # Plot settings
+            height = 5,             
+            width = 50,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "plottemp1_no_plains.k2-5",
+            exportpath = "./plots/temp")
+
+# Pull STRUCTURE Plot from object
+t1_no_plains <- plot1_no_plains$plot[[1]]
+
+# Combine Global w/ plains T1
+row_3 <- grid.arrange(pca1.noEINPP_tight, t1_no_plains,
+                      ncol = 2,
+                      widths = c(10, 15))
+
+#temp2_no_plains.mk2$`2` <- temp2_no_plains.mk2$`2`[, c("Cluster2", "Cluster1")]
+#colnames(temp2_no_plains.mk2$`2`) <- c("Cluster1", "Cluster2")
+
+# PCA w/o plains T2
+pca2.noEINPP_tight <- pca2_nl.noEINPP + 
+  theme(
+    text = element_text(size = 20)
+    )
+
+# STRUCTURE T1 w/ plains
+plot2_no_plains <- plotQ(c(temp2_no_plains.mk2, temp2_no_plains.mk3, temp2_no_plains.mk4, temp2_no_plains.mk5),
+            imgout = "join",
+            basesize = 10, 
+            grplab = loc_labels_temp2_no_plains, 
+            subsetgrp = herd_order, 
+            clustercol = master_cols,
+            ordergrp = TRUE,
+
+      # Side "K" Labels
+            splab = c("K=2", "K=3", "K=4*", "K=5"),
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+      titleface = "bold",
+      
+      # Plot settings
+            height = 5,             
+            width = 50,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "plottemp2_no_plains.k2-5",
+            exportpath = "./plots/temp")
+
+# Pull STRUCTURE Plot from object
+t2_no_plains <- plot2_no_plains$plot[[1]]
+
+# Combine Global w/ plains T1
+row_4 <- grid.arrange(pca2.noEINPP_tight, t2_no_plains,
+                      ncol = 2,
+                      widths = c(10, 15))
+
+
+#### Label Sections
+# 3. Apply the 'A' Label
+A_labeled <- arrangeGrob(row_1, 
+                         top = textGrob("A (Including Plains Bison)", x = unit(0.02, "npc"), just = "left", 
+                                        gp = gpar(fontsize = 35, fontface = "bold")))
+
+
+B_labeled <- arrangeGrob(row_2, 
+                         top = textGrob("B (T2: 2016 - 2025)", x = unit(0.02, "npc"), just = "left", 
+                                        gp = gpar(fontsize = 35, fontface = "bold")))
+
+top_half <- arrangeGrob(A_labeled, 
+                        rectGrob(gp = gpar(col = NA)), # Spacer between rows
+                        B_labeled, 
+                        ncol = 1, 
+                        heights = c(10, 1.5, 10),
+                        top = textGrob("1986 - 1999", 
+                                       gp = gpar(fontsize = 35, fontface = "bold")))
+
+C_labeled <- arrangeGrob(row_2, 
+                         top = textGrob("C (Including Plains Bison)", x = unit(0.02, "npc"), just = "left", 
+                                        gp = gpar(fontsize = 35, fontface = "bold")))
+
+
+C_labeled <- arrangeGrob(row_3, 
+                         top = textGrob("C (T1: 1986 - 2015)", x = unit(0.02, "npc"), just = "left", 
+                                        gp = gpar(fontsize = 35, fontface = "bold")))
+
+D_labeled <- arrangeGrob(row_4, 
+                         top = textGrob("D (T2: 2016 - 2025)", x = unit(0.02, "npc"), just = "left", 
+                                        gp = gpar(fontsize = 35, fontface = "bold"))) 
+
+bottom_half <- arrangeGrob(C_labeled, 
+                           rectGrob(gp = gpar(col = NA)), # Spacer between rows
+                           D_labeled, 
+                           ncol = 1, 
+                           heights = c(10, 1.5, 10), 
+                           top = textGrob("2016 - 2025", 
+                                          gp = gpar(fontsize = 35, fontface = "bold")))
+
+#### Combine PCAs and STRUCTURE barplots
+comb <- arrangeGrob(top_half, 
+                    rectGrob(gp = gpar(col = NA)), # Blank space
+                    bottom_half,
+                    ncol = 1, 
+                    heights = c(20, 2, 20)) # Give the middle some space to account for the separating line
+
+
+#### Pull legend from global PCA
+pcag_horizontal <- pcag + 
+  theme(legend.direction = "horizontal", 
+        legend.position = "top",
+
+        legend.justification = "left", 
+        legend.box.just = "top",
+        legend.text = element_text(size = 20), 
+        legend.title = element_text(size = 25, face = "bold"),
+        legend.margin = margin(l = 0)) + 
+  guides(color = guide_legend(
+    title = "Herd", 
+    nrow = 3, 
+    byrow = TRUE,
+    override.aes = list(size = 7, alpha = 1) 
+  ))
+
+# Isolate legend
+legend_bottom <- get_legend(pcag_horizontal)
+
+# Legend move to left
+legend_shifted <- arrangeGrob(legend_bottom, 
+                              vp = viewport(x = 0.08, just = "left", width = 0.8)) 
+
+# Combine Structuring and legend
+comb_leg <- grid.arrange(
+  comb, 
+  legend_shifted,
+  ncol = 1, 
+  heights = c(46, 4), 
+  padding = unit(0, "line")
+)
+
+comb_leg_sep <-grobTree(comb_leg, linesGrob(x = unit(c(0, 1), "npc"), 
+                                       y = unit(0.543, "npc"), 
+                                       gp = gpar(col = "black", lwd = 2)))
+ 
+
+# Save plots
+ggsave("./plots/combined_global_leg_sep_revised.svg",
+       plot = comb_leg_sep,
+       height = 25,
+       width = 20,
+       bg = "white",
+       units = "in")
+```
+
+
+```{r}
+
+```
+
+
+
+
+
+
+
+

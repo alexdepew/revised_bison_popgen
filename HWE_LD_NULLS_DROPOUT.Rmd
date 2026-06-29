@@ -478,7 +478,6 @@ ggsave(
 )
 ```
 
-
 ## Test for allelic dropout
 Microdrop requires structure input files, yet the st ructure input files do not work unless they are delimited with EXACTLY one space. Note: you must delete the "POP" and "IND" column headers in nano text editor prior to running the program, as the input requires N-2 column names (colnames = locnames = 49).
 ```{r}
@@ -547,7 +546,7 @@ lapply(names(temp2_pop_list), function(pop) {
 ### All in One: Input files and Parameter files
 ```{r}
 # --- Function to generate param files ---
-# We put this in a list so we can loop through temp1, temp2, temp3
+# We put this in a list so we can loop through temp1, temp2
 data_sets <- list("temp1" = temp1.str, "temp2" = temp2.str)
 
 lapply(names(data_sets), function(prefix) {
@@ -557,14 +556,14 @@ lapply(names(data_sets), function(prefix) {
   
   lapply(names(pop_list), function(pop) {
     
-    # 1. Setup paths and data
+    # Paths and data
     pop_obj <- pop_list[[pop]]
     file_name <- paste0(prefix, "_", pop, ".microdrop.txt")
     data_path <- paste0("./microdrop/input/", file_name)
     param_path <- paste0("./microdrop/params/param_", prefix, "_", pop, ".txt")
     temp_struct <- paste0("./microdrop/temp/", prefix, "_", pop, ".struct.txt")
     
-    # 2. Generate the Data File (with header)
+    # Generate datafiles
     genind_to_structure(pop_obj, output = temp_struct)
     temp_data <- read.table(temp_struct, skip = 1)
     
@@ -573,12 +572,12 @@ lapply(names(data_sets), function(prefix) {
     write.table(temp_data, file = data_path, append = TRUE, sep = " ", 
                 row.names = FALSE, col.names = FALSE, quote = FALSE)
     
-    # 3. Calculate Parameters for this specific population
+    # Input custom Parameters for specific populations
     num_inds <- nInd(pop_obj)
     num_loci <- nLoc(pop_obj)
     out_folder <- paste0(prefix, "_", pop, "_results")
     
-# 4. Create the Param File for microdrop
+# Param File for microdrop bash script
     param_content <- c(
       "# This is a paramfile for MicroDrop generated automatically",
       "###----Main Parameters----###",
@@ -600,7 +599,7 @@ lapply(names(data_sets), function(prefix) {
       "FCTR           0"
     )
     
-    # 5. Write the Param File
+    # Write the Param File
     writeLines(param_content, con = param_path)
     
     message("Finished Data and Param files for: ", prefix, "_", pop)
@@ -787,35 +786,17 @@ ggsave(
 Removal of herds with insufficient sample sizes for analyses, remove loci which have demonstrated high levels of missing data, and which have a propensity for null alleles. 
 ```{r}
 # Remove loci called for null alleles
-analysis.gen <- bison.genind[, loc = !locNames(bison.genind) == "BMS601"] # Remove locus
-analysis.gen # Ensure loci were removed (now 48)
+analysis.gen <- bison.genind[, loc = !locNames(bison.genind) %in% c("BMS601", "BMS510")] 
 
-
-# Remove populations with insufficient sample sizes (Temp2)
-temp1_remove <- (pop(analysis.gen) %in% c("ETH", "NORD")) & (analysis.gen@other$YEAR.ASSIGN <=2015) # Isolate samples for removal
-analysis.gen <- analysis.gen[!temp1_remove, ] # Remove
-
-# Remove populations with insufficient sample sizes (Temp3)
-temp2_remove <- (pop(analysis.gen) == "WBNP") & (analysis.gen@other$YEAR.ASSIGN >= 2016)
-
-analysis.gen <- analysis.gen[!temp2_remove, ] # Remove
-
-# Print out final dataset
-analysis.gen
+analysis.gen # Ensure loci were removed (now 47)
 
 # Create filtered dataset for working with in subsequent analyses
 analysis.data <- bison.data %>% 
-  select(-BMS601, -BM4028) %>% # Remove locus with nulls (BMS601) and missing data (BM4028)
-    filter(!(HERD %in% c("ETH", "NORD") & # Insufficient sample sizes
-           YEAR.ASSIGN <=2015)) %>% 
-    filter(!(HERD == "WBNP" & YEAR.ASSIGN >= 2016)) %>% # No subherd designation
-    filter(!(HERD %in% c("WBNPGR", "WBNPHC", "WBNPNY", "WBNPLB", "WBNP") & YEAR.ASSIGN %in% 2000:2015))
-
+  select(-BMS601, -BMS510, -BM4028) # Remove locus with nulls (BMS601, BMS510) and missing data (BM4028)
+  
+  
+  
   
 # Write out to csv
-write.csv(analysis.data, "./datafiles/Revised_cleandata_11.03.2026.csv", row.names = F)
+write.csv(analysis.data, "./datafiles/Final_dataset_2026.06.28.csv", row.names = F)
 ```
-
-
-
-

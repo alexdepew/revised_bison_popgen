@@ -1,7 +1,7 @@
 ---
 title: "PCA_STRUCT_2"
 author: "Alex Depew"
-date: "2026-03-05"
+date: "2026-06-28"
 output: html_document
 editor_options: 
   chunk_output_type: inline
@@ -15,7 +15,7 @@ This script is used to evaluate temporal patterns in population structure in all
 
 Files used described below:
 
-- `Revised_cleandata_11.03.2026.csv`
+- `Final_dataset_2026.06.28.csv`
    - Contains all samples for population genetic analyses, post-filtering
    
 ## Load Required Packages
@@ -36,18 +36,18 @@ library(grid)
 
 ## Load Required Data
 ```{r}
-cleaned.data <- read.csv("./datafiles/Revised_cleandata_11.03.2026.csv",
+cleaned.data <- read.csv("./datafiles/Final_dataset_2026.06.28.csv",
                          check.names = F)
 ```
 
 #### Convert data to Genind object
 ```{r}
 # Make genind object
-bison.genind <- df2genind(X=cleaned.data[,c(19:ncol(cleaned.data))],
+bison.genind <- df2genind(X=cleaned.data[,c(15:ncol(cleaned.data))],
                               sep = "/",
                               ind.names = cleaned.data$Spreadsheet_ID,
                               loc.names = NULL,
-                              pop = cleaned.data$HERD,
+                              pop = cleaned.data$Herd,
                               NA.char = "NA",
                               ploidy = 2,
                               type = "codom",
@@ -55,19 +55,17 @@ bison.genind <- df2genind(X=cleaned.data[,c(19:ncol(cleaned.data))],
                               hierarchy = NULL)
 
 # Attach collection year metadata
-idx <- match(indNames(bison.genind), cleaned.data$Spreadsheet_ID)
-stopifnot(!any(is.na(idx)))
-bison.genind@other$YEAR.ASSIGN <- cleaned.data$YEAR.ASSIGN[idx]
+bison.genind@other$year <- cleaned.data$Year.Collected
 ```
 
 #### Subset data 
 Data is subset into two temporal groups. Temporal groups are: 1: pre-1999, 2: pre-2016, and 3: post-2016
 ```{r}
 # Create datasets containing samples of interest for temporal comparisons
-temp1 <- bison.genind[bison.genind@other$YEAR.ASSIGN <=2015,]
+temp1 <- bison.genind[bison.genind@other$year<=2015,]
 temp1.sum <- summary(temp1) # Create summary of genind object
 
-temp2 <- bison.genind[bison.genind@other$YEAR.ASSIGN >=2016,]
+temp2 <- bison.genind[bison.genind@other$year >=2016,]
 temp2.sum <- summary(temp2)
 ```
 
@@ -76,7 +74,7 @@ Visualize population structure without assumptions of HWE or LD, to identify clu
 
 ```{r}
 # List of all herds
-all_herds <- sort(unique(cleaned.data$HERD))
+all_herds <- sort(unique(cleaned.data$Herd))
 
 # Colour Palette selection for PCA
 herd_palette <- c("#0026FF", 
@@ -137,8 +135,8 @@ pca.global <- dudi.pca(x.global, center = T, scale = F, scannf = F, nf =2)
 eig.perc.global <- 100*pca.global$eig/sum(pca.global$eig)
 
 #### axis limits
-xlims <- c(-2.5, 3.5)
-ylims <- c(-3, 2.1)
+xlims <- c(-4, 4)
+ylims <- c(-3, 3)
 ```
 
 
@@ -189,7 +187,7 @@ levels_temp2 <- levels(temp2@pop)
 temp2_cols <- herd_cols[levels_temp2]
 
 # Invert Y axis
-pca.temp2$li[ , 2] <- pca.temp2$li[ , 2] * -1
+pca.temp2$li[ , 1] <- pca.temp2$li[ , 1] * -1
 
 # Plot PCA object
 pca2 <- fviz_pca_ind(pca.temp2,
@@ -278,7 +276,7 @@ global_pcas <- grid.arrange(pca1_nl, legend1, pca2_nl, # Set out grid
                             
 # Save plot
 library(svglite)
-ggsave("./plots/global_pcas.svg",
+ggsave("./output/plots/global_pcas.svg",
        plot = global_pcas, 
        device = "svg", 
        width = 16, 
@@ -320,7 +318,7 @@ eig.perc.global.noEINPP <- 100*pca.global.noEINPP$eig/sum(pca.global.noEINPP$eig
 
 #### Reset xlim and ylim
 ```{r}
-xlims.noEINPP <- c(-2.5, 3.5)
+xlims.noEINPP <- c(-3.55, 3.5)
 ylims.noEINPP <- c(-3, 2.1)
 ```
 
@@ -461,7 +459,7 @@ global_pcas.noEINPP <- grid.arrange(pca1_nl.noEINPP, legend2, pca2_nl.noEINPP, #
                             )
                             
 # Save plot
-ggsave("./plots/global_pcas.noEINPP.svg",
+ggsave("./output/plots/global_pcas.noEINPP.svg",
        plot = global_pcas.noEINPP, 
        device = "svg", 
        width = 16, 
@@ -475,27 +473,27 @@ temp1.str <- temp1
 pop(temp1.str) <- as.numeric(as.factor(pop(temp1.str)))
 
 genind_to_structure(temp1.str,
-                    output = "STRUCTURE_files/temp1.w_plains.structure.txt")
+                    output = "STRUCTURE/global/temp1.w_plains.structure.txt")
 # Temp2 structure
 temp2.str <- temp2
 pop(temp2.str) <- as.numeric(as.factor(pop(temp2.str)))
 
 genind_to_structure(temp2.str,
-                    output = "STRUCTURE_files/temp2.w_plains.structure.txt")
+                    output = "STRUCTURE/global/temp2.w_plains.structure.txt")
 
 # Temp1.noEINPP
 temp1.noEINPP.str <- temp1.noEINPP
 pop(temp1.noEINPP.str) <- as.numeric(as.factor(pop(temp1.noEINPP.str)))
 
 genind_to_structure(temp1.noEINPP.str,
-                    output = "STRUCTURE_files/temp1.no_plains.structure.txt")
+                    output = "STRUCTURE/global/temp1.no_plains.structure.txt")
 
 # Temp2.noEINPP
 temp2.noEINPP.str <- temp2.noEINPP
 pop(temp2.noEINPP.str) <- as.numeric(as.factor(pop(temp2.noEINPP.str)))
 
 genind_to_structure(temp2.noEINPP.str,
-                    output = "STRUCTURE_files/temp2.no_plains.structure.txt")
+                    output = "STRUCTURE/global/temp2.no_plains.structure.txt")
 
 ```
 

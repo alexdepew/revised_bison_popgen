@@ -1,0 +1,25 @@
+
+# Setup modules within each subdirectory for structure runs
+module load StdEnv/2020
+module load python/2.7
+module load structure/2.3.4
+
+# Obtain necessary files for parallel structure runs
+wget https://raw.githubusercontent.com/alexdepew/woodbison/refs/heads/main/structure/create_strauto_slurm_scripts.py # python script to make parameter files
+chmod u+x create_strauto_slurm_scripts.py
+
+# Obtain Strauto from Digital alliance canada
+# unzip 
+tar -xvf strauto_1.tar.gz
+
+wget https://raw.githubusercontent.com/dentearl/structureHarvester/refs/heads/master/harvesterCore.py # Harvestercore
+wget https://raw.githubusercontent.com/dentearl/structureHarvester/refs/heads/master/structureHarvester.py # Structure harvesterCore
+
+# Now edit the parameters in the input.py for each temporal group using nano
+
+#### Begin structure runs (temp1)
+./strauto_1.py
+# press "enter" and then "a"
+# this will have generated mainparams file and extraparams file
+./create_strauto_slurm_scripts.py
+bash submit_strauto_jobs.sh # Now submit the jobs

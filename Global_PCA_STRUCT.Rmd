@@ -176,9 +176,12 @@ theme(
        colour = "Herd") + 
     guides(colour = guide_legend(override.aes = list(size = 4, shape = 19)))
 
-       
-
-pca1
+ggsave("./output/plots/PCAs/temp1_w_plains.svg",
+       plot = pca1, 
+       device = "svg", 
+       width = 12, 
+       height = 12, 
+       units = "in")
 ```
 
 ```{r}
@@ -218,9 +221,15 @@ theme(
        colour = "Herd") + 
     guides(colour = guide_legend(override.aes = list(size = 4, shape = 19)))
 
-       
-
 pca2
+
+library(svglite)
+ggsave("./output/plots/PCAs/temp2_w_plains.svg",
+       plot = pca2, 
+       device = "svg", 
+       width = 12, 
+       height = 12, 
+       units = "in")
 ```
 
 ```{r}
@@ -318,8 +327,8 @@ eig.perc.global.noEINPP <- 100*pca.global.noEINPP$eig/sum(pca.global.noEINPP$eig
 
 #### Reset xlim and ylim
 ```{r}
-xlims.noEINPP <- c(-3.55, 3.5)
-ylims.noEINPP <- c(-3, 2.1)
+xlims.noEINPP <- c(-3.8, 2)
+ylims.noEINPP <- c(-2.5, 1.75)
 ```
 
 
@@ -359,9 +368,14 @@ theme(
        colour = "Herd") + 
     guides(colour = guide_legend(override.aes = list(size = 6, shape = 19)))
 
-       
-
 pca1.noEINPP
+
+ggsave("./output/plots/PCAs/temp1_no_plains.svg",
+       plot = pca1.noEINPP, 
+       device = "svg", 
+       width = 12, 
+       height = 12, 
+       units = "in")
 ```
 
 #### Temp2 (No EINPP)
@@ -401,9 +415,14 @@ theme(
        colour = "Herd") + 
     guides(colour = guide_legend(override.aes = list(size = 6, shape = 19)))
 
-       
-
 pca2.noEINPP
+
+ggsave("./output/plots/PCAs/temp2_no_plains.svg",
+       plot = pca2.noEINPP, 
+       device = "svg", 
+       width = 12, 
+       height = 12, 
+       units = "in")
 ```
 
 #### Global Dataset (No EINPP)
@@ -459,7 +478,7 @@ global_pcas.noEINPP <- grid.arrange(pca1_nl.noEINPP, legend2, pca2_nl.noEINPP, #
                             )
                             
 # Save plot
-ggsave("./output/plots/global_pcas.noEINPP.svg",
+ggsave("./output/plots/PCAs/global_pcas.no_plains.svg",
        plot = global_pcas.noEINPP, 
        device = "svg", 
        width = 16, 
@@ -501,8 +520,8 @@ genind_to_structure(temp2.noEINPP.str,
 ```{r}
 # List files
 # Full datasets
-sfiles_temp1 <- list.files("./STRUCTURE_files/results/temp1_w_plains/", full.names = TRUE)
-sfiles_temp2 <- list.files("./STRUCTURE_files/results/temp2_w_plains/", full.names = TRUE)
+sfiles_temp1 <- list.files("./STRUCTURE/global/w_plains/results/temp1", full.names = TRUE)
+sfiles_temp2 <- list.files("./STRUCTURE/global/w_plains/results/temp2", full.names = TRUE)
 
 # Qlist (pophelper)
 slist_temp1 <- readQ(files = sfiles_temp1, filetype = "structure")
@@ -517,12 +536,12 @@ struct_sum_temp2 <- summariseQ(tabulateQ(slist_temp2))
 ```{r}
 ## Temp1 With plains ----
 # K plots
-p1 <- evannoMethodStructure(data = struct_sum_temp1, exportplot = T,
+p1 <- evannoMethodStructure(data = struct_sum_temp1, exportplot = F,
                            returnplot = T, returndata = F,
                            basesize = 25, linesize = 0.7,
                            height = 25, width = 25, units = "cm",
                            outputfilename = "Temp1_K",
-                           exportpath = "./plots/K_plots/",
+                           exportpath = "./output/plots/K_plots/",
                            imgtype = "pdf")
 
 p_lik <- p1$grobs[[1]]
@@ -543,19 +562,19 @@ evanno_w1 <- grid.arrange(panel_a, panel_b,
                          ncol = 2, 
                          widths = c(1, 1))
 
-ggsave("./plots/K_plots/temp1.k.svg", 
+ggsave("./output/plots/K_plots/temp1.k.svg", 
        plot = evanno_w1, 
        width = 27, 
        height = 11)
 
 # Temp2 With Plains ----
 # K plots
-p2 <- evannoMethodStructure(data = struct_sum_temp2, exportplot = T,
+p2 <- evannoMethodStructure(data = struct_sum_temp2, exportplot = F,
                            returnplot = T, returndata = F,
                            basesize = 25, linesize = 0.7,
                            height = 25, width = 25, units = "cm",
                            outputfilename = "Temp2_K",
-                           exportpath = "./plots/K_plots/",
+                           exportpath = "./output/plots/K_plots/",
                            imgtype = "pdf")
 
 p_lik <- p2$grobs[[1]]
@@ -576,7 +595,7 @@ evanno_w2 <- grid.arrange(panel_a, panel_b,
                          ncol = 2, 
                          widths = c(1, 1))
 
-ggsave("./plots/K_plots/temp2.k.svg", 
+ggsave("./output/plots/K_plots/temp2.k.svg", 
        plot = evanno_w2, 
        width = 27, 
        height = 11)
@@ -586,9 +605,8 @@ ggsave("./plots/K_plots/temp2.k.svg",
 #### Temp 1 (With Plains)
 ```{r}
 temp1.data <- cleaned.data %>% 
-  select(-ID) %>% 
-  filter(YEAR.ASSIGN <=2015) %>%
-  rename(ID = Spreadsheet_ID) %>% 
+  filter(Year.Collected <= 2015) %>%
+  rename(ID = Spreadsheet.ID) %>% 
   mutate(ID = as.character(ID))
 # Align runs
 slist_temp1 <- alignK(slist_temp1, "auto")
@@ -605,11 +623,14 @@ temp1.mk9 <- mergeQ(slist_temp1[81:90])
 temp1.mk10 <- mergeQ(slist_temp1[91:100])
 temp1.mk11 <- mergeQ(slist_temp1[101:110])
 temp1.mk12 <- mergeQ(slist_temp1[111:120])
+temp1.mk13 <- mergeQ(slist_temp1[121:130])
+temp1.mk14 <- mergeQ(slist_temp1[131:140])
 
 
 temp1.merged.list <- as.qlist(list(temp1.mk2[[1]], temp1.mk3[[1]], temp1.mk4[[1]], 
                           temp1.mk5[[1]], temp1.mk6[[1]], temp1.mk7[[1]], temp1.mk8[[1]],
-                          temp1.mk9[[1]], temp1.mk10[[1]], temp1.mk11[[1]], temp1.mk12[[1]]))
+                          temp1.mk9[[1]], temp1.mk10[[1]], temp1.mk11[[1]], temp1.mk12[[1]],
+                          temp1.mk13[[1]], temp1.mk14[[1]]))
 
 ind_label_temp1 <- readQ(files = sfiles_temp1[1], indlabfrom = TRUE) %>% as.data.frame()
 ind_label_temp1 <- rownames_to_column(ind_label_temp1, "ID")
@@ -617,8 +638,12 @@ locations_temp1 <- left_join(ind_label_temp1, temp1.data, by = "ID")
 
 loc_labels_temp1 <- locations_temp1$HERD %>% as.data.frame()
 
-herd_order_temp1 <- c("EINPP", "EINPW", "HZ", "MBS", "RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT")
-struct_temp1_cols <- c("#ee964c", "#3b96cf", "#7d2a7c","#e39bc1", "#e73f4e", "#4b9b46",  "#f5df93","#858434", "#ba552b", "#81c7c7",  "#2d4a5e", "#44c29a")
+herd_order_temp1 <- c("EINPP", "EINPW", "NORD", "ETH", "HZ", "MBS", "RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT")
+struct_temp1_cols <- c("#3b96cf", 
+  "#ee964c", "#7d2a7c","#e39bc1", "#e73f4e", 
+  "#4b9b46",  "#f5df93","#858434", "#ba552b", 
+  "#81c7c7",  "#2d4a5e", "#44c29a",
+  "#542e44", "#ff7f32")
 
 plotQ(temp1.merged.list, 
       imgoutput = "join",
@@ -629,7 +654,7 @@ plotQ(temp1.merged.list,
             ordergrp = TRUE,
       
       # Side "K" Labels
-            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6", "K = 7", "K = 8", "K = 9", "K = 10", "K = 11", "K = 12"),
+            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6", "K = 7", "K = 8", "K = 9", "K = 10", "K = 11", "K = 12", "K = 13", "K = 14"),
             splabsize = 35,
             sppos = "left",
             splabcol = "black",
@@ -670,7 +695,7 @@ plotQ(temp1.merged.list,
       # File settings
             imgtype = "tiff",
             outputfilename = "Temp1_w_plains",
-            exportpath = "./plots/STRUCTURE_PLOTS")
+            exportpath = "./plots/structure_plots")
 ```
 
 #### Temp 2 (With Plains)
@@ -699,17 +724,19 @@ temp2.mk13 <- mergeQ(slist_temp2[121:130])
 temp2.mk14 <- mergeQ(slist_temp2[131:140])
 temp2.mk15 <- mergeQ(slist_temp2[141:150])
 temp2.mk16 <- mergeQ(slist_temp2[151:160])
+temp2.mk16 <- mergeQ(slist_temp2[161:170])
 
 temp2.merged.list <- as.qlist(list(temp2.mk2[[1]], temp2.mk3[[1]], temp2.mk4[[1]], 
                           temp2.mk5[[1]], temp2.mk6[[1]], temp2.mk7[[1]], temp2.mk8[[1]],
                           temp2.mk9[[1]], temp2.mk10[[1]], temp2.mk11[[1]], temp2.mk12[[1]],
-                          temp2.mk13[[1]], temp2.mk14[[1]], temp2.mk15[[1]], temp2.mk16[[1]]))
+                          temp2.mk13[[1]], temp2.mk14[[1]], temp2.mk15[[1]], temp2.mk16[[1]],
+                          temp2.mk17[[1]]))
 
 ind_label_temp2 <- readQ(files = sfiles_temp2[1], indlabfrom = TRUE) %>% as.data.frame()
 ind_label_temp2 <- rownames_to_column(ind_label_temp2, "ID")
 locations_temp2 <- left_join(ind_label_temp2, temp2.data, by = "ID")
 
-loc_labels_temp2 <- locations_temp2$HERD %>% as.data.frame()
+loc_labels_temp2 <- locations_temp2$herd %>% as.data.frame()
 
 herd_order_temp2 <- c("EINPP", "AISH", "CL", "EINPW", "ETH", "HZ", "NAH", "NORD", "RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT")
 
@@ -1969,16 +1996,3 @@ ggsave("./plots/combined_global_leg_sep_revised.svg",
        bg = "white",
        units = "in")
 ```
-
-
-```{r}
-
-```
-
-
-
-
-
-
-
-

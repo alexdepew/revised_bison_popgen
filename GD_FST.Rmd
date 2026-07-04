@@ -1,0 +1,577 @@
+---
+title: "GD_FST"
+author: "Alex Depew"
+date: "2026-07-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Files used described below:
+
+- `Final_dataset_2026.06.28.csv`
+   - Contains all samples for population genetic analyses, post-filtering
+
+## Load Required Packages
+```{r}
+rm(list = ls())
+library(PopGenReport)
+library(adegenet)
+library(hierfstat)
+library(strataG)
+library(tidyverse)
+library(poppr)
+```
+
+
+## Load Required Data
+```{r}
+cleaned.data <- read.csv("./datafiles/Final_dataset_2026.06.28.csv",
+                         check.names = F)
+
+
+# Merge WBNP Subherds
+mod.data <- cleaned.data %>% 
+  mutate(Herd = case_when(
+    grepl("WBNPLB|WBNPNY", Herd) ~ "WBNPC1",
+    grepl("WBNPPAD|WBNPGR|WENT", Herd) ~ "WBNPC2",
+    TRUE                         ~ Herd  
+  )) %>% 
+  relocate(Herd, .after = Year.Collected)
+
+# Merge new WBNP clusters back onto the dataset
+wbnp.data <- mod.data %>% 
+  filter(Herd %in% c("WBNPC1", "WBNPC2"))
+
+merged.data <- rbind(cleaned.data, wbnp.data)
+
+```
+
+#### Convert data to Genind object
+```{r}
+# Make genind object
+merge.genind <- df2genind(X=merged.data[,c(15:ncol(merged.data))],
+                              sep = "/",
+                              ind.names = merged.data$Spreadsheet.ID,
+                              loc.names = NULL,
+                              pop = merged.data$Herd,
+                              NA.char = "NA",
+                              ploidy = 2,
+                              type = "codom",
+                              strata = NULL,
+                              hierarchy = NULL)
+
+merge.genind@other$year <- merged.data$Year.Collected
+```
+
+
+#### Subset data 
+Data is subset into two temporal groups. Temporal groups are: 1: pre-2016, and 2: post-2016
+```{r}
+# Create datasets containing samples of interest for temporal comparisons
+temp1 <- merge.genind[merge.genind@other$year <=2015,]
+temp1.sum <- summary(temp1) # Create summary of genind object
+
+temp2 <- merge.genind[merge.genind@other$year >=2016,]
+temp2.sum <- summary(temp2)
+```
+
+# Descriptive Statistics 
+Functions requiring the package *strataG* require inputs to be in "gtypes" objects. Programs such as HP-RARE require data to be in GENEPOP file format. 
+```{r}
+# Convert genind to gtypes
+temp1.g <- genind2gtypes(temp1)
+temp2.g <- genind2gtypes(temp2)
+
+# Convert genind to genepop
+library(graph4lg)
+#genind_to_genepop(temp1, output = "genepop_files/temp1_revised.genepop.txt")
+#genind_to_genepop(temp2, output = "genepop_files/temp2_revised.genepop.txt")
+
+# Hierfstat summary format
+temp1.stats <- basic.stats(temp1, diploid = TRUE, digits = 3)
+temp2.stats <- basic.stats(temp2, diploid = TRUE, digits = 3)
+```
+
+## Temporal Group 1
+```{r}
+# Number of samples per population
+temp1.N = temp1.sum$n.by.pop
+temp1.N
+
+# Heterozygosity
+temp1.Ho <- round(colMeans(temp1.stats$Ho), 2) # Observed (Ho)
+# HO SD
+temp1.Ho.sd <- round(apply(temp1.stats$Ho, 2, sd, na.rm = TRUE), 2) # SD Ho
+
+temp1.He <- round(colMeans(temp1.stats$Hs), 2) # Expected (He)
+# HE SD
+temp1.He.sd <- round(apply(temp1.stats$Hs, 2, sd, na.rm = TRUE), 2) # SD Ho
+
+
+# Allelic Richness
+temp1.Ar <- allelic.richness(temp1, min.n = 10, diploid = TRUE)
+temp1.Ar.mean <- round(colMeans(temp1.Ar$Ar), 2)
+# AR SD
+temp1.Ar.sd <- round(apply(temp1.Ar$Ar, 2, sd, na.rm = TRUE), 2)
+
+# FIS
+temp1.Fis <- round(colMeans(temp1.stats$Fis, na.rm = TRUE), 2)
+
+# Create Table
+descr.df1 <- enframe(temp1.N, name = "Population", value = "N") %>%
+  mutate(
+        HE = paste(temp1.He[Population], "±", temp1.He.sd[Population]), # Combine SD with ±
+        HO = paste(temp1.Ho[Population], "±", temp1.Ho.sd[Population]), # Combine SD with ±
+        AR = paste(temp1.Ar.mean[Population], "±", temp1.Ar.sd[Population]), # Combine with ±
+        FIS = temp1.Fis
+        )
+
+print(descr.df1)
+```
+
+## Temporal Group 2
+```{r}
+# Number of samples per population
+temp2.N = temp2.sum$n.by.pop
+temp2.N
+
+# Heterozygosity
+temp2.Ho <- round(colMeans(temp2.stats$Ho), 2) # Observed (Ho)
+# HO SD
+temp2.Ho.sd <- round(apply(temp2.stats$Ho, 2, sd, na.rm = TRUE), 2) # SD Ho
+
+temp2.He <- round(colMeans(temp2.stats$Hs), 2) # Expected (He)
+# HE SD
+temp2.He.sd <- round(apply(temp2.stats$Hs, 2, sd, na.rm = TRUE), 2) # SD Ho
+
+
+# Allelic Richness
+temp2.Ar <- allelic.richness(temp2, min.n = 10, diploid = TRUE)
+temp2.Ar.mean <- round(colMeans(temp2.Ar$Ar), 2)
+# AR SD
+temp2.Ar.sd <- round(apply(temp2.Ar$Ar, 2, sd, na.rm = TRUE), 2)
+
+# FIS
+temp2.Fis <- round(colMeans(temp2.stats$Fis, na.rm = TRUE), 2)
+
+# Create Table
+descr.df2 <- enframe(temp2.N, name = "Population", value = "N") %>%
+  mutate(
+        HE = paste(temp2.He[Population], "±", temp2.He.sd[Population]), # Combine SD with ±
+        HO = paste(temp2.Ho[Population], "±", temp2.Ho.sd[Population]), # Combine SD with ±
+        AR = paste(temp2.Ar.mean[Population], "±", temp2.Ar.sd[Population]), # Combine with ±
+        FIS = temp2.Fis
+        )
+
+print(descr.df2)
+```
+
+
+Join Tables (Long)
+```{r}
+df1_v <- descr.df1 %>% mutate(Period = "T1")
+df2_v <- descr.df2 %>% mutate(Period = "T2")
+
+full.descr.long <- bind_rows(df1_v, df2_v) %>% 
+  arrange(Population == "EINPP", Population) %>% 
+  relocate(Period, .after = Population)
+
+# Write to csv
+write.table(full.descr.long, "./output/tables/Temporal_GD_Table.csv", 
+            sep = ",",
+            fileEncoding = "UTF-8", 
+            row.names = FALSE)
+```
+
+# Genetic Distance 
+
+#### Weir and Cockerham (1984) Fst
+```{r}
+# Temporal group 1
+## Order herds 
+temp1_fst.mat <- as.matrix(pairwise.WCfst(temp1,
+                                        diploid = TRUE))
+
+fst1 <- data.frame(round(temp1_fst.mat, 3))
+write.csv(fst1, "./output/tables/GD/fst1.csv", row.names = T)
+
+# Temporal group 2
+temp2_fst.mat <- as.matrix(pairwise.WCfst(temp2,
+                                          diploid = TRUE))
+
+fst2 <- data.frame(round(temp2_fst.mat, 3))
+write.csv(fst2, "./output/tables/GD/fst2.csv", row.names = T)
+```
+
+#### Reorder FST Tables
+```{r}
+# Reorder
+current_names <- colnames(temp1_fst.mat)
+
+# 2. Define the new order manually (swapping the last two)
+new_order <- c("WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT", "WBNPC1", "WBNPC2",
+                "EINPW", "ETH", "HZ", "MBS", "NORD", "RL", "WAB", "EINPP") 
+
+# 3. Apply the swap to both rows and columns
+temp1_fst.ordered <- temp1_fst.mat[new_order, new_order]
+
+# View the result
+round(temp1_fst.ordered, 3)
+write.csv(temp1_fst.ordered, "./output/tables/GD/fst1.csv", row.names = T)
+
+# Reorder
+current_names2 <- colnames(temp2_fst.mat)
+current_names2
+
+# 2. Define the new order manually (swapping the last two)
+new_order2 <- c("WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT", "WBNPC1", "WBNPC2", "AISH","CL", "EINPW", "ETH", "HZ", "MBS", "NAH", "NORD", "RL", "WAB", "EINPP")
+
+# 3. Apply the swap to both rows and columns
+temp2_fst.ordered <- temp2_fst.mat[new_order2, new_order2]
+
+# View the result
+round(temp2_fst.ordered, 3)
+write.csv(temp2_fst.ordered, "./output/tables/GD/fst2.csv", row.names = T)
+```
+
+
+#### Bootstraps of Fst - Test for significance (Null hypothesis Fst = 0)
+```{r}
+boot1.mat <- boot.ppfst(temp1, nboot = 1000, quant=c(0.025,0.975))
+temp1.fst.ll <- as.matrix(boot1.mat$ll)
+temp1.fst.ul <- as.matrix(boot1.mat$ul)
+
+# Make symmetrical
+temp1.fst.ll[lower.tri(temp1.fst.ll)] <- t(temp1.fst.ll)[lower.tri(temp1.fst.ll)]
+temp1.fst.ul[lower.tri(temp1.fst.ul)] <- t(temp1.fst.ul)[lower.tri(temp1.fst.ul)]
+
+# Reorder in same order as Fst table
+temp1.fst.ll <- temp1.fst.ll[new_order, new_order]
+temp1.fst.ul <- temp1.fst.ul[new_order, new_order]
+
+# Combine to make full CI table
+temp1.fst.mat <- temp1.fst.ul
+temp1.fst.mat[lower.tri(temp1.fst.mat)] <- t(temp1.fst.ll)[lower.tri(t(temp1.fst.ll))]
+
+# Write FST CI's to tables
+write.csv(temp1.fst.mat, "./output/tables/GD/temp1.fst.sig.csv")
+
+
+##### Temp2 
+boot2.mat <- boot.ppfst(temp2, nboot = 1000, quant=c(0.025,0.975))
+temp2.fst.ll <- as.matrix(boot2.mat$ll)
+temp2.fst.ul <- as.matrix(boot2.mat$ul)
+
+# Make symmetrical
+temp2.fst.ll[lower.tri(temp2.fst.ll)] <- t(temp2.fst.ll)[lower.tri(temp2.fst.ll)]
+temp2.fst.ul[lower.tri(temp2.fst.ul)] <- t(temp2.fst.ul)[lower.tri(temp2.fst.ul)]
+
+# Reorder in same order as Fst table
+temp2.fst.ll <- temp2.fst.ll[new_order2, new_order2]
+temp2.fst.ul <- temp2.fst.ul[new_order2, new_order2]
+
+# Combine to make full CI table
+temp2.fst.mat <- temp2.fst.ul
+temp2.fst.mat[lower.tri(temp2.fst.mat)] <- t(temp2.fst.ll)[lower.tri(t(temp2.fst.ll))]
+
+# Write FST CI's to tables
+write.csv(temp2.fst.mat, "./output/tables/GD/temp2.fst.sig.csv")
+
+
+```
+
+
+
+
+## Fis Sig
+```{r}
+temp1_fis_boot <- boot.ppfis(dat=temp1,nboot=1000,quant=c(0.025,0.975))
+temp1.fis.ci <- data.frame(temp1_fis_boot$fis.ci) 
+rownames(temp1.fis.ci) <- (names(colMeans(temp1.stats$Fis)))
+
+
+temp2_fis_boot <- boot.ppfis(dat=temp2,nboot=1000,quant=c(0.025,0.975))
+temp2.fis.ci <- data.frame(temp2_fis_boot$fis.ci) 
+rownames(temp2.fis.ci) <- (names(colMeans(temp2.stats$Fis)))
+
+FIS.CI <- rbind(temp1.fis.ci, temp2.fis.ci)
+
+write.csv(FIS.CI, "./output/tables/GD/FIS.ci.csv")
+```
+
+
+
+### He
+```{r}
+# Both T1 and T2 hierfstat objects into list
+all_temps <- list("T1" = temp1.stats, "T2" = temp2.stats)
+
+# Metric to compare (Hs/He)
+metric <- "Hs"
+
+# Comparison time periods
+period_pairs <- list(c("T1", "T2"))
+
+# List to store results of comparison tests
+wilcox_results <- list()
+
+for (pair in period_pairs) {
+  p1 <- pair[1]
+  p2 <- pair[2]
+  
+  # Both time periods have different herds - this identifies which are alike
+  common_herds <- intersect(colnames(all_temps[[p1]][[metric]]), 
+                            colnames(all_temps[[p2]][[metric]]))
+  
+  for (herd in common_herds) {
+    # Extract per-locus values
+    v1 <- all_temps[[p1]][[metric]][, herd]
+    v2 <- all_temps[[p2]][[metric]][, herd]
+    
+    # Run test
+    test <- wilcox.test(v1, v2, paired = TRUE)
+    
+    # df output
+    wilcox_results[[paste(herd)]] <- data.frame(
+      Herd = herd,
+      V_stat = test$statistic,
+      p_value = round(test$p.value, 5),
+      Significant = ifelse(test$p.value < 0.05, "Yes", "No")
+    )
+  }
+}
+
+# Combine results
+temporal_summary_table_He <- do.call(rbind, wilcox_results)
+temporal_summary_table_He
+
+write.csv(temporal_summary_table_He, 
+          "./output/tables/GD/He_over_time.csv")
+```
+
+
+### Ho
+```{r}
+# Both T1 and T2 hierfstat objects into list
+all_temps <- list("T1" = temp1.stats, "T2" = temp2.stats)
+
+# Metric to compare (Hs/He)
+metric <- "Ho"
+
+# Comparison time periods
+period_pairs <- list(c("T1", "T2"))
+
+# List to store results of comparison tests
+wilcox_results <- list()
+
+for (pair in period_pairs) {
+  p1 <- pair[1]
+  p2 <- pair[2]
+  
+  # Both time periods have different herds - this identifies which are alike
+  common_herds <- intersect(colnames(all_temps[[p1]][[metric]]), 
+                            colnames(all_temps[[p2]][[metric]]))
+  
+  for (herd in common_herds) {
+    # Extract per-locus values
+    v1 <- all_temps[[p1]][[metric]][, herd]
+    v2 <- all_temps[[p2]][[metric]][, herd]
+    
+    # Run test
+    test <- wilcox.test(v1, v2, paired = TRUE)
+    
+    # df output
+    wilcox_results[[paste(herd)]] <- data.frame(
+      Herd = herd,
+      V_stat = test$statistic,
+      p_value = round(test$p.value, 5),
+      Significant = ifelse(test$p.value < 0.05, "Yes", "No")
+    )
+  }
+}
+
+# Combine results
+temporal_summary_table_Ho <- do.call(rbind, wilcox_results)
+temporal_summary_table_Ho
+
+write.csv(temporal_summary_table_Ho, 
+          "./output/tables/GD/Ho_over_time.csv")
+```
+
+# Allelic Richness
+```{r}
+temp1.Ar <- allelic.richness(temp1, min.n = 10, diploid = TRUE)
+temp2.Ar <- allelic.richness(temp2, min.n = 10, diploid = TRUE)
+
+# Put each temporal cohort into list form
+all_temps_ar <- list("T1" = temp1.Ar, "T2" = temp2.Ar) 
+
+# Metric (Ar)
+metric_ar <- "Ar"
+
+# Cohort comparisons
+period_pairs <- list(c("T1", "T2"))
+
+# Results list
+wilcox_results_ar <- list()
+
+for (pair in period_pairs) {
+  p1 <- pair[1]
+  p2 <- pair[2]
+  
+  # Herds present in both periods
+  common_herds <- intersect(colnames(all_temps_ar[[p1]][[metric_ar]]), 
+                            colnames(all_temps_ar[[p2]][[metric_ar]]))
+  
+  for (herd in common_herds) {
+    # Per-locus Ar
+    v1 <- all_temps_ar[[p1]][[metric_ar]][, herd]
+    v2 <- all_temps_ar[[p2]][[metric_ar]][, herd]
+    
+    # Run test
+    test <- wilcox.test(v1, v2, paired = TRUE)
+    
+    # df output
+    wilcox_results_ar[[paste(herd)]] <- data.frame(
+      Herd = herd,
+      V_stat = test$statistic,
+      p_value = round(test$p.value, 5),
+      Significant = ifelse(test$p.value < 0.05, "Yes", "No")
+    )
+  }
+}
+
+temporal_summary_ar <- do.call(rbind, wilcox_results_ar)
+temporal_summary_ar
+
+write.csv(temporal_summary_ar, 
+          "./output/tables/GD/Ar_over_time.csv")
+```
+
+## Comparison of Genetic Diversity
+```{r}
+# Remove EINPP from He Wood Bison Assessment
+temp1.no.plains <- temp1[temp1@pop != "EINPP", ]
+temp2.no.plains <- temp2[temp2@pop != "EINPP", ]
+```
+
+
+```{r}
+# Temp1 He comparisons
+current_obj <- temp1.no.plains
+herd_list <- levels(pop(current_obj))
+
+# List results
+one_vs_all_results <- list()
+
+for (target_herd in herd_list) {
+  
+  temp_genind <- current_obj
+  
+  # Remove the target herd to compare against others
+  new_pop_vector <- ifelse(pop(temp_genind) == target_herd, target_herd, "Others")
+  pop(temp_genind) <- as.factor(new_pop_vector)
+  
+  # Split the genind
+  split_gen <- seppop(temp_genind)
+  
+  # Run Hs.test
+  test_out <- Hs.test(split_gen[[target_herd]], split_gen[["Others"]], n.sim = 999)
+  
+  # Results
+  one_vs_all_results[[target_herd]] <- data.frame(
+    Herd = target_herd,
+    Observed_Diff = test_out$obs, # Negative means herd is LESS diverse than others
+    P_Value = test_out$pvalue
+  )
+}
+
+# make df and apply BH correction (permutation test requires)
+final_one_vs_all <- do.call(rbind, one_vs_all_results)
+final_one_vs_all$adj_p_value <- p.adjust(final_one_vs_all$P_Value, method = "fdr")
+
+print(final_one_vs_all)
+
+write.csv(final_one_vs_all, "./output/tables/GD/temp1_sig_hs_no_plains.csv", row.names = F)
+```
+
+
+
+
+
+
+
+
+
+```{r}
+# Temp2 He comparisons
+current_obj <- temp2.no.plains
+herd_list <- levels(pop(current_obj))
+
+# List results
+one_vs_all_results <- list()
+
+for (target_herd in herd_list) {
+  
+    temp_genind <- current_obj
+  
+  # Remove the target herd to compare against others
+  new_pop_vector <- ifelse(pop(temp_genind) == target_herd, target_herd, "Others")
+  pop(temp_genind) <- as.factor(new_pop_vector)
+  
+  # Split the genind
+  split_gen <- seppop(temp_genind)
+  
+  # Run Hs.test
+  test_out <- Hs.test(split_gen[[target_herd]], split_gen[["Others"]], n.sim = 999)
+  
+  # Results
+  one_vs_all_results[[target_herd]] <- data.frame(
+    Herd = target_herd,
+    Observed_Diff = test_out$obs, # Negative means herd is LESS diverse than others
+    P_Value = test_out$pvalue
+  )
+}
+
+# make df and apply BH correction (permutation test requires)
+final_one_vs_all <- do.call(rbind, one_vs_all_results)
+final_one_vs_all$adj_p_value <- p.adjust(final_one_vs_all$P_Value, method = "fdr")
+
+print(final_one_vs_all)
+
+write.csv(final_one_vs_all, "./output/tables/GD/temp2_sig_hs_no_plains.csv", row.names = F)
+```
+
+```{r}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+plot_data <- full.descr.long %>%
+  separate(HE, into = c("HE_mean", "HE_sd"), sep = " ± ", convert = TRUE) 
+
+
+bar_w <- 0.7 
+
+
+ggplot(plot_data, aes(x = Population, y = HE_mean, fill = Period)) +
+ 
+  geom_bar(stat = "identity", 
+           position = position_dodge(width = 0.8), 
+           width = bar_w, 
+           color = "black") +
+  theme_classic() + 
+  labs(title = "Expected Heterozygosity (He) by Herd and Temporal Cohort",
+       y = "Expected Heterozygosity (He)",
+       x = "Herd") +
+  scale_fill_manual(values = c("T1" = "#154734", "T2" = "#B15533")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+        panel.grid.major.y = element_line(color = "grey90")) 
+
+ggsave("./output/plots/GD/HE_barplot.png")
+```
+
+

@@ -54,8 +54,11 @@ bison.genind <- df2genind(X=cleaned.data[,c(15:ncol(cleaned.data))],
                               strata = NULL,
                               hierarchy = NULL)
 
+# Add additional metadata to dataset
+
 # Attach collection year metadata
 bison.genind@other$year <- cleaned.data$Year.Collected
+bison.genind@other$ID <- cleaned.data$Sample.ID
 ```
 
 #### Subset data 
@@ -108,6 +111,8 @@ master_cols <- c("#ee964c", "#3b96cf", "#7d2a7c", "#e39bc1", "#e73f4e",
 master_cols2 <- c("#3b96cf", "#ee964c", "#7d2a7c", "#e39bc1", "#e73f4e", 
                  "#4b9b46", "#f5df93", "#858434", "#ba552b", "#81c7c7", 
                  "#2d4a5e", "#44c29a", "#542e44", "#ff7f32", "#607d8b", "#1b4332", "#0026FF")
+
+
 
 ```
 
@@ -174,15 +179,113 @@ theme(
        x = paste0("PC1 (", round(eig.perc.temp1[1], 2), "%)"),
        y = paste0("PC2 (", round(eig.perc.temp1[2], 2), "%)"),
        colour = "Herd") + 
-    guides(colour = guide_legend(override.aes = list(size = 4, shape = 19)))
+    guides(colour = guide_legend(override.aes = list(size = 4, shape = 19))) +
+  
 
-ggsave("./output/plots/PCAs/temp1_w_plains.svg",
+ggsave("./output/plots/PCAs/global/temp1_w_plains.svg",
        plot = pca1, 
        device = "svg", 
        width = 12, 
        height = 12, 
        units = "in")
 ```
+
+Global PCA's (Christina's code)
+```{r}
+library(ggrepel)
+ggplot(pca.temp1$li,
+       aes(x = pca.temp1$li$Axis1, y = pca.temp1$li$Axis2, color = temp1@pop)) +
+  geom_point(size = 3) +
+  geom_text_repel(label = temp1@other$ID,
+                  max.overlaps = Inf,
+                  size = 1) +
+  scale_color_manual(values = c("dodgerblue2", "green4", "#6A3D9A", "#FF7F00", "black",
+                                "gold1", "skyblue2", "#FB9A99", "palegreen2", "#CAB2D6",
+                                "#FDBF6F", "gray70", "khaki2", "maroon", "orchid1",
+                                "deeppink1", "blue1", "steelblue4", "darkturquoise",
+                                "green1", "yellow4", "yellow3", "darkorange4", "brown")) +
+  labs(x = "PC1",
+       y = "PC2",
+       color = "Herd") +
+  theme_bw() +
+  theme(panel.grid = element_blank())
+
+# Temp2
+ggplot(pca.temp2$li,
+       aes(x = pca.temp2$li$Axis1, y = pca.temp2$li$Axis2, color = temp2@pop)) +
+  geom_point(size = 3) +
+  geom_text_repel(label = temp2@other$ID,
+                  max.overlaps = Inf,
+                  size = 1) +
+  scale_color_manual(values = c("dodgerblue2", "green4", "#6A3D9A", "#FF7F00", "black",
+                                "gold1", "skyblue2", "#FB9A99", "palegreen2", "#CAB2D6",
+                                "#FDBF6F", "gray70", "khaki2", "maroon", "orchid1",
+                                "deeppink1", "blue1", "steelblue4", "darkturquoise",
+                                "green1", "yellow4", "yellow3", "darkorange4", "brown")) +
+  labs(x = "PC1",
+       y = "PC2",
+       color = "Herd") +
+  theme_bw() +
+  theme(panel.grid = element_blank())
+
+# Temp1 WITHOUT EINP outgroup
+p3 <- ggplot(pca.temp1.noEINPP$li,
+       aes(x = pca.temp1.noEINPP$li$Axis1, y = pca.temp1.noEINPP$li$Axis2, color = temp1.noEINPP@pop)) +
+  geom_point(size = 3) +
+  geom_text_repel(label = temp1.noEINPP@other$ID,
+                  max.overlaps = Inf,
+                  size = 1) +
+  scale_color_manual(values = c("dodgerblue2", "green4", "#6A3D9A", "#FF7F00", "black",
+                                "gold1", "skyblue2", "#FB9A99", "palegreen2", "#CAB2D6",
+                                "#FDBF6F", "gray70", "khaki2", "maroon", "orchid1",
+                                "deeppink1", "blue1", "steelblue4", "darkturquoise",
+                                "green1", "yellow4", "yellow3", "darkorange4", "brown")) +
+  labs(x = "PC1",
+       y = "PC2",
+       color = "Herd") +
+  theme_bw() +
+  theme(panel.grid = element_blank())
+
+ggsave("./output/plots/PCAs/global/p3.svg",
+       plot = p3, 
+       device = "svg", 
+       width = 12, 
+       height = 12, 
+       units = "in")
+
+
+# Temp2 WITHOUT EINP outgroup
+pca.temp2.noEINPP$li[ , 1] <- pca.temp2.noEINPP$li[ , 1] * -1
+
+
+p4 <- ggplot(pca.temp2.noEINPP$li,
+       aes(x = pca.temp2.noEINPP$li$Axis1, y = pca.temp2.noEINPP$li$Axis2, color = temp2.noEINPP@pop)) +
+  geom_point(size = 3) +
+  geom_text_repel(label = temp2.noEINPP@other$ID,
+                  max.overlaps = Inf,
+                  size = 1) +
+  scale_color_manual(values = c("dodgerblue2", "green4", "#6A3D9A", "#FF7F00", "black",
+                                "gold1", "skyblue2", "#FB9A99", "palegreen2", "#CAB2D6",
+                                "#FDBF6F", "gray70", "khaki2", "maroon", "orchid1",
+                                "deeppink1", "blue1", "steelblue4", "darkturquoise",
+                                "green1", "yellow4", "yellow3", "darkorange4", "brown")) +
+  labs(x = "PC1",
+       y = "PC2",
+       color = "Herd") +
+  theme_bw() +
+  theme(panel.grid = element_blank())
+
+p4
+
+ggsave("./output/plots/PCAs/global/p4.svg",
+       plot = p4, 
+       device = "svg", 
+       width = 12, 
+       height = 12, 
+       units = "in")
+ 
+```
+
 
 ```{r}
 temp2@pop <- factor(temp2@pop, levels = sort(unique(as.character(temp2@pop))))

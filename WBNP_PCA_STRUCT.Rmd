@@ -1723,3 +1723,143 @@ admixture2 <- plotQ(a2.mk2,
             exportpath = "./output/plots/structure_plots/wbnp/w_einp/")
 ```
 
+######### DOWNSAMPLE WBNP T2
+```{r}
+#### Data Subset and Genind Creation -------------------------------------------
+# Set seed
+set.seed(123)
+# Assign population sizes to downsample for PCA and Structure analyses
+downsample <- tibble(
+  Herd = c("WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT"),
+  n = c(10, 24, 11, 18, 25, 5)
+)
+
+downsample_data <- cleaned.data %>% 
+  filter(Herd %in% c("WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT") &
+           Year.Collected >= 2016) %>% 
+  left_join(downsample, by = "Herd") %>% 
+  relocate(n, .before = Herd) %>% 
+  group_by(Herd) %>% 
+  reframe(
+    slice_sample(
+      pick(everything()),
+      n = min(nrow(cur_data()), unique(n))
+    )
+  )
+# Downsample genind creation
+# Make genind object
+downsample.genind <- df2genind(X=downsample_data[,c(16:ncol(downsample_data))],
+                              sep = "/",
+                              ind.names = downsample_data$Spreadsheet.ID,
+                              loc.names = NULL,
+                              pop = downsample_data$Herd,
+                              NA.char = "NA",
+                              ploidy = 2,
+                              type = "codom",
+                              strata = NULL,
+                              hierarchy = NULL)
+
+# Attach collection year metadata
+downsample.genind@other$year <- downsample_data$Year.Collected
+
+table(pop(downsample.genind))
+
+
+#### PCA -----------------------------------------------------------------------
+x.subw2 <- tab(downsample.genind, freq = TRUE, NA.method = "mean")
+pca.subw2 <- dudi.pca(x.subw2, center = T, scale = F, scannf = F, nf = 2)
+
+# Axes % Variance
+eig.perc.subw2 <- 100*pca.subw2$eig/sum(pca.subw2$eig)
+
+pca.subw2$li[ ,2] <- pca.subw2$li[ ,2] * -1
+
+
+# Plot PCA object
+pcasubw2 <- fviz_pca_ind(pca.subw2,
+             axes = c(1, 2),
+             geom = "blank",
+             habillage = downsample.genind@pop,
+             repel = TRUE,
+             palette = w2_cols,
+             alpha.ind = 1) + 
+  stat_ellipse(aes(color = downsample.genind@pop), type = "norm", level = 0.68) + 
+  geom_point(aes(colour = downsample.genind@pop),
+             shape = 19,
+             alpha = 0.75,
+             size = 1.2) + 
+  coord_fixed(ratio = 1, xlim = xlims, ylim = ylims) +
+  
+theme(
+    plot.title = element_blank(),
+    legend.title = element_text(face = "bold", size = 15),
+    legend.text = element_text(size = 15),
+    axis.title = element_text(face = "bold", size = 20),
+    text = element_text(size = 20),
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),  ) + 
+
+
+  labs(title = NULL,
+       x = paste0("PC1 (", round(eig.perc.subw2[1], 2), "%)"),
+       y = paste0("PC2 (", round(eig.perc.subw2[2], 2), "%)"),
+       colour = "Herd") + 
+    guides(colour = guide_legend(override.aes = list(size = 4, shape = 19)))
+
+pcasubw2
+
+ggsave("./output/plots/PCAs/wbnp/downsampled_temp2_wbnp.svg",
+       plot = pcasubw2, 
+       device = "svg", 
+       width = 12, 
+       height = 12, 
+       units = "in")
+
+
+#### Discriminant Analysis of Principal Components -----------------------------
+## Unsupervised K means clustering
+# Identify K Clusters 
+grpsub2 <- find.clusters(downsample.genind, max.n.clust = 8, n.pca = (nInd(downsample.genind) -1))
+
+# Print BIC plot
+svg(file = "./output/plots/DAPC/subw2_BIC.svg", width = 7, height = 5)
+plot(grp2$Kstat, type = "o", xlab = "Number of clusters (K)", 
+     ylab = "BIC", main = "Value of BIC \n versus number of clusters \n Subsampled WBNP: 2016 - 2025" ,
+     col = "blue", pch = 1)
+dev.off()
+
+# BIC minimum value is at K = 2
+table.value(table(pop(downsample.genind), grpsub2$grp), col.lab=paste("inf", 1:6),
+row.lab=paste("ori", 1:6))
+
+## Supervised DAPC
+# TO prevent overfitting of the model, find optimal PCs to retain (Max = n-1 individuals)
+set.seed(999)
+pramxsub2 <- xvalDapc(tab(downsample.genind, NA.method = "mean"), pop(downsample.genind),
+                   xval.plot = TRUE)
+
+# Determine optimal number of PCs
+numpcsub2 <- as.numeric(pramxsub2$`Number of PCs Achieving Highest Mean Success`)
+
+# DAPC with known parameters
+dapcsub2 <- dapc(downsample.genind, pop(downsample.genind), n.pca = numpcsub2, n.da = (length(pop(w2))-1))
+dapcsub2
+
+# Plot subw2
+scatter(dapcsub2,posi.da="bottomright", bg="white",
+pch=17:22,cstar=0, cex = 2,col=dapc_palette,scree.pca=TRUE,
+posi.pca = "topright", ratio.da = 0.20, ratio.pca = 0.13, csub = 2,
+sub = paste0("DA1: ", round(dapc2$eig[1], 1), "% | DA2: ", round(dapc2$eig[2], 1), "%"))
+
+#### STRUCTURE analyses --------------------------------------------------------
+# Create Structure input files
+# W2 structure (93 individuals, 6 pops)
+sub_wbnp2 <- downsample.genind
+pop(sub_wbnp2) <- as.numeric(as.factor(pop(sub_wbnp2)))
+
+genind_to_structure(sub_wbnp2,
+                      output = "./STRUCTURE/accessory/downsampled_w2/subw2.structure.txt")
+
+```
+
+
+

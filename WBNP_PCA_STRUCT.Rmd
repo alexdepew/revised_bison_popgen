@@ -1859,6 +1859,28 @@ pop(sub_wbnp2) <- as.numeric(as.factor(pop(sub_wbnp2)))
 genind_to_structure(sub_wbnp2,
                       output = "./STRUCTURE/accessory/downsampled_w2/subw2.structure.txt")
 
+#### PCA 
+library(ggrepel)
+p4 <- ggplot(pca.subw2$li,
+       aes(x = pca.subw2$li$Axis1, y = pca.subw2$li$Axis2, color = downsample.genind@pop)) +
+  geom_point(size = 3) +
+  #geom_text_repel(label = downsample.genind@other$ID,
+                 # max.overlaps = Inf,
+                 # size = 1) +
+  scale_color_manual(values = c("yellow4", "gold1","steelblue4","dodgerblue2", "khaki2","#6A3D9A","blue1", "darkturquoise","black","green4", 
+                                 "#FF7F00", 
+                                 "skyblue2", "#FB9A99", "palegreen2", "#CAB2D6",
+                                "#FDBF6F", "gray70",  "maroon", "orchid1",
+                                "deeppink1",   
+                                "green1",  "yellow3", "darkorange4", "brown")) +
+  labs(x = "PC1",
+       y = "PC2",
+       color = "Herd") +
+  theme_bw() +
+    stat_ellipse(aes(color = downsample.genind@pop), size = 0.8, type = "norm", level = 0.68) + 
+    theme(panel.grid = element_blank())
+
+p4
 ```
 
 

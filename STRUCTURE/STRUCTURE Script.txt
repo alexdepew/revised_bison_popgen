@@ -17,7 +17,7 @@ wget https://raw.githubusercontent.com/dentearl/structureHarvester/refs/heads/ma
 
 # Now edit the parameters in the input.py for each temporal group using nano
 
-#### Begin structure runs (temp1)
+#### Begin structure runs 
 ./strauto_1.py
 # press "enter" and then "a"
 # this will have generated mainparams file and extraparams file

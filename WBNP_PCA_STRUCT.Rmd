@@ -1465,12 +1465,12 @@ sub_wbnp2 <- downsample.genind
 pop(sub_wbnp2) <- as.numeric(as.factor(pop(sub_wbnp2)))
 
 genind_to_structure(sub_wbnp2,
-                      output = "./STRUCTURE/wbnp/no_einp/subw2.structure.txt")
+                      output = "./STRUCTURE/wbnp/subw2.structure.txt")
 
 ## Import files
 # List files
 # Full datasets
-sfiles_subw2 <- list.files("./STRUCTURE/wbnp/no_einp/results/downsample/", full.names = TRUE)
+sfiles_subw2 <- list.files("./STRUCTURE/wbnp/downsample/", full.names = TRUE)
 
 # Qlist (pophelper)
 slist_subw2 <- readQ(files = sfiles_subw2, filetype = "structure")

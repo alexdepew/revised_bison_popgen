@@ -31,7 +31,7 @@ library(svglite)
 
 ## Load Required Data
 ```{r}
-bison.data <- read.csv("./datafiles/Cleaned_data_2026.06.25.csv",
+bison.data <- read.csv("./datafiles/Cleaned_data_2026.07.16.csv",
                        check.names = F)
 ```
 
@@ -42,7 +42,7 @@ bison.genind <- df2genind(X=bison.data[,c(15:ncol(bison.data))],
                               sep = "/",
                               ind.names = bison.data$Spreadsheet.ID,
                               loc.names = NULL,
-                              pop = bison.data$He,
+                              pop = bison.data$Herd,
                               NA.char = "NA",
                               ploidy = 2,
                               type = "codom",
@@ -70,7 +70,7 @@ barplot(locmiss_bison, ylim = c(0,1), ylab = "Complete genotypes (proportion)", 
 bison.genind <- missingno(bison.genind, type = "loci", cutoff = 0.20)
 
 ```
-Locus BM4028 contained more >20% missing data, and therefore was removed from the global dataset.
+Locus BM4028 contained more >20% missing data, and was removed from the global dataset.
 
 ## Check loci are polymorphic
 ```{r}
@@ -211,7 +211,7 @@ wide_HWE.temp1 <- HWE.temp1 %>%
     if_else(. <= 0.05, paste0(formatted, "*"), formatted)
   }))
 
-write.csv(wide_HWE.temp1, "./output/tables/temp1_v2.HWE.p_adjust.csv", row.names = F)
+write.csv(wide_HWE.temp1, "./output/tables/temp1_v3.HWE.p_adjust.csv", row.names = F)
 
 
 # Temp2 
@@ -229,7 +229,7 @@ wide_HWE.temp2 <- HWE.temp2 %>%
     if_else(. <= 0.05, paste0(formatted, "*"), formatted)
   }))
 
-write.csv(wide_HWE.temp2, "./output/tables/temp2_v2.HWE.p_adjust.csv", row.names = F)
+write.csv(wide_HWE.temp2, "./output/tables/temp2_v3.HWE.p_adjust.csv", row.names = F)
 
 ```
 
@@ -259,7 +259,7 @@ LD.temp1.sig <- LD.df.temp1 %>%
   filter(p.adj_herd <= 0.05 & 
            !is.na(Locus.2))
 
-write.csv(LD.temp1.sig, "./output/tables/temp1LD_v2.csv", row.names = F)
+write.csv(LD.temp1.sig, "./output/tables/temp1LD_v3.csv", row.names = F)
 
 
 # Temp2 ----
@@ -285,7 +285,7 @@ LD.temp2.sig <- LD.df.temp2 %>%
   filter(p.adj_herd <= 0.05 & 
            !is.na(Locus.2))
 
-write.csv(LD.temp2.sig, "./output/tables/temp2LD_v2.csv", row.names = F)
+write.csv(LD.temp2.sig, "./output/tables/temp2LD_v3.csv", row.names = F)
 ```
 The dataframes containing only significant pairwise comparisons following the Benjamini-Hochberg correction return significant p-values in populations which are represented by relatively small sample sizes: Nahanni (n = 8). Instead of indicating true linkage disequilibrium, the lack of intra-population allele data likely inflates the variance in allele frequency estimates, increasing the probability of detecting spurious non-random locus associations due to sampling effects. No significant pairs of loci exist on the same chromose, negating the possibility of physical linkage. 
 
@@ -798,5 +798,5 @@ analysis.data <- bison.data %>%
   
   
 # Write out to csv
-write.csv(analysis.data, "./datafiles/Final_dataset_2026.06.28.csv", row.names = F)
+write.csv(analysis.data, "./datafiles/Final_dataset_2026.07.17.csv", row.names = F)
 ```

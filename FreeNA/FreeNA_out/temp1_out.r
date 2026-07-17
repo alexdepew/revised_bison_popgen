@@ -1,7 +1,7 @@
 FreeNA,
 
-Input file = temp1.genepop.txt
-Output file = temp1.freena.out.r
+Input file = temp1.FreeNA.txt
+Output file = FreeNA_out/temp1_out.r
 Number of populations = 14
 Number of loci = 49
 
@@ -15,7 +15,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
    1       4   0.00001
    1       5   0.03699
    1       6   0.00000
-   1       7   0.00926
+   1       7   0.00136
    1       8   0.00433
    1       9   0.01752
    1      10   0.00000
@@ -32,7 +32,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
    2       7   0.00000
    2       8   0.00002
    2       9   0.00000
-   2      10   0.00709
+   2      10   0.01291
    2      11   0.06579
    2      12   0.00000
    2      13   0.01834
@@ -60,7 +60,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
    4       7   0.00000
    4       8   0.00979
    4       9   0.00000
-   4      10   0.00204
+   4      10   0.00001
    4      11   0.00002
    4      12   0.00000
    4      13   0.00000
@@ -71,7 +71,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
    5       4   0.08462
    5       5   0.00001
    5       6   0.00100
-   5       7   0.20369
+   5       7   0.20822
    5       8   0.00100
    5       9   0.00002
    5      10   0.00001
@@ -88,7 +88,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
    6       7   0.00000
    6       8   0.00000
    6       9   0.03657
-   6      10   0.00369
+   6      10   0.01215
    6      11   0.05780
    6      12   0.00001
    6      13   0.00000
@@ -102,7 +102,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
    7       7   0.00000
    7       8   0.06683
    7       9   0.00000
-   7      10   0.06421
+   7      10   0.07475
    7      11   0.00000
    7      12   0.00967
    7      13   0.00001
@@ -116,7 +116,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
    8       7   0.00000
    8       8   0.00000
    8       9   0.00000
-   8      10   0.00000
+   8      10   0.00001
    8      11   0.00001
    8      12   0.00000
    8      13   0.00001
@@ -127,7 +127,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
    9       4   0.00000
    9       5   0.01473
    9       6   0.00000
-   9       7   0.00858
+   9       7   0.02656
    9       8   0.00001
    9       9   0.00433
    9      10   0.00000
@@ -144,7 +144,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   10       7   0.00000
   10       8   0.00001
   10       9   0.02383
-  10      10   0.00001
+  10      10   0.00012
   10      11   0.00000
   10      12   0.01947
   10      13   0.06437
@@ -172,7 +172,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   12       7   0.00000
   12       8   0.00002
   12       9   0.00000
-  12      10   0.03960
+  12      10   0.04463
   12      11   0.00000
   12      12   0.00000
   12      13   0.00000
@@ -186,7 +186,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   13       7   0.00000
   13       8   0.00001
   13       9   0.06667
-  13      10   0.00001
+  13      10   0.00006
   13      11   0.00000
   13      12   0.00000
   13      13   0.00010
@@ -211,10 +211,10 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   15       4   0.00000
   15       5   0.00822
   15       6   0.00000
-  15       7   0.00775
+  15       7   0.01297
   15       8   0.00000
   15       9   0.00001
-  15      10   0.02342
+  15      10   0.01776
   15      11   0.04074
   15      12   0.00000
   15      13   0.00007
@@ -239,10 +239,10 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   17       4   0.00000
   17       5   0.02527
   17       6   0.00000
-  17       7   0.00001
+  17       7   0.00006
   17       8   0.00001
   17       9   0.00000
-  17      10   0.03465
+  17      10   0.04556
   17      11   0.00001
   17      12   0.00000
   17      13   0.00000
@@ -270,7 +270,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   19       7   0.00000
   19       8   0.00000
   19       9   0.09000
-  19      10   0.00882
+  19      10   0.00007
   19      11   0.00000
   19      12   0.00001
   19      13   0.00000
@@ -284,7 +284,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   20       7   0.00000
   20       8   0.00001
   20       9   0.00000
-  20      10   0.02001
+  20      10   0.02403
   20      11   0.13201
   20      12   0.00001
   20      13   0.00000
@@ -312,7 +312,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   22       7   0.00000
   22       8   0.00000
   22       9   0.00000
-  22      10   0.08793
+  22      10   0.06686
   22      11   0.03031
   22      12   0.07438
   22      13   0.01714
@@ -323,10 +323,10 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   23       4   0.00001
   23       5   0.00003
   23       6   0.07312
-  23       7   0.06514
+  23       7   0.06857
   23       8   0.00001
   23       9   0.00000
-  23      10   0.04228
+  23      10   0.04412
   23      11   0.01593
   23      12   0.00000
   23      13   0.00000
@@ -337,10 +337,10 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   24       4   0.00000
   24       5   0.02153
   24       6   0.00000
-  24       7   0.00001
+  24       7   0.00000
   24       8   0.06357
   24       9   0.09058
-  24      10   0.02288
+  24      10   0.02006
   24      11   0.03297
   24      12   0.03704
   24      13   0.00050
@@ -354,7 +354,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   25       7   0.00002
   25       8   0.19170
   25       9   0.09849
-  25      10   0.10799
+  25      10   0.11928
   25      11   0.00001
   25      12   0.00000
   25      13   0.03298
@@ -365,10 +365,10 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   26       4   0.00003
   26       5   0.00688
   26       6   0.00000
-  26       7   0.00006
+  26       7   0.01190
   26       8   0.00144
   26       9   0.00000
-  26      10   0.05441
+  26      10   0.04697
   26      11   0.00000
   26      12   0.00000
   26      13   0.05868
@@ -379,10 +379,10 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   27       4   0.00982
   27       5   0.03182
   27       6   0.00000
-  27       7   0.00899
+  27       7   0.02679
   27       8   0.00000
   27       9   0.01855
-  27      10   0.04310
+  27      10   0.05022
   27      11   0.00000
   27      12   0.00000
   27      13   0.00004
@@ -435,7 +435,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   31       4   0.04151
   31       5   0.02516
   31       6   0.00000
-  31       7   0.11691
+  31       7   0.09487
   31       8   0.00000
   31       9   0.03297
   31      10   0.00000
@@ -463,7 +463,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   33       4   0.00000
   33       5   0.00000
   33       6   0.20667
-  33       7   0.03423
+  33       7   0.04410
   33       8   0.11752
   33       9   0.11027
   33      10   0.00000
@@ -477,10 +477,10 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   34       4   0.00000
   34       5   0.00002
   34       6   0.00000
-  34       7   0.19170
+  34       7   0.18777
   34       8   0.00000
   34       9   0.00001
-  34      10   0.11587
+  34      10   0.11006
   34      11   0.00052
   34      12   0.00000
   34      13   0.00000
@@ -508,7 +508,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   36       7   0.00000
   36       8   0.00000
   36       9   0.04016
-  36      10   0.00000
+  36      10   0.00001
   36      11   0.08470
   36      12   0.00000
   36      13   0.00000
@@ -519,7 +519,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   37       4   0.02877
   37       5   0.00000
   37       6   0.00000
-  37       7   0.05526
+  37       7   0.07574
   37       8   0.00009
   37       9   0.00001
   37      10   0.00000
@@ -547,10 +547,10 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   39       4   0.00001
   39       5   0.00001
   39       6   0.00000
-  39       7   0.02191
+  39       7   0.04065
   39       8   0.00000
   39       9   0.01262
-  39      10   0.00001
+  39      10   0.00000
   39      11   0.01615
   39      12   0.00000
   39      13   0.00001
@@ -561,10 +561,10 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   40       4   0.01672
   40       5   0.00000
   40       6   0.00000
-  40       7   0.00001
+  40       7   0.00006
   40       8   0.00001
   40       9   0.00001
-  40      10   0.01662
+  40      10   0.00007
   40      11   0.00000
   40      12   0.01668
   40      13   0.00001
@@ -589,10 +589,10 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   42       4   0.04363
   42       5   0.02955
   42       6   0.00001
-  42       7   0.02289
+  42       7   0.01859
   42       8   0.00000
   42       9   0.00000
-  42      10   0.07278
+  42      10   0.08500
   42      11   0.15652
   42      12   0.02420
   42      13   0.02258
@@ -603,7 +603,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   43       4   0.08514
   43       5   0.01438
   43       6   0.16278
-  43       7   0.10539
+  43       7   0.12037
   43       8   0.00000
   43       9   0.00000
   43      10   0.00000
@@ -617,7 +617,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   44       4   0.00000
   44       5   0.00015
   44       6   0.00000
-  44       7   0.00002
+  44       7   0.00001
   44       8   0.00000
   44       9   0.00045
   44      10   0.00000
@@ -631,10 +631,10 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   45       4   0.00000
   45       5   0.00000
   45       6   0.00000
-  45       7   0.07689
+  45       7   0.08972
   45       8   0.10479
   45       9   0.00000
-  45      10   0.00069
+  45      10   0.00415
   45      11   0.00000
   45      12   0.00490
   45      13   0.05028
@@ -659,10 +659,10 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   47       4   0.00000
   47       5   0.00000
   47       6   0.00000
-  47       7   0.07119
+  47       7   0.06286
   47       8   0.09517
   47       9   0.00000
-  47      10   0.06563
+  47      10   0.07733
   47      11   0.00000
   47      12   0.00000
   47      13   0.00000
@@ -673,10 +673,10 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   48       4   0.00000
   48       5   0.00444
   48       6   0.17976
-  48       7   0.01495
+  48       7   0.00008
   48       8   0.09630
   48       9   0.00000
-  48      10   0.05392
+  48      10   0.06481
   48      11   0.02155
   48      12   0.00000
   48      13   0.00000
@@ -687,7 +687,7 @@ Estimating null allele frequency using the EM algorithm (Dempster et al. 1977)
   49       4   0.02974
   49       5   0.00002
   49       6   0.00000
-  49       7   0.11070
+  49       7   0.07532
   49       8   0.00001
   49       9   0.00000
   49      10   0.00001

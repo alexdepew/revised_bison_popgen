@@ -1,7 +1,7 @@
 # This is a paramfile for MicroDrop generated automatically
 ###----Main Parameters----###
 DATA_FILE      ./input/temp2_11.microdrop.txt
-INDS           44
+INDS           43
 LOCI           49
 NON_DATA_ROWS  1
 NON_DATA_COLS  2

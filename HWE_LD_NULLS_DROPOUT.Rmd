@@ -211,7 +211,7 @@ wide_HWE.temp1 <- HWE.temp1 %>%
     if_else(. <= 0.05, paste0(formatted, "*"), formatted)
   }))
 
-write.csv(wide_HWE.temp1, "./output/tables/temp1_v3.HWE.p_adjust.csv", row.names = F)
+write.csv(wide_HWE.temp1, "./output/tables/QC/temp1_v3.HWE.p_adjust.csv", row.names = F)
 
 
 # Temp2 
@@ -229,7 +229,7 @@ wide_HWE.temp2 <- HWE.temp2 %>%
     if_else(. <= 0.05, paste0(formatted, "*"), formatted)
   }))
 
-write.csv(wide_HWE.temp2, "./output/tables/temp2_v3.HWE.p_adjust.csv", row.names = F)
+write.csv(wide_HWE.temp2, "./output/tables/QC/temp2_v3.HWE.p_adjust.csv", row.names = F)
 
 ```
 
@@ -259,7 +259,7 @@ LD.temp1.sig <- LD.df.temp1 %>%
   filter(p.adj_herd <= 0.05 & 
            !is.na(Locus.2))
 
-write.csv(LD.temp1.sig, "./output/tables/temp1LD_v3.csv", row.names = F)
+write.csv(LD.temp1.sig, "./output/tables/QC/temp1LD_v3.csv", row.names = F)
 
 
 # Temp2 ----
@@ -285,7 +285,7 @@ LD.temp2.sig <- LD.df.temp2 %>%
   filter(p.adj_herd <= 0.05 & 
            !is.na(Locus.2))
 
-write.csv(LD.temp2.sig, "./output/tables/temp2LD_v3.csv", row.names = F)
+write.csv(LD.temp2.sig, "./output/tables/QC/temp2LD_v3.csv", row.names = F)
 ```
 The dataframes containing only significant pairwise comparisons following the Benjamini-Hochberg correction return significant p-values in populations which are represented by relatively small sample sizes: Nahanni (n = 8). Instead of indicating true linkage disequilibrium, the lack of intra-population allele data likely inflates the variance in allele frequency estimates, increasing the probability of detecting spurious non-random locus associations due to sampling effects. No significant pairs of loci exist on the same chromose, negating the possibility of physical linkage. 
 
@@ -398,7 +398,7 @@ compiled_patterns <- n1 %>%
 
 table(compiled_patterns$Locus)
 
-write.csv(compiled_patterns, "./output/tables/Sig.Nulls.csv", row.names = F)
+write.csv(compiled_patterns, "./output/tables/QC/Sig.Nulls.csv", row.names = F)
 ```
 #### Visualize Null Allele Frequency
 Averaged at Loci
@@ -467,7 +467,7 @@ ggplot(avg.nulls, aes(x = fct_rev(Locus), y = mean, fill = fct_rev(Timepoint))) 
   )
 
 ggsave(
-  filename = "./output/plots/Locus_Nulls.svg", 
+  filename = "./output/plots/QC/Locus_Nulls.svg", 
   plot = last_plot(),
   device = "svg",
   width = 10,      
@@ -652,16 +652,18 @@ temp1.dropout <- dropout %>%
   mutate(herd = case_match(Pop,
     "microdrop_resulttemp1_1"  ~ "EINPP",
     "microdrop_resulttemp1_2"  ~ "EINPW",
-    "microdrop_resulttemp1_3"  ~ "HZ",
-    "microdrop_resulttemp1_4"  ~ "MBS",
-    "microdrop_resulttemp1_5"  ~ "RL",
-    "microdrop_resulttemp1_6"  ~ "WAB",
-    "microdrop_resulttemp1_7"  ~ "WBNPGR",
-    "microdrop_resulttemp1_8"  ~ "WBNPHC",
-    "microdrop_resulttemp1_9"  ~ "WBNPLB",
-    "microdrop_resulttemp1_10" ~ "WBNPNY",
-    "microdrop_resulttemp1_11" ~ "WBNPPAD",
-    "microdrop_resulttemp1_12" ~ "WENT",
+    "microdrop_resulttemp1_3"  ~ "ETH",
+    "microdrop_resulttemp1_4"  ~ "HZ",
+    "microdrop_resulttemp1_5"  ~ "MBS",
+    "microdrop_resulttemp1_6"  ~ "NORD",
+    "microdrop_resulttemp1_7"  ~ "RL",
+    "microdrop_resulttemp1_8"  ~ "WAB",
+    "microdrop_resulttemp1_9"  ~ "WBNPGR",
+    "microdrop_resulttemp1_10"  ~ "WBNPHC",
+    "microdrop_resulttemp1_11"  ~ "WBNPLB",
+    "microdrop_resulttemp1_12" ~ "WBNPNY",
+    "microdrop_resulttemp1_13" ~ "WBNPPAD",
+    "microdrop_resulttemp1_14" ~ "WENT",
     .default = Pop # Keeps the original name if no match found
   ))
 
@@ -683,16 +685,17 @@ temp2.dropout <- dropout %>%
     Pop == "microdrop_resulttemp2_4"  ~ "EINPW",
     Pop == "microdrop_resulttemp2_5"  ~ "ETH",
     Pop == "microdrop_resulttemp2_6"  ~ "HZ",
-    Pop == "microdrop_resulttemp2_7"  ~ "NAH",
-    Pop == "microdrop_resulttemp2_8"  ~ "NORD",
-    Pop == "microdrop_resulttemp2_9"  ~ "RL",
-    Pop == "microdrop_resulttemp2_10" ~ "WAB",
-    Pop == "microdrop_resulttemp2_11" ~ "WBNPPGR",
-    Pop == "microdrop_resulttemp2_12" ~ "WBNPHC",
-    Pop == "microdrop_resulttemp2_13" ~ "WBNPLB",
-    Pop == "microdrop_resulttemp2_14" ~ "WBNPNY",
-    Pop == "microdrop_resulttemp2_15" ~ "WBNPPAD",
-    Pop == "microdrop_resulttemp2_16" ~ "WENT",
+    Pop == "microdrop_resulttemp2_7"  ~ "MBS",
+    Pop == "microdrop_resulttemp2_8"  ~ "NAH",
+    Pop == "microdrop_resulttemp2_9"  ~ "NORD",
+    Pop == "microdrop_resulttemp2_10"  ~ "RL",
+    Pop == "microdrop_resulttemp2_11" ~ "WAB",
+    Pop == "microdrop_resulttemp2_12" ~ "WBNPPGR",
+    Pop == "microdrop_resulttemp2_13" ~ "WBNPHC",
+    Pop == "microdrop_resulttemp2_14" ~ "WBNPLB",
+    Pop == "microdrop_resulttemp2_15" ~ "WBNPNY",
+    Pop == "microdrop_resulttemp2_16" ~ "WBNPPAD",
+    Pop == "microdrop_resulttemp2_17" ~ "WENT",
     TRUE ~ Pop
   ))
 
@@ -770,7 +773,7 @@ p_drop <- ggplot(locus_plot_data,
 
 
 ggsave(
-  filename = "./output/plots/Locus_Dropout.svg", 
+  filename = "./output/plots/QC/Locus_Dropout.svg", 
   plot = last_plot(),
   device = "svg",
   width = 10,      

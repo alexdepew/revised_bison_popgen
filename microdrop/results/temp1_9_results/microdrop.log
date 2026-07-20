@@ -1,7 +1,7 @@
 =========================================================================
 ======                     MicroDrop version 1.01                   =====
 =========================================================================
-Started at: Fri Jun 26 12:28:15 2026
+Started at: Mon Jul 20 07:49:38 2026
 
 Parameter values used in execution:
 
@@ -30,9 +30,9 @@ Pearson correlation across loci:
 Step 2: estimating parameters using EM algorithm
 
 EM	t	rho(t-1)	rho(t)  	logL(t-1)	logL(t)
-rep-1	45	0.000001	0.000001	-372.7349	-372.7339
-rep-2	46	0.000003	0.000003	-372.7357	-372.7347
-rep-3	45	0.000002	0.000001	-372.736	-372.7351
+rep-1	48	0.000001	0.000001	-372.7351	-372.7342
+rep-2	46	0.000004	0.000004	-372.736	-372.735
+rep-3	45	0.000006	0.000005	-372.7353	-372.7343
 
 Results from rep-1 have been picked as MLEs.
 MLEs have been output to files in folder 'temp1_9_results'.
@@ -41,5 +41,5 @@ Step 3: generating imputed datasets based on MLEs from step 2
 
 4 imputed datasets have been output to folder 'temp1_9_results/Imputed_Data'.
 
-Finished at: Fri Jun 26 12:28:16 2026
+Finished at: Mon Jul 20 07:49:38 2026
 =========================================================================

@@ -1,7 +1,7 @@
 =========================================================================
 ======                     MicroDrop version 1.01                   =====
 =========================================================================
-Started at: Fri Jun 26 12:28:17 2026
+Started at: Mon Jul 20 07:49:39 2026
 
 Parameter values used in execution:
 
@@ -25,21 +25,21 @@ Step 1: checking correlation bewteen missing data and homozygotes
 Pearson correlation across individuals:
 	 R=0.52952	 P-value<0.01
 Pearson correlation across loci:
-	 R=0.0848891	 P-value=0.1
+	 R=0.0848891	 P-value=0.24
 
 Step 2: estimating parameters using EM algorithm
 
 EM	t	rho(t-1)	rho(t)  	logL(t-1)	logL(t)
-rep-1	54	0.000019	0.000016	-916.0006	-915.9997
-rep-2	54	0.000019	0.000016	-915.9984	-915.9974
-rep-3	54	0.000023	0.000020	-915.9999	-915.9989
+rep-1	53	0.000006	0.000005	-916.0004	-915.9995
+rep-2	54	0.000020	0.000017	-916.0001	-915.9991
+rep-3	54	0.000016	0.000014	-916	-915.9991
 
-Results from rep-2 have been picked as MLEs.
+Results from rep-3 have been picked as MLEs.
 MLEs have been output to files in folder 'temp2_12_results'.
 
 Step 3: generating imputed datasets based on MLEs from step 2
 
 4 imputed datasets have been output to folder 'temp2_12_results/Imputed_Data'.
 
-Finished at: Fri Jun 26 12:28:18 2026
+Finished at: Mon Jul 20 07:49:39 2026
 =========================================================================

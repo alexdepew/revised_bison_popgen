@@ -15,7 +15,7 @@ This script is used to evaluate temporal patterns in population structure in all
 
 Files used described below:
 
-- `Final_dataset_2026.06.28.csv`
+- `Final_dataset_2026.07.17.csv`
    - Contains all samples for population genetic analyses, post-filtering
    
 ## Load Required Packages
@@ -36,7 +36,7 @@ library(grid)
 
 ## Load Required Data
 ```{r}
-cleaned.data <- read.csv("./datafiles/Final_dataset_2026.06.28.csv",
+cleaned.data <- read.csv("./datafiles/Final_dataset_2026.07.17.csv",
                          check.names = F)
 ```
 
@@ -179,7 +179,7 @@ theme(
        x = paste0("PC1 (", round(eig.perc.temp1[1], 2), "%)"),
        y = paste0("PC2 (", round(eig.perc.temp1[2], 2), "%)"),
        colour = "Herd") + 
-    guides(colour = guide_legend(override.aes = list(size = 4, shape = 19))) +
+    guides(colour = guide_legend(override.aes = list(size = 4, shape = 19))) 
   
 
 ggsave("./output/plots/PCAs/global/temp1_w_plains.svg",
@@ -193,12 +193,12 @@ ggsave("./output/plots/PCAs/global/temp1_w_plains.svg",
 Global PCA's (Christina's code)
 ```{r}
 library(ggrepel)
-ggplot(pca.temp1$li,
+p1 <- ggplot(pca.temp1$li,
        aes(x = pca.temp1$li$Axis1, y = pca.temp1$li$Axis2, color = temp1@pop)) +
   geom_point(size = 3) +
-  geom_text_repel(label = temp1@other$ID,
-                  max.overlaps = Inf,
-                  size = 1) +
+ # geom_text_repel(label = temp1@other$ID,
+  #                max.overlaps = Inf,
+   #               size = 1) +
   scale_color_manual(values = c("dodgerblue2", "green4", "#6A3D9A", "#FF7F00", "black",
                                 "gold1", "skyblue2", "#FB9A99", "palegreen2", "#CAB2D6",
                                 "#FDBF6F", "gray70", "khaki2", "maroon", "orchid1",
@@ -210,13 +210,20 @@ ggplot(pca.temp1$li,
   theme_bw() +
   theme(panel.grid = element_blank())
 
+ggsave("./output/plots/PCAs/global/p1.svg",
+       plot = p1, 
+       device = "svg", 
+       width = 12, 
+       height = 12, 
+       units = "in")
+
 # Temp2
-ggplot(pca.temp2$li,
+p2 <- ggplot(pca.temp2$li,
        aes(x = pca.temp2$li$Axis1, y = pca.temp2$li$Axis2, color = temp2@pop)) +
   geom_point(size = 3) +
-  geom_text_repel(label = temp2@other$ID,
-                  max.overlaps = Inf,
-                  size = 1) +
+  #geom_text_repel(label = temp2@other$ID,
+   #               max.overlaps = Inf,
+    #              size = 1) +
   scale_color_manual(values = c("dodgerblue2", "green4", "#6A3D9A", "#FF7F00", "black",
                                 "gold1", "skyblue2", "#FB9A99", "palegreen2", "#CAB2D6",
                                 "#FDBF6F", "gray70", "khaki2", "maroon", "orchid1",
@@ -227,14 +234,21 @@ ggplot(pca.temp2$li,
        color = "Herd") +
   theme_bw() +
   theme(panel.grid = element_blank())
+
+ggsave("./output/plots/PCAs/global/p2.svg",
+       plot = p2, 
+       device = "svg", 
+       width = 12, 
+       height = 12, 
+       units = "in")
 
 # Temp1 WITHOUT EINP outgroup
 p3 <- ggplot(pca.temp1.noEINPP$li,
        aes(x = pca.temp1.noEINPP$li$Axis1, y = pca.temp1.noEINPP$li$Axis2, color = temp1.noEINPP@pop)) +
   geom_point(size = 3) +
-  geom_text_repel(label = temp1.noEINPP@other$ID,
-                  max.overlaps = Inf,
-                  size = 1) +
+ # geom_text_repel(label = temp1.noEINPP@other$ID,
+  #                max.overlaps = Inf,
+   #               size = 1) +
   scale_color_manual(values = c("dodgerblue2", "green4", "#6A3D9A", "#FF7F00", "black",
                                 "gold1", "skyblue2", "#FB9A99", "palegreen2", "#CAB2D6",
                                 "#FDBF6F", "gray70", "khaki2", "maroon", "orchid1",
@@ -261,9 +275,9 @@ pca.temp2.noEINPP$li[ , 1] <- pca.temp2.noEINPP$li[ , 1] * -1
 p4 <- ggplot(pca.temp2.noEINPP$li,
        aes(x = pca.temp2.noEINPP$li$Axis1, y = pca.temp2.noEINPP$li$Axis2, color = temp2.noEINPP@pop)) +
   geom_point(size = 3) +
-  geom_text_repel(label = temp2.noEINPP@other$ID,
-                  max.overlaps = Inf,
-                  size = 1) +
+ # geom_text_repel(label = temp2.noEINPP@other$ID,
+  #                max.overlaps = Inf,
+   #               size = 1) +
   scale_color_manual(values = c("dodgerblue2", "green4", "#6A3D9A", "#FF7F00", "black",
                                 "gold1", "skyblue2", "#FB9A99", "palegreen2", "#CAB2D6",
                                 "#FDBF6F", "gray70", "khaki2", "maroon", "orchid1",
@@ -387,13 +401,14 @@ global_pcas <- grid.arrange(pca1_nl, legend1, pca2_nl, # Set out grid
                             
 # Save plot
 library(svglite)
-ggsave("./output/plots/PCAs/global_pcas.svg",
+ggsave("./output/plots/PCAs/global/global_pcas.svg",
        plot = global_pcas, 
        device = "svg", 
        width = 16, 
        height = 12, 
        units = "in")
 ```
+
 Remove Elk Island Plains for Structure Analyses
 ```{r}
 temp1.noEINPP <- temp1[temp1@pop != "EINPP"]
@@ -441,7 +456,7 @@ levels_temp1.noEINPP <- levels(temp1.noEINPP@pop)
 temp1.noEINPP_cols <- herd_cols[levels_temp1.noEINPP]
 
 # Invert X axis
-#pca.temp1.noEINPP$li[ , 1] <- pca.temp1.noEINPP$li[ , 1] * -1
+pca.temp1.noEINPP$li[ , 1] <- pca.temp1.noEINPP$li[ , 1] * -1
 
 # Plot PCA object
 pca1.noEINPP <- fviz_pca_ind(pca.temp1.noEINPP,
@@ -474,7 +489,7 @@ theme(
 
 pca1.noEINPP
 
-ggsave("./output/plots/PCAs/temp1_no_plains.svg",
+ggsave("./output/plots/PCAs/global/temp1_no_plains.svg",
        plot = pca1.noEINPP, 
        device = "svg", 
        width = 12, 
@@ -521,7 +536,7 @@ theme(
 
 pca2.noEINPP
 
-ggsave("./output/plots/PCAs/temp2_no_plains.svg",
+ggsave("./output/plots/PCAs/global/temp2_no_plains.svg",
        plot = pca2.noEINPP, 
        device = "svg", 
        width = 12, 
@@ -582,7 +597,7 @@ global_pcas.noEINPP <- grid.arrange(pca1_nl.noEINPP, legend2, pca2_nl.noEINPP, #
                             )
                             
 # Save plot
-ggsave("./output/plots/PCAs/global_pcas.no_plains.svg",
+ggsave("./output/plots/PCAs/global/global_pcas.no_plains.svg",
        plot = global_pcas.noEINPP, 
        device = "svg", 
        width = 16, 
@@ -596,27 +611,27 @@ temp1.str <- temp1
 pop(temp1.str) <- as.numeric(as.factor(pop(temp1.str)))
 
 genind_to_structure(temp1.str,
-                    output = "STRUCTURE/global/temp1.w_plains.structure.txt")
+                    output = "STRUCTURE/global/w_plains/temp1.w_plains.structure.txt")
 # Temp2 structure
 temp2.str <- temp2
 pop(temp2.str) <- as.numeric(as.factor(pop(temp2.str)))
 
 genind_to_structure(temp2.str,
-                    output = "STRUCTURE/global/temp2.w_plains.structure.txt")
+                    output = "STRUCTURE/global/w_plains/temp2.w_plains.structure.txt")
 
 # Temp1.noEINPP
 temp1.noEINPP.str <- temp1.noEINPP
 pop(temp1.noEINPP.str) <- as.numeric(as.factor(pop(temp1.noEINPP.str)))
 
 genind_to_structure(temp1.noEINPP.str,
-                    output = "STRUCTURE/global/temp1.no_plains.structure.txt")
+                    output = "STRUCTURE/global/no_plains/temp1.no_plains.structure.txt")
 
 # Temp2.noEINPP
 temp2.noEINPP.str <- temp2.noEINPP
 pop(temp2.noEINPP.str) <- as.numeric(as.factor(pop(temp2.noEINPP.str)))
 
 genind_to_structure(temp2.noEINPP.str,
-                    output = "STRUCTURE/global/temp2.no_plains.structure.txt")
+                    output = "STRUCTURE/global/no_plains/temp2.no_plains.structure.txt")
 
 ```
 

@@ -327,7 +327,7 @@ usuable_data <- usuable_data %>%
     ~ replace(.x, .x %in% c("", "**", "0", "-99"), NA)
   )) %>%
   # Calculates a row sum of non-NA values (% of profile amplified)
-  mutate(COMPLETE = rowSums(!is.na(across(14:113)))) %>%
+  mutate(COMPLETE = rowSums(!is.na(across(14:ncol(usuable_data))))) %>%
   # Moves newly created column with profile completeness (%) after AMPLIFICATION
   relocate(COMPLETE, .after = AMPLIFICATION)
  

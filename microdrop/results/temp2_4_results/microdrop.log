@@ -1,12 +1,12 @@
 =========================================================================
 ======                     MicroDrop version 1.01                   =====
 =========================================================================
-Started at: Fri Jun 26 12:28:21 2026
+Started at: Mon Jul 20 07:49:39 2026
 
 Parameter values used in execution:
 
 DATA_FILE	./input/temp2_4.microdrop.txt	 # Data file name (-d)
-INDS	5	 # Number of individuals (-i)
+INDS	4	 # Number of individuals (-i)
 LOCI	49	 # Number of loci (-l)
 NON_DATA_ROWS	1	 # Number of non-data rows (-u)
 NON_DATA_COLS	2	 # Number of non-data columns (-v)
@@ -23,23 +23,23 @@ FCTR	0	 # Dropout factor assumption (-f)
 Step 1: checking correlation bewteen missing data and homozygotes
 
 Pearson correlation across individuals:
-	 R=-0.680222	 P-value=0.79
+	 R=-0.750555	 P-value=0.71
 Pearson correlation across loci:
-	 R=-0.233594	 P-value=0.93
+	 R=-0.225	 P-value=0.88
 
 Step 2: estimating parameters using EM algorithm
 
 EM	t	rho(t-1)	rho(t)  	logL(t-1)	logL(t)
-rep-1	31	0.000002	0.000002	-149.4123	-149.4114
-rep-2	31	0.000000	0.000000	-149.412	-149.4111
-rep-3	31	0.000002	0.000001	-149.4116	-149.4107
+rep-1	28	0.000003	0.000002	-107.0775	-107.0767
+rep-2	27	0.000002	0.000002	-107.0782	-107.0773
+rep-3	28	0.000002	0.000001	-107.0783	-107.0775
 
-Results from rep-3 have been picked as MLEs.
+Results from rep-1 have been picked as MLEs.
 MLEs have been output to files in folder 'temp2_4_results'.
 
 Step 3: generating imputed datasets based on MLEs from step 2
 
 4 imputed datasets have been output to folder 'temp2_4_results/Imputed_Data'.
 
-Finished at: Fri Jun 26 12:28:21 2026
+Finished at: Mon Jul 20 07:49:39 2026
 =========================================================================

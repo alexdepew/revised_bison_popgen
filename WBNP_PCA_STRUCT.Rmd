@@ -414,28 +414,28 @@ ggsave("./output/plots/PCAs/wbnp/wbnp_admix_pcas.svg",
 ```
 # STRUCTURE Analysis
 ```{r}
-# W1 structure (93 individuals, 6 pops)
+# W1 structure (92 individuals, 6 pops)
 w1.str <- w1 
 pop(w1.str) <- as.numeric(as.factor(pop(w1.str)))
 
 genind_to_structure(w1.str,
                     output = "STRUCTURE/wbnp/no_einp/w1.structure.txt")
 
-# W2 structure (218 individuals, 6 pops)
+# W2 structure (206 individuals, 6 pops)
 w2.str <- w2
 pop(w2.str) <- as.numeric(as.factor(pop(w2.str)))
 
 genind_to_structure(w2.str,
                     output = "STRUCTURE/wbnp/no_einp/w2.structure.txt")
 
-# A1 structure (234 individuals, 8 pops)
+# A1 structure (233 individuals, 8 pops)
 a1.str <- a1
 pop(a1.str) <- as.numeric(as.factor(pop(a1.str)))
 
 genind_to_structure(a1.str,
                     output = "STRUCTURE/wbnp/w_einp/a1.structure.txt")
 
-# A2 structure (275 individuals, 8 pops)
+# A2 structure (263 individuals, 8 pops)
 a2.str <- a2
 pop(a2.str) <- as.numeric(as.factor(pop(a2.str)))
 

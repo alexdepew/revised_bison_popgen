@@ -985,7 +985,7 @@ grp2 <- find.clusters(w2, max.n.clust = 8, n.pca = (nInd(w2) -1))
 # Print BIC plot
 svg(file = "./output/plots/DAPC/w2_BIC.svg", width = 7, height = 5)
 plot(grp2$Kstat, type = "o", xlab = "Number of clusters (K)", 
-     ylab = "BIC", main = "Value of BIC \n versus number of clusters \n WBNP: 2016 - 2025" ,
+     ylab = "BIC", main = "Value of BIC \n versus number of clusters \n WBNP: 2016 - 2026" ,
      col = "blue", pch = 1)
 dev.off()
 
@@ -1023,7 +1023,7 @@ plot(grp1$Kstat, type = "o", xlab = "Number of clusters (K)",
 
 # Temp2
 plot(grp2$Kstat, type = "o", xlab = "Number of clusters (K)", 
-     ylab = "BIC", main = "Value of BIC \n versus number of clusters \n WBNP: 2016 - 2025" ,
+     ylab = "BIC", main = "Value of BIC \n versus number of clusters \n WBNP: 2016 - 2026" ,
      col = "blue", pch = 1)
 
 
@@ -1066,15 +1066,15 @@ dev.off()
 # Plains Admixture
 #### Assess Q-values (membership probabilities of assigning to clusters)
 ```{r}
-a1.order <- data.frame(plota1$data$grplab[[1]]) %>% 
+a1.order <- data.frame(admixture1$data$grplab[[1]]) %>% 
   rownames_to_column("Ind")
 
 a1.k2 <- data.frame(a1.mk2) %>% 
   rownames_to_column("Ind") %>% 
   left_join(a1.order, by = "Ind") %>% 
   rename(Herd = ".",
-        Wood = X2.Cluster2,
-         Plains = X2.Cluster1) %>% 
+        Wood = X2.Cluster1,
+         Plains = X2.Cluster2) %>% 
   select(-Ind) %>% 
   relocate(Herd, .before = Plains)
   
@@ -1092,12 +1092,12 @@ a1.Q.sum
 a1.wbnp.Q.sum <-a1.Q.sum[3:8, ] 
 mean(a1.wbnp.Q.sum$Plains_mean)
 
-write.csv(a1.wbnp.Q.sum, "./output/tables/a1_PB_assignment.csv")
+write.csv(a1.wbnp.Q.sum, "./output/tables/structure/a1_PB_assignment.csv")
 
 #-------------------
 
 
-a2.order <- data.frame(plota2$data$grplab[[1]]) %>% 
+a2.order <- data.frame(admixture2$data$grplab[[1]]) %>% 
   rownames_to_column("Ind")
 
 a2.k2 <- data.frame(a2.mk2) %>% 
@@ -1123,10 +1123,11 @@ a2.wbnp.Q.sum <-a2.Q.sum[3:8, ]
 mean(a2.wbnp.Q.sum$Plains_mean)
 
 
-write.csv(a2.wbnp.Q.sum, "./output/tables/a2_PB_assignment.csv")
+write.csv(a2.wbnp.Q.sum, "./output/tables/structure/a2_PB_assignment.csv")
 
 
 ```
+
 #### JUST WBNP Plains (but grouped as all herds)
 ```{r}
 # Identify the names of the WBNP herds based on your subsetting (rows 3 to 8)
@@ -1339,7 +1340,7 @@ set.seed(123)
 # Assign population sizes to downsample for PCA and Structure analyses
 downsample <- tibble(
   Herd = c("WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT"),
-  n = c(10, 24, 11, 18, 25, 5)
+  n = c(10, 23, 11, 18, 25, 5)
 )
 
 downsample_data <- cleaned.data %>% 
@@ -1431,7 +1432,7 @@ grpsub2 <- find.clusters(downsample.genind, max.n.clust = 8, n.pca = (nInd(downs
 # Print BIC plot
 svg(file = "./output/plots/DAPC/subw2_BIC.svg", width = 7, height = 5)
 plot(grpsub2$Kstat, type = "o", xlab = "Number of clusters (K)", 
-     ylab = "BIC", main = "Value of BIC \n versus number of clusters \n Subsampled WBNP: 2016 - 2025" ,
+     ylab = "BIC", main = "Value of BIC \n versus number of clusters \n Subsampled WBNP: 2016 - 2026" ,
      col = "blue", pch = 1)
 dev.off()
 
@@ -1453,10 +1454,12 @@ dapcsub2 <- dapc(downsample.genind, pop(downsample.genind), n.pca = numpcsub2, n
 dapcsub2
 
 # Plot subw2
+svg(file = "./output/plots/DAPC/subw2_DAPC.svg", width = 7, height = 5)
 scatter(dapcsub2,posi.da="bottomright", bg="white",
 pch=17:22,cstar=0, cex = 2,col=dapc_palette,scree.pca=TRUE,
 posi.pca = "topright", ratio.da = 0.20, ratio.pca = 0.13, csub = 2,
 sub = paste0("DA1: ", round(dapc2$eig[1], 1), "% | DA2: ", round(dapc2$eig[2], 1), "%"))
+dev.off()
 
 #### STRUCTURE analyses --------------------------------------------------------
 # Create Structure input files

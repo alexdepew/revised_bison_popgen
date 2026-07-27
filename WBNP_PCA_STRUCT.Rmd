@@ -1390,14 +1390,14 @@ pcasubw2 <- fviz_pca_ind(pca.subw2,
              geom = "blank",
              habillage = downsample.genind@pop,
              repel = TRUE,
-             palette = w2_cols,
+             palette = master_cols,
              alpha.ind = 1) + 
   stat_ellipse(aes(color = downsample.genind@pop), type = "norm", level = 0.68) + 
   geom_point(aes(colour = downsample.genind@pop),
              shape = 19,
              alpha = 0.75,
              size = 1.2) + 
-  coord_fixed(ratio = 1, xlim = xlims, ylim = ylims) +
+  coord_fixed(ratio = 1, xlim = c(-2,2), ylim = c(-2, 2)) +
   
 theme(
     plot.title = element_blank(),
@@ -1458,7 +1458,7 @@ svg(file = "./output/plots/DAPC/subw2_DAPC.svg", width = 7, height = 5)
 scatter(dapcsub2,posi.da="bottomright", bg="white",
 pch=17:22,cstar=0, cex = 2,col=dapc_palette,scree.pca=TRUE,
 posi.pca = "topright", ratio.da = 0.20, ratio.pca = 0.13, csub = 2,
-sub = paste0("DA1: ", round(dapc2$eig[1], 1), "% | DA2: ", round(dapc2$eig[2], 1), "%"))
+sub = paste0("DA1: ", round(dapcsub2$eig[1], 1), "% | DA2: ", round(dapcsub2$eig[2], 1), "%"))
 dev.off()
 
 #### STRUCTURE analyses --------------------------------------------------------
@@ -1473,7 +1473,7 @@ genind_to_structure(sub_wbnp2,
 ## Import files
 # List files
 # Full datasets
-sfiles_subw2 <- list.files("./STRUCTURE/wbnp/downsample/", full.names = TRUE)
+sfiles_subw2 <- list.files("./STRUCTURE/wbnp/downsample/results/", full.names = TRUE)
 
 # Qlist (pophelper)
 slist_subw2 <- readQ(files = sfiles_subw2, filetype = "structure")
@@ -1545,7 +1545,7 @@ plotQ(subw2.merged.list,
             basesize = 10, 
             grplab = loc_labels_subw2, 
             subsetgrp = herd_order_subw2,
-            clustercol = struct_subw2_cols,
+            clustercol = master_cols,
             ordergrp = TRUE,
       
       # Side "K" Labels

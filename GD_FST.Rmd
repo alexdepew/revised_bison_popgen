@@ -28,7 +28,7 @@ library(poppr)
 
 ## Load Required Data
 ```{r}
-cleaned.data <- read.csv("./datafiles/Final_dataset_2026.06.28.csv",
+cleaned.data <- read.csv("./datafiles/Final_dataset_2026.07.17.csv",
                          check.names = F)
 
 
@@ -212,8 +212,7 @@ write.csv(fst2, "./output/tables/GD/fst2.csv", row.names = T)
 current_names <- colnames(temp1_fst.mat)
 
 # 2. Define the new order manually (swapping the last two)
-new_order <- c("WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT", "WBNPC1", "WBNPC2",
-                "EINPW", "ETH", "HZ", "MBS", "NORD", "RL", "WAB", "EINPP") 
+new_order <- c("WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT", "WBNPC1", "WBNPC2","EINPW", "ETH", "HZ", "MBS", "NORD", "RL", "WAB", "EINPP") 
 
 # 3. Apply the swap to both rows and columns
 temp1_fst.ordered <- temp1_fst.mat[new_order, new_order]

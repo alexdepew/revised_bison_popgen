@@ -197,7 +197,7 @@ levels_temp2 <- levels(temp2@pop)
 temp2_cols <- herd_cols[levels_temp2]
 
 # Invert Y axis
-#pca.temp2$li[ , 1] <- pca.temp2$li[ , 1] * -1
+pca.temp2$li[ , 1] <- pca.temp2$li[ , 1] * -1
 
 # Plot PCA object
 pca2 <- fviz_pca_ind(pca.temp2,
@@ -448,7 +448,7 @@ pcag.noEINPP <- fviz_pca_ind(pca.global.noEINPP,
              geom = "blank",
              habillage = bison.genind.noEINPP@pop,
              repel = TRUE,
-             palette = global_cols,
+             palette = temp2.noEINPP_cols,
              alpha.ind = 1,) + 
   stat_ellipse(aes(color = bison.genind.noEINPP@pop), type = "norm", level = 0.68) + 
   geom_point(aes(colour = bison.genind.noEINPP@pop),
@@ -1108,7 +1108,107 @@ plotQ(temp1.merged.list,
             outputfilename = "Temp1_no_plains",
             exportpath = "./output/plots/structure_plots/global/no_plains/")
 ```
+#### Temp 2 (Without Plains)
+```{r}
+temp2_no_plains.data <- cleaned.data %>% 
+  filter(Herd != "EINPP") %>% 
+  filter(Year.Collected >=2016) %>%
+  rename(ID = Spreadsheet.ID) %>% 
+  mutate(ID = as.character(ID))
+# Align runs
+slist_temp2_no_plains <- alignK(slist_temp2_no_plains, "auto")
 
+# Merge runs (average over 10 replicates)
+temp2_no_plains.mk2 <- mergeQ(slist_temp2_no_plains[11:20])
+temp2_no_plains.mk3 <- mergeQ(slist_temp2_no_plains[21:30])
+temp2_no_plains.mk4 <- mergeQ(slist_temp2_no_plains[31:40])
+temp2_no_plains.mk5 <- mergeQ(slist_temp2_no_plains[41:50])
+temp2_no_plains.mk6 <- mergeQ(slist_temp2_no_plains[51:60])
+temp2_no_plains.mk7 <- mergeQ(slist_temp2_no_plains[61:70])
+temp2_no_plains.mk8 <- mergeQ(slist_temp2_no_plains[71:80])
+temp2_no_plains.mk9 <- mergeQ(slist_temp2_no_plains[81:90])
+temp2_no_plains.mk10 <- mergeQ(slist_temp2_no_plains[91:100])
+temp2_no_plains.mk11 <- mergeQ(slist_temp2_no_plains[101:110])
+temp2_no_plains.mk12 <- mergeQ(slist_temp2_no_plains[111:120])
+temp2_no_plains.mk13 <- mergeQ(slist_temp2_no_plains[121:130])
+temp2_no_plains.mk14 <- mergeQ(slist_temp2_no_plains[131:140])
+temp2_no_plains.mk15 <- mergeQ(slist_temp2_no_plains[141:150])
+temp2_no_plains.mk16 <- mergeQ(slist_temp2_no_plains[151:160])
+
+
+
+temp2.merged.list <- as.qlist(list(temp2_no_plains.mk2[[1]], temp2_no_plains.mk3[[1]], temp2_no_plains.mk4[[1]], 
+                          temp2_no_plains.mk5[[1]], temp2_no_plains.mk6[[1]], temp2_no_plains.mk7[[1]], temp2_no_plains.mk8[[1]],
+                          temp2_no_plains.mk9[[1]], temp2_no_plains.mk10[[1]], temp2_no_plains.mk11[[1]], temp2_no_plains.mk12[[1]], temp2_no_plains.mk13[[1]], temp2_no_plains.mk14[[1]],  temp2_no_plains.mk15[[1]], temp2_no_plains.mk16[[1]]))
+
+ind_label_temp2_no_plains <- readQ(files = sfiles_temp2_no_plains[1], indlabfrom = TRUE) %>% as.data.frame()
+ind_label_temp2_no_plains <- rownames_to_column(ind_label_temp2_no_plains, "ID")
+locations_temp2_no_plains <- left_join(ind_label_temp2_no_plains, temp2_no_plains.data, by = "ID")
+
+loc_labels_temp2_no_plains <- locations_temp2_no_plains$Herd %>% as.data.frame()
+
+herd_order_temp2_no_plains <- c("AISH", "CL", "EINPW", "ETH", "HZ", "MBS", "NAH", "NORD", "RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT")
+struct_temp2_no_plains_cols <- c("#3b96cf", 
+  "#ee964c", "#7d2a7c","#e39bc1", "#e73f4e", 
+  "#4b9b46",  "#f5df93","#858434", "#ba552b", 
+  "#81c7c7",  "#2d4a5e", "#44c29a",
+  "#542e44", "#ff7f32", "#607d8b", "#1b4332"
+)
+
+
+plotQ(temp2.merged.list, 
+      imgoutput = "join",
+            basesize = 10, 
+            grplab = loc_labels_temp2_no_plains, 
+            subsetgrp = herd_order_temp2_no_plains, 
+            clustercol = master_cols,
+            ordergrp = TRUE,
+      
+      # Side "K" Labels
+            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6", "K = 7", "K = 8", "K = 9", 
+                      "K = 10", "K = 11", "K = 12", "K = 13", "K = 14", "K = 15", "K = 16"),
+            splabsize = 35,
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+            # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 4,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 10, 
+            grplabangle =45,
+            grplabpos = 0.65,
+            grplabheight = 1,      
+            grplabspacer = 0.1,
+            grplabcol = "black",
+      
+            linesize = 2,          
+            pointsize = 15,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 3, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Plot settings
+            height = 7,             
+            width = 50,
+            panelspacer = 1,
+            panelratio = c(1,1),
+      
+      
+      # File settings
+            imgtype = "tiff",
+            outputfilename = "Temp2_no_plains",
+            exportpath = "./output/plots/structure_plots/global/no_plains/")
+```
 
 #### SINGLE STRUCTURE PLOTS
 ```{r}

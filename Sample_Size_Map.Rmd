@@ -1,0 +1,229 @@
+---
+title: "Sample Map"
+author: "Alex Depew"
+date: "2026-02-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load Packages
+```{r}
+rm(list = ls())
+library(tidyverse)
+library(sf)
+library(ggsflabel)
+library(adegenet)
+```
+
+# Load Data
+```{r}
+# Datafile
+cleaned.data <- read.csv("./datafiles/Final_dataset_2026.07.17.csv")
+cleaned.data <- cleaned.data %>% 
+    mutate(HERD.2 = case_when(
+    Herd == "AISH"    ~ "Aishihik",
+    Herd == "CL"      ~ "Chitek Lake",
+    Herd == "EINPP"   ~ "Elk Island NP (Plains)",
+    Herd == "EINPW"   ~ "Elk Island NP (Wood)",
+    Herd == "ETH"     ~ "Etthithun",
+    Herd == "HZ"      ~ "Hay Zama",
+    Herd == "NAH"     ~ "Nahanni",
+    Herd == "NORD"    ~ "Nordquist",
+    Herd == "RL"      ~ "Ronald Lake",
+    Herd == "WAB"     ~ "Wabasca",
+    Herd == "WBNPGR"  ~ "WBNP-Garden River",
+    Herd == "WBNPHC"  ~ "WBNP-Hay Camp",
+    Herd == "WBNPNY"  ~ "WBNP-Nyarling",
+    Herd == "WBNPLB"  ~ "WBNP-Little Buffalo",
+    Herd == "WBNPPAD" ~ "WBNP-Peace Athabasca Delta",
+    Herd == "WENT"    ~ "Wentzel",
+    Herd == "MBS"     ~ "Mackenzie"
+    )) %>% 
+  relocate(HERD.2, .after = Herd)
+
+# Make genind object
+analysis.genind <- df2genind(X=cleaned.data[,c(20:ncol(cleaned.data))],
+                              sep = "/",
+                              ind.names = cleaned.data$Spreadsheet_ID,
+                              loc.names = NULL,
+                              pop = cleaned.data$HERD.2,
+                              NA.char = "NA",
+                              ploidy = 2,
+                              type = "codom",
+                              strata = NULL,
+                              hierarchy = NULL)
+
+# Attach collection year metadata
+analysis.genind@other$YEAR.ASSIGN <- cleaned.data$Year.Collected
+```
+
+Code: 
+ 
+## Create map of samples
+ 
+### Load shapefiles
+```{r}
+can <- 
+  read_sf("./shapefiles/lpr_000b21a_e/")
+ 
+woodbisonpop <- 
+  read_sf("./shapefiles/WoodBisonPop/")
+
+plainsbisonpop <- read_sf("./shapefiles/BisonHerds_SampleSites_9.gdb/")
+```
+ 
+### Set up map elements
+#### Subset of Canadian Provinces
+```{r}
+can_subset <- 
+  subset(can, PRENAME == "Alberta" | PRENAME == "Manitoba" | 
+           PRENAME == "Northwest Territories" | PRENAME == "Saskatchewan" | 
+           PRENAME == "British Columbia" | PRENAME == "Yukon")
+```
+ 
+ 
+### Extract General Latitude and Longitude for Herds
+```{r, warning = FALSE}
+
+wood_subset <- st_centroid(woodbisonpop) %>%
+  mutate(POPULATION = case_when(
+    POPULATION == "Aishihik Herd" ~ "Aishihik",
+    POPULATION == "Chitek Lake Herd" ~ "Chitek Lake",
+    POPULATION == "Delta" ~ "WBNP-Peace Athabasca Delta",
+    POPULATION == "Elk Island National Park" ~ "Elk Island NP (Wood)",
+    POPULATION == "Etthithun Lake Herd" ~ "Etthithun",
+    POPULATION == "Garden River" ~ "WBNP-Garden River",
+    POPULATION == "Hay-Zama Lakes Herd" ~ "Hay Zama",
+    POPULATION == "Hay Camp" ~ "WBNP-Hay Camp",
+    POPULATION == "Nahanni Population" ~ "Nahanni",
+    POPULATION == "Nordquist Herd" ~ "Nordquist",
+    POPULATION == "Nyarling" ~ "WBNP-Nyarling",
+    POPULATION == "Slave River Lowlands" ~ "WBNP-Little Buffalo",
+    POPULATION == "Wabesca" ~ "Wabasca",
+    POPULATION == "Ronald Lake" ~ "Ronald Lake",
+    POPULATION == "Wentzel" ~ "Wentzel",
+    POPULATION == "Mack Bison CH-Range 2012_04" ~ "Mackenzie",
+    TRUE ~ str_to_title(gsub("_", " ", POPULATION))
+  )) %>%
+  select(POPULATION, geometry)
+
+plains_subset <- st_centroid(plainsbisonpop) %>% 
+  filter(HerdName == "Elk Island NP" &
+           SciName == "Bison bison bison") %>% 
+  mutate(POPULATION = "Elk Island NP (Plains)") %>% 
+  select(POPULATION, geometry = Shape) %>% 
+  st_transform(st_crs(woodbisonpop))
+
+herd_centroids <- rbind(wood_subset, plains_subset)
+
+```
+
+
+### Sample Sizes
+```{r}
+t1 <- analysis.genind[analysis.genind@other$YEAR.ASSIGN <=2015]
+table(t1@pop)
+
+t2 <- analysis.genind[analysis.genind@other$YEAR.ASSIGN >=2016]
+table(t2@pop)
+
+sample_counts <- data.frame(
+    POPULATION = analysis.genind@pop,
+    YEAR = analysis.genind@other$YEAR.ASSIGN
+  ) %>%
+  mutate(`Collection Year`= case_when(
+    YEAR <= 2015 ~ "T1: 1986 - 2015",
+    YEAR >= 2016 ~ "T2: 2016 - 2026"
+  )) %>%
+
+    count(POPULATION, `Collection Year`, name = "n") # Sample count per herd
+
+
+map_data <- herd_centroids %>%
+  left_join(sample_counts, by = "POPULATION") 
+```
+
+
+### Sample Map
+```{r}
+map_data <- herd_centroids %>%
+  st_transform(st_crs(can_subset)) %>% 
+  left_join(sample_counts, by = "POPULATION")
+
+facet_names <- c("T1: 1986 - 2015",
+                 "T2: 2016 - 2026")
+
+bbox <- sf::st_bbox(map_data)
+
+# Factor data to ensure T1 comes before T2 on map "title"
+map_data$`Collection Year` <- factor(map_data$`Collection Year`, 
+                                     levels = c("T1: 1986 - 2015", "T2: 2016 - 2026"))
+
+
+p <- ggplot() +
+  geom_sf(data = can_subset, fill = "gray95", color = "gray60") +
+  geom_sf(data = woodbisonpop, fill = "gray80", alpha = 0.2) +
+  geom_sf(data = plainsbisonpop %>% 
+            filter(HerdName == "Elk Island NP" &
+                     SciName == "Bison bison bison") %>% 
+            st_transform(st_crs(can_subset)), fill = "gray80", alpha = 0.2) + 
+  geom_sf(data = map_data, aes(size = n, color = `Collection Year`), alpha = 0.7) +
+
+  
+  # Sample size **** THIS IS TO INCLUDE THE SAMPLE SIZES WITHIN THE HERDS
+#  geom_sf_text(
+#    data = map_data,
+#    aes(label = n),
+#    size = 3,
+#    color = "black",
+#    fun.geometry = sf::st_centroid
+#  ) +
+  
+  # Herd Labels (full names this time)
+  geom_sf_text_repel(
+  data = map_data, 
+  aes(label = POPULATION),
+  fontface = "italic",
+  size = 4.2,
+  force = 50, 
+  force_pull = 1,            
+  box.padding = 1.3,   # label "hit-box"       
+  point.padding = 0.4,        
+  min.segment.length = 0,     
+  segment.color = "gray30",
+  segment.alpha = 0.6,
+  nudge_x = 1.5,
+  max.overlaps = Inf # show all labels regardless of overlaps
+) +
+  
+  # Split maps into both temporal cohorts, and scale sample sizes
+  facet_wrap(~`Collection Year`) + 
+  scale_size_continuous(range = c(0.5, 12)) +
+  guides(color = "none") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        axis.title.x = element_blank(), 
+        axis.title.y = element_blank(), 
+        strip.text = element_text(face = "bold", size = 16),
+        plot.margin = margin(0, 0, 0, 0, "pt")) + 
+  
+  # Define x and y lims to "zoom" in on map
+  coord_sf(xlim = c(bbox["xmin"] - 1, bbox["xmax"] + 1), 
+           ylim = c(bbox["ymin"] - 1, bbox["ymax"] + 1), 
+           expand = TRUE) + 
+  scale_color_manual(values = c("T1: 1986 - 2015" = "steelblue", # Set plot colours
+                                "T2: 2016 - 2026" = "darkorange"))
+
+# Export to PNG - SVG file was too large
+ggsave("./output/plots/Sample_size_map_v2.png", plot = p,
+       height = 8
+      , width = 12)
+```
+
+
+
+ 
+ 

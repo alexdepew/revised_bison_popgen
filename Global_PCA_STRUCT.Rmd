@@ -770,7 +770,7 @@ struct_temp1_cols <- c("#3b96cf",
   "#81c7c7",  "#2d4a5e", "#44c29a",
   "#542e44", "#ff7f32")
 
-plotQ(temp1.merged.list, 
+plot1 <- plotQ(temp1.merged.list, 
       imgoutput = "join",
             basesize = 10, 
             grplab = loc_labels_temp1, 
@@ -871,7 +871,7 @@ struct_temp2_cols <- c("#3b96cf",
   "#542e44", "#ff7f32", "#607d8b", "#1b4332", "#d81159"
 )
 
-plotQ(alignK(temp2.merged.list), 
+plot2 <- plotQ(alignK(temp2.merged.list), 
       imgoutput = "join",
             basesize = 10, 
             grplab = loc_labels_temp2, 
@@ -1215,7 +1215,7 @@ plotQ(temp2.merged.list,
 custom_herd_order = c("RL", "WAB", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPGR", "WBNPPAD", "WENT", "MBS", "EINPW", "AISH", "CL", "ETH", "HZ", "NAH", "NORD")
 
 # STRUCTURE T2 w/o plains
-plot1 <- plotQ(temp2_no_plains.mk5,
+plotQ(temp2_no_plains.mk5,
             basesize = 10, 
             grplab = loc_labels_temp2_no_plains, 
             subsetgrp = custom_herd_order, 
@@ -1303,7 +1303,7 @@ temp1.Q.sum <- temp1.k2 %>%
 # Summary per herd of Q assignments
 temp1.Q.sum
 
-write.csv(temp1.Q.sum, "./tables/temp1.plains.Q.csv")
+write.csv(temp1.Q.sum, "./output/tables/structure/temp1.plains.Q.csv")
 
 temp2.order <- data.frame(plot2$data$grplab[[2]]) %>% 
   rownames_to_column("Ind")
@@ -1328,7 +1328,7 @@ temp2.Q.sum <- temp2.k2 %>%
 # Summary per herd of Q assignments
 temp2.Q.sum
 
-write.csv(temp2.Q.sum, "./tables/temp2.plains.Q.csv")
+write.csv(temp2.Q.sum, "./output/tables/structure/temp2.plains.Q.csv")
 
 ```
 

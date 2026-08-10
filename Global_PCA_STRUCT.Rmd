@@ -763,7 +763,7 @@ locations_temp1 <- left_join(ind_label_temp1, temp1.data, by = "ID")
 
 loc_labels_temp1 <- locations_temp1$Herd %>% as.data.frame()
 
-herd_order_temp1 <- c("EINPP", "EINPW", "NORD", "ETH", "HZ", "MBS", "RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT")
+herd_order_temp1 <- c("EINPP", "RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT", "MBS", "EINPW", "NORD", "ETH", "HZ")
 struct_temp1_cols <- c("#3b96cf", 
   "#ee964c", "#7d2a7c","#e39bc1", "#e73f4e", 
   "#4b9b46",  "#f5df93","#858434", "#ba552b", 
@@ -862,7 +862,7 @@ locations_temp2 <- left_join(ind_label_temp2, temp2.data, by = "ID")
 
 loc_labels_temp2 <- locations_temp2$Herd %>% as.data.frame()
 
-herd_order_temp2 <- c("EINPP", "AISH", "CL", "EINPW", "ETH", "HZ", "MBS", "NAH", "NORD", "RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT")
+herd_order_temp2 <- c("EINPP", "RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT", "MBS", "EINPW", "AISH", "CL",  "ETH", "HZ", "NAH", "NORD")
 
 struct_temp2_cols <- c("#3b96cf", 
   "#ee964c", "#7d2a7c","#e39bc1", "#e73f4e", 
@@ -1049,7 +1049,7 @@ locations_temp1_no_plains <- left_join(ind_label_temp1_no_plains, temp1_no_plain
 
 loc_labels_temp1_no_plains <- locations_temp1_no_plains$Herd %>% as.data.frame()
 
-herd_order_temp1_no_plains <- c("EINPW", "NORD", "ETH", "HZ", "RL", "WAB", "MBS", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT")
+herd_order_temp1_no_plains <- c("RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT", "MBS", "EINPW", "NORD", "ETH", "HZ" )
 struct_temp1_no_plains_cols <- c("#3b96cf", 
   "#ee964c", "#7d2a7c","#e39bc1", "#e73f4e", 
   "#4b9b46",  "#f5df93","#858434", "#ba552b", 
@@ -1147,7 +1147,7 @@ locations_temp2_no_plains <- left_join(ind_label_temp2_no_plains, temp2_no_plain
 
 loc_labels_temp2_no_plains <- locations_temp2_no_plains$Herd %>% as.data.frame()
 
-herd_order_temp2_no_plains <- c("AISH", "CL", "EINPW", "ETH", "HZ", "MBS", "NAH", "NORD", "RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT")
+herd_order_temp2_no_plains <- c("RL", "WAB", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT", "MBS", "EINPW", "AISH", "CL","ETH", "HZ", "NAH", "NORD")
 struct_temp2_no_plains_cols <- c("#3b96cf", 
   "#ee964c", "#7d2a7c","#e39bc1", "#e73f4e", 
   "#4b9b46",  "#f5df93","#858434", "#ba552b", 
@@ -1331,4 +1331,275 @@ temp2.Q.sum
 write.csv(temp2.Q.sum, "./output/tables/structure/temp2.plains.Q.csv")
 
 ```
+```{r}
+custom_herd_order = c("EINPP", "RL", "WAB", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPGR", "WBNPPAD", "WENT", "MBS", "EINPW", "ETH", "HZ", "NORD")
 
+# STRUCTURE T2 w/o plains
+plotQ(temp1.mk2,
+            basesize = 10, 
+            grplab = loc_labels_temp1, 
+            subsetgrp = custom_herd_order, 
+            clustercol = struct_temp1_cols,
+            ordergrp = TRUE,
+
+
+      # Side "K" Labels
+            splab = "K=2",
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+            useindlab = TRUE, 
+            returndata = TRUE,
+
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+      titleface = "bold",
+      
+      # Plot settings
+            height = 10,             
+            width = 35,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "temp1.k2",
+            exportpath = "./output/plots/structure_plots/global/w_plains/")
+```
+```{r}
+custom_herd_order = c("EINPP", "RL", "WAB", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPGR", "WBNPPAD", "WENT", "MBS", "EINPW", "AISH", "CL", "ETH", "HZ", "NAH", "NORD")
+
+# Flip clusters so they plot correctly
+temp2.mk2$`2` <- temp2.mk2$`2`[, c("Cluster2", "Cluster1")]
+colnames(temp2.mk2$`2`) <- c("Cluster1", "Cluster2")
+
+# STRUCTURE T2 w/o plains
+plotQ(temp2.mk2,
+            basesize = 15, 
+            grplab = loc_labels_temp2, 
+            subsetgrp = custom_herd_order, 
+            clustercol = struct_temp2_cols,
+            ordergrp = TRUE,
+
+      # Side "K" Labels
+            splab = "K=2",
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+            useindlab = TRUE, 
+            returndata = TRUE,
+
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+      titleface = "bold",
+      
+      # Plot settings
+            height = 10,             
+            width = 35,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "temp2.k2",
+            exportpath = "./output/plots/structure_plots/global/w_plains/")
+```
+
+```{r}
+custom_herd_order = c("RL", "WAB", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPGR", "WBNPPAD", "WENT", "MBS", "EINPW", "ETH", "HZ", "NORD")
+
+# STRUCTURE T2 w/o plains
+plotQ(c(temp1_no_plains.mk2, temp1_no_plains.mk3, temp1_no_plains.mk4, temp1_no_plains.mk5, temp1_no_plains.mk6),
+      imgoutput = "join",
+            basesize = 10, 
+            grplab = loc_labels_temp1_no_plains, 
+            subsetgrp = custom_herd_order, 
+            clustercol = struct_temp1_no_plains_cols,
+            ordergrp = TRUE,
+
+      # Side "K" Labels
+            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6"), 
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.93,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+            useindlab = TRUE, 
+            returndata = TRUE,
+
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+      titleface = "bold",
+      
+      # Plot settings
+            height = 10,             
+            width = 35,
+            panelspacer = 0.2,
+            panelratio = c(1,6),
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "temp1_no_plains.k3-5",
+            exportpath = "./output/plots/structure_plots/global/no_plains/")
+
+custom_herd_order = c("RL", "WAB", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPGR", "WBNPPAD", "WENT", "MBS", "EINPW", "AISH", "CL", "ETH", "HZ", "NAH", "NORD")
+
+# Flip clusters so they plot correctly
+temp2.mk2$`2` <- temp2_no_plains.mk2$`2`[, c("Cluster2", "Cluster1")]
+colnames(temp2.mk2$`2`) <- c("Cluster1", "Cluster2")
+
+# STRUCTURE T2 w/o plains
+plotQ(c(temp2_no_plains.mk2, temp2_no_plains.mk3, temp2_no_plains.mk4, temp2_no_plains.mk5, temp2_no_plains.mk6, temp2_no_plains.mk7),
+      imgoutput = "join",
+            basesize = 15, 
+            grplab = loc_labels_temp2_no_plains, 
+            subsetgrp = custom_herd_order, 
+            clustercol = struct_temp2_no_plains_cols,
+            ordergrp = TRUE,
+
+
+      # Side "K" Labels
+            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6", "K = 7"), 
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.93,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+            useindlab = TRUE, 
+            returndata = TRUE,
+
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+      titleface = "bold",
+      
+      # Plot settings
+            height = 10,             
+            width = 35,
+            panelspacer = 0.2,
+            panelratio = c(1,6),
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "temp2_no_plains.k3-7",
+            exportpath = "./output/plots/structure_plots/global/no_plains/")
+```

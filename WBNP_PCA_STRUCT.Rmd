@@ -1190,7 +1190,7 @@ write.csv(w2.Q.sum, "./output/tables/WBNP.Cluster.assignment.csv")
 
 #### SINGLE ADMIXTURE PLOTS
 ```{r}
-herd_order <- c("WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD", "WBNPGR","WENT","EINPP", "EINPW")
+herd_order <- c("EINPP","WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD", "WBNPGR","WENT", "EINPW")
 master_cols <- c("#755541", "#779877", "#7d2a7c","#4b9b46", "#e39bc1", "#e73f4e")
 
 # Flip clusters so they plot correctly
@@ -1390,7 +1390,7 @@ pcasubw2 <- fviz_pca_ind(pca.subw2,
              geom = "blank",
              habillage = downsample.genind@pop,
              repel = TRUE,
-             palette = master_cols,
+             palette = w2_cols,
              alpha.ind = 1) + 
   stat_ellipse(aes(color = downsample.genind@pop), type = "norm", level = 0.68) + 
   geom_point(aes(colour = downsample.genind@pop),
@@ -1545,7 +1545,7 @@ plotQ(subw2.merged.list,
             basesize = 10, 
             grplab = loc_labels_subw2, 
             subsetgrp = herd_order_subw2,
-            clustercol = master_cols,
+            clustercol = struct_subw2_cols,
             ordergrp = TRUE,
       
       # Side "K" Labels
@@ -1592,6 +1592,210 @@ plotQ(subw2.merged.list,
             outputfilename = "subW2",
             exportpath = "./output/plots/structure_plots/wbnp")
 ```
+
+## WBNP 2 clusters
+
+```{r}
+# Temp1
+plotQ(w1.mk2, 
+            basesize = 10, 
+            grplab = loc_labels_w1, 
+            subsetgrp = herd_order_w1,
+            clustercol = struct_w1_cols,
+            ordergrp = TRUE,
+
+      # Side "K" Labels
+            splab = "K=2",
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+            useindlab = TRUE, 
+            returndata = TRUE,
+            barbordersize = 0.01,
+            barbordercolour = "lightgrey",
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+           titleface = "bold",
+      
+      # Plot settings
+            height = 10,             
+            width = 35,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      
+      # File settings
+            imgtype = "tiff",
+            outputfilename = "w1.k2",
+            exportpath = "./output/plots/structure_plots/wbnp")
+
+
+plotQ(w2.mk2, 
+            basesize = 10, 
+            grplab = loc_labels_w2, 
+            subsetgrp = herd_order_w2,
+            clustercol = struct_w2_cols,
+            ordergrp = TRUE,
+      
+
+      # Side "K" Labels
+            splab = "K=2",
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+            useindlab = TRUE, 
+            returndata = TRUE,
+            barbordersize = 0.01,
+            barbordercolour = "lightgrey",
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+           titleface = "bold",
+      
+      # Plot settings
+            height = 10,             
+            width = 35,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      
+      # File settings
+            imgtype = "tiff",
+            outputfilename = "w2.k2",
+            exportpath = "./output/plots/structure_plots/wbnp")
+
+
+## Downsampled W2
+
+# Flip clusters so they plot correctly
+subw2.mk2$`2` <- subw2.mk2$`2`[, c("Cluster2", "Cluster1")]
+colnames(subw2.mk2$`2`) <- c("Cluster1", "Cluster2")
+
+plotQ(subw2.mk2, 
+            basesize = 10, 
+            grplab = loc_labels_subw2, 
+            subsetgrp = herd_order_subw2,
+            clustercol = struct_subw2_cols,
+            ordergrp = TRUE,
+      
+
+      # Side "K" Labels
+            splab = "K=2",
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+            useindlab = TRUE, 
+            returndata = TRUE,
+            barbordersize = 0.01,
+            barbordercolour = "lightgrey",
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+           titleface = "bold",
+      
+      # Plot settings
+            height = 10,             
+            width = 35,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      # File settings
+            imgtype = "tiff",
+            outputfilename = "subW2.k2",
+            exportpath = "./output/plots/structure_plots/wbnp")
+```
+
 
 
 

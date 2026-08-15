@@ -476,8 +476,19 @@ theme(
 
 ### Arrange Plots together (No EINPP)
 ```{r}
-pca1_nl.noEINPP <- pca1.noEINPP + theme(legend.position = "none")
-pca2_nl.noEINPP <- pca2.noEINPP + theme(legend.position = "none")
+pca1_nl.noEINPP <- pca1.noEINPP + theme(legend.position = "none") +
+  labs(tag = "C") +
+   theme(
+    plot.tag.position = "topleft",
+    plot.tag = element_text(face = "bold", size = 25)
+  )
+
+pca2_nl.noEINPP <- pca2.noEINPP + theme(legend.position = "none") +
+  labs(tag = "D") +
+   theme(
+    plot.tag.position = "topleft",
+    plot.tag = element_text(face = "bold", size = 25)
+  )
 
 legend2 <- get_legend(pcag.noEINPP)
 
@@ -1503,6 +1514,7 @@ plot3 <- plotQ(c(temp1_no_plains.mk2, temp1_no_plains.mk3, temp1_no_plains.mk4, 
             sppos = "left",
             splabcol = "black",
             splabangle = 0,
+            splabface = "bold",
       
             # Individual Label Settings
             showindlab = F, 
@@ -1761,6 +1773,7 @@ plot4 <- plotQ(c(temp2_no_plains.mk2, temp2_no_plains.mk3, temp2_no_plains.mk4, 
             sppos = "left",
             splabcol = "black",
             splabangle = 0,
+            splabface = "bold",
       
             # Individual Label Settings
             showindlab = F, 
@@ -1850,9 +1863,9 @@ B_labeled <- arrangeGrob(t4,
                          top = textGrob("B", x = unit(0.02, "npc"), just = "left",
                                         gp = gpar(fontsize = 25, fontface = "bold")))
 
-C_labeled <- arrangeGrob(D, 
-                         top = textGrob("C", x = unit(0.02, "npc"), just = "left",
-                                        gp = gpar(fontsize = 25, fontface = "bold")))
+#C_labeled <- arrangeGrob(D, 
+                         #top = textGrob("C", x = unit(0.02, "npc"), just = "left",
+                                       # gp = gpar(fontsize = 25, fontface = "bold")))
 
 
 # Combine Global no plains T1
@@ -1860,7 +1873,7 @@ top2 <- grid.arrange(A_labeled,B_labeled,
                       ncol = 1,
                       widths = 1)
 
-no_plains <- arrangeGrob(top2, C_labeled, 
+no_plains <- arrangeGrob(top2, D, 
                         ncol = 1,
                         heights = c(30, 15),
                         widths = 1)

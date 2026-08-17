@@ -250,16 +250,16 @@ a2 <- bison.genind[bison.genind@pop %in% c("EINPP", "EINPW", "WBNPGR", "WBNPHC",
 # Principal Coordinate Analysis (PCA)
 Visualize population structure without assumptions of HWE or LD, to identify clusters in the data.
 ```{r}
-admix_subherds <- c("EINPP", "EINPW", "WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT")
+admix_subherds <- c("EINPP", "EINPW", "WBNPPAD", "WENT", "WBNPGR", "WBNPHC", "WBNPNY", "WBNPLB")
 
-admix_palette <- c("#FF00FF",
+admix_palette <- c("#F5B355",
                    "#005000",
-                   "#cecece", 
-                   "#a559aa", 
-                   "#59a89c", 
-                   "#f0c571", 
-                   "#e02b35", 
-                   "#082a54"
+                   "#C6DBEF",
+                   "#9ECAE1", 
+                   "#6BAED6", 
+                   "#4292C6", 
+                   "#2171B5", 
+                   "#084594"
                   )
 
 admix_cols <- setNames(as.character(admix_palette), admix_subherds)
@@ -293,7 +293,7 @@ a1@pop <- factor(a1@pop, levels = sort(unique(as.character(a1@pop))))
 levels_a1 <- levels(a1@pop)
 a1_cols <- admix_cols[levels_a1]
 
-pca.a1$li[ ,2] <- pca.a1$li[ ,2] * -1
+#pca.a1$li[ ,2] <- pca.a1$li[ ,2] * -1
 
 # Plot PCA object
 pcaa1 <- fviz_pca_ind(pca.a1,
@@ -307,7 +307,7 @@ pcaa1 <- fviz_pca_ind(pca.a1,
   geom_point(aes(colour = a1@pop),
              shape = 19,
              alpha = 0.75,
-             size = 1.2) + 
+             size = 2) + 
 coord_fixed(ratio = 1, xlim = xlims, ylim = ylims) +
   
 theme(
@@ -360,7 +360,7 @@ pcaa2 <- fviz_pca_ind(pca.a2,
   geom_point(aes(colour = a2@pop),
              shape = 19,
              alpha = 0.75,
-             size = 1.2) + 
+             size = 2) + 
 coord_fixed(ratio = 1, xlim = xlims, ylim = ylims) +
   
 theme(

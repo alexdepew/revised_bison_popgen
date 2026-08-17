@@ -346,7 +346,7 @@ a2@pop <- factor(a2@pop, levels = sort(unique(as.character(a2@pop))))
 levels_a2 <- levels(a2@pop)
 a2_cols <- admix_cols[levels_a2]
 
-pca.a2$li[ ,1] <- pca.a2$li[ ,1] * -1
+pca.a2$li[ ,2] <- pca.a2$li[ ,2] * -1
 
 # Plot PCA object
 pcaa2 <- fviz_pca_ind(pca.a2,
@@ -636,9 +636,11 @@ locations_w1 <- left_join(ind_label_w1, w1.data, by = "ID")
 loc_labels_w1 <- locations_w1$Herd %>% as.data.frame()
 
 herd_order_w1 <- c("WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD", "WBNPGR","WENT")
-struct_w1_cols <- c("#ee964c", "#3b96cf", "#4b9b46", "#7d2a7c", "#e39bc1", "#e73f4e")
+struct_w1_cols <- c("#3b96cf","#ee964c", "#CC78A7FF", "#56B4E9FF",  "#009E73FF", "#000000")
 
-plotQ(w1.merged.list, 
+
+
+plotQ(c(w1.mk2, w1.mk3, w1.mk4, w1.mk5, w1.mk6), 
       imgoutput = "join",
             basesize = 10, 
             grplab = loc_labels_w1, 
@@ -718,7 +720,7 @@ locations_w2 <- left_join(ind_label_w2, w2.data, by = "ID")
 loc_labels_w2 <- locations_w2$Herd %>% as.data.frame()
 
 herd_order_w2 <- c("WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD", "WBNPGR","WENT")
-struct_w2_cols <- c("#ee964c", "#3b96cf", "#4b9b46", "#7d2a7c", "#e39bc1", "#e73f4e")
+struct_w2_cols <- c("#3b96cf", "#ee964c", "#CC78A7FF", "#56B4E9FF",  "#009E73FF", "#000000")
 
 plotQ(w2.merged.list, 
       imgoutput = "join",
@@ -802,10 +804,105 @@ locations_a1 <- left_join(ind_label_a1, a1.data, by = "ID")
 
 loc_labels_a1 <- locations_a1$Herd %>% as.data.frame()
 
-herd_order_a1 <- c("EINPP", "EINPW", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD", "WBNPGR","WENT")
-struct_a1_cols <- c("#ee964c", "#3b96cf", "#4b9b46", "#7d2a7c", "#e39bc1", "#e73f4e", "#f5df93","#858434")
+herd_order_a1 <- c("EINPP", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD", "WBNPGR","WENT", "EINPW")
+struct_a1_cols <- c("#005000","#f5df93", "#ee964c","#3b96cf", "#CC78A7FF", "#56B4E9FF",  "#009E73FF", "#000000")
 
-plotQ(a1.merged.list, 
+# Cluster ordering (colour matching/label switching)
+
+# Set clusters for colour matching 
+#mk2
+Cluster1 <- a1.mk2$`2`$Cluster1 
+Cluster2 <- a1.mk2$`2`$Cluster2 
+
+a1.mk2$`2`$Cluster1 <- Cluster1
+a1.mk2$`2`$Cluster2 <- Cluster2
+
+#mk3
+Cluster1 <- a1.mk3$`3`$Cluster1
+Cluster3 <- a1.mk3$`3`$Cluster2 
+Cluster2 <- a1.mk3$`3`$Cluster3 
+
+a1.mk3$`3`$Cluster1 <- Cluster1
+a1.mk3$`3`$Cluster2 <- Cluster2
+a1.mk3$`3`$Cluster3 <- Cluster3
+
+#mk4
+Cluster1 <- a1.mk4$`4`$Cluster1
+Cluster3 <- a1.mk4$`4`$Cluster2 
+Cluster2 <- a1.mk4$`4`$Cluster3 
+Cluster4 <- a1.mk4$`4`$Cluster4 
+
+a1.mk4$`4`$Cluster1 <- Cluster1
+a1.mk4$`4`$Cluster2 <- Cluster2
+a1.mk4$`4`$Cluster3 <- Cluster3
+a1.mk4$`4`$Cluster4 <- Cluster4
+
+#mk5
+Cluster1 <- a1.mk5$`5`$Cluster1
+Cluster3 <- a1.mk5$`5`$Cluster2 
+Cluster2 <- a1.mk5$`5`$Cluster3 
+Cluster4 <- a1.mk5$`5`$Cluster4 
+Cluster5 <- a1.mk5$`5`$Cluster5 
+
+a1.mk5$`5`$Cluster1 <- Cluster1
+a1.mk5$`5`$Cluster2 <- Cluster2
+a1.mk5$`5`$Cluster3 <- Cluster3
+a1.mk5$`5`$Cluster4 <- Cluster4
+a1.mk5$`5`$Cluster5 <- Cluster5
+
+#mk6
+Cluster6 <- a1.mk6$`6`$Cluster1
+Cluster3 <- a1.mk6$`6`$Cluster2 
+Cluster2 <- a1.mk6$`6`$Cluster3 
+Cluster4 <- a1.mk6$`6`$Cluster4 
+Cluster5 <- a1.mk6$`6`$Cluster5 
+Cluster1 <- a1.mk6$`6`$Cluster6 
+
+a1.mk6$`6`$Cluster1 <- Cluster1
+a1.mk6$`6`$Cluster2 <- Cluster2
+a1.mk6$`6`$Cluster3 <- Cluster3
+a1.mk6$`6`$Cluster4 <- Cluster4
+a1.mk6$`6`$Cluster5 <- Cluster5
+a1.mk6$`6`$Cluster6 <- Cluster6
+
+#mk7
+Cluster6 <- a1.mk7$`7`$Cluster1
+Cluster3 <- a1.mk7$`7`$Cluster2 
+Cluster2 <- a1.mk7$`7`$Cluster3 
+Cluster4 <- a1.mk7$`7`$Cluster4 
+Cluster5 <- a1.mk7$`7`$Cluster5 
+Cluster1 <- a1.mk7$`7`$Cluster6 
+Cluster7 <- a1.mk7$`7`$Cluster7 
+
+a1.mk7$`7`$Cluster1 <- Cluster1
+a1.mk7$`7`$Cluster2 <- Cluster2
+a1.mk7$`7`$Cluster3 <- Cluster3
+a1.mk7$`7`$Cluster4 <- Cluster4
+a1.mk7$`7`$Cluster5 <- Cluster5
+a1.mk7$`7`$Cluster6 <- Cluster6
+a1.mk7$`7`$Cluster7 <- Cluster7
+
+#mk8
+Cluster6 <- a1.mk8$`8`$Cluster1
+Cluster3 <- a1.mk8$`8`$Cluster2 
+Cluster2 <- a1.mk8$`8`$Cluster3 
+Cluster4 <- a1.mk8$`8`$Cluster4 
+Cluster5 <- a1.mk8$`8`$Cluster5 
+Cluster1 <- a1.mk8$`8`$Cluster6 
+Cluster7 <- a1.mk8$`8`$Cluster7 
+Cluster8 <- a1.mk8$`8`$Cluster8 
+
+a1.mk8$`8`$Cluster1 <- Cluster1
+a1.mk8$`8`$Cluster2 <- Cluster2
+a1.mk8$`8`$Cluster3 <- Cluster3
+a1.mk8$`8`$Cluster4 <- Cluster4
+a1.mk8$`8`$Cluster5 <- Cluster5
+a1.mk8$`8`$Cluster6 <- Cluster6
+a1.mk8$`8`$Cluster7 <- Cluster7
+a1.mk8$`8`$Cluster8 <- Cluster8
+
+
+plotQ(c(a1.mk2, a1.mk3, a1.mk4, a1.mk5, a1.mk6, a1.mk7, a1.mk8), 
       imgoutput = "join",
             basesize = 10, 
             grplab = loc_labels_a1, 
@@ -888,10 +985,103 @@ locations_a2 <- left_join(ind_label_a2, a2.data, by = "ID")
 
 loc_labels_a2 <- locations_a2$Herd %>% as.data.frame()
 
-herd_order_a2 <- c("EINPP", "EINPW", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD", "WBNPGR","WENT")
-struct_a2_cols <- c("#ee964c", "#3b96cf", "#4b9b46", "#7d2a7c", "#e39bc1", "#e73f4e", "#f5df93","#858434")
+herd_order_a2 <- c("EINPP", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD", "WBNPGR","WENT", "EINPW")
+struct_a2_cols <- c("#005000","#f5df93", "#ee964c","#3b96cf",  "#CC78A7FF", "#56B4E9FF",  "#009E73FF", "#000000")
 
-plotQ(a2.merged.list, 
+# Set clusters for colour matching 
+#mk2
+Cluster2 <- a2.mk2$`2`$Cluster1 
+Cluster1 <- a2.mk2$`2`$Cluster2 
+
+a2.mk2$`2`$Cluster1 <- Cluster1
+a2.mk2$`2`$Cluster2 <- Cluster2
+
+#mk3
+Cluster3 <- a2.mk3$`3`$Cluster1
+Cluster1 <- a2.mk3$`3`$Cluster2 
+Cluster2 <- a2.mk3$`3`$Cluster3 
+
+a2.mk3$`3`$Cluster1 <- Cluster1
+a2.mk3$`3`$Cluster2 <- Cluster2
+a2.mk3$`3`$Cluster3 <- Cluster3
+
+#mk4
+Cluster3 <- a2.mk4$`4`$Cluster1
+Cluster1 <- a2.mk4$`4`$Cluster2 
+Cluster2 <- a2.mk4$`4`$Cluster3 
+Cluster4 <- a2.mk4$`4`$Cluster4 
+
+a2.mk4$`4`$Cluster1 <- Cluster1
+a2.mk4$`4`$Cluster2 <- Cluster2
+a2.mk4$`4`$Cluster3 <- Cluster3
+a2.mk4$`4`$Cluster4 <- Cluster4
+
+#mk5
+Cluster3 <- a2.mk5$`5`$Cluster1
+Cluster1 <- a2.mk5$`5`$Cluster2 
+Cluster2 <- a2.mk5$`5`$Cluster3 
+Cluster4 <- a2.mk5$`5`$Cluster4 
+Cluster5 <- a2.mk5$`5`$Cluster5 
+
+a2.mk5$`5`$Cluster1 <- Cluster1
+a2.mk5$`5`$Cluster2 <- Cluster2
+a2.mk5$`5`$Cluster3 <- Cluster3
+a2.mk5$`5`$Cluster4 <- Cluster4
+a2.mk5$`5`$Cluster5 <- Cluster5
+
+#mk6
+Cluster3 <- a2.mk6$`6`$Cluster1
+Cluster1 <- a2.mk6$`6`$Cluster2 
+Cluster2 <- a2.mk6$`6`$Cluster3 
+Cluster4 <- a2.mk6$`6`$Cluster4 
+Cluster5 <- a2.mk6$`6`$Cluster5 
+Cluster6 <- a2.mk6$`6`$Cluster6 
+
+a2.mk6$`6`$Cluster1 <- Cluster1
+a2.mk6$`6`$Cluster2 <- Cluster2
+a2.mk6$`6`$Cluster3 <- Cluster3
+a2.mk6$`6`$Cluster4 <- Cluster4
+a2.mk6$`6`$Cluster5 <- Cluster5
+a2.mk6$`6`$Cluster6 <- Cluster6
+
+#mk7
+Cluster3 <- a2.mk7$`7`$Cluster1
+Cluster1 <- a2.mk7$`7`$Cluster2 
+Cluster2 <- a2.mk7$`7`$Cluster3 
+Cluster4 <- a2.mk7$`7`$Cluster4 
+Cluster5 <- a2.mk7$`7`$Cluster5 
+Cluster6 <- a2.mk7$`7`$Cluster6 
+Cluster7 <- a2.mk7$`7`$Cluster7 
+
+a2.mk7$`7`$Cluster1 <- Cluster1
+a2.mk7$`7`$Cluster2 <- Cluster2
+a2.mk7$`7`$Cluster3 <- Cluster3
+a2.mk7$`7`$Cluster4 <- Cluster4
+a2.mk7$`7`$Cluster5 <- Cluster5
+a2.mk7$`7`$Cluster6 <- Cluster6
+a2.mk7$`7`$Cluster7 <- Cluster7
+
+#mk8
+Cluster3 <- a2.mk8$`8`$Cluster1
+Cluster1 <- a2.mk8$`8`$Cluster2 
+Cluster2 <- a2.mk8$`8`$Cluster3 
+Cluster4 <- a2.mk8$`8`$Cluster4 
+Cluster5 <- a2.mk8$`8`$Cluster5 
+Cluster6 <- a2.mk8$`8`$Cluster6 
+Cluster7 <- a2.mk8$`8`$Cluster7 
+Cluster8 <- a2.mk8$`8`$Cluster8 
+
+a2.mk8$`8`$Cluster1 <- Cluster1
+a2.mk8$`8`$Cluster2 <- Cluster2
+a2.mk8$`8`$Cluster3 <- Cluster3
+a2.mk8$`8`$Cluster4 <- Cluster4
+a2.mk8$`8`$Cluster5 <- Cluster5
+a2.mk8$`8`$Cluster6 <- Cluster6
+a2.mk8$`8`$Cluster7 <- Cluster7
+a2.mk8$`8`$Cluster8 <- Cluster8
+
+
+plotQ(c(a2.mk2, a2.mk3, a2.mk4, a2.mk5, a2.mk6, a2.mk7, a2.mk8), 
       imgoutput = "join",
             basesize = 10, 
             grplab = loc_labels_a2, 
@@ -1063,6 +1253,157 @@ mtext("B", side = 3, adj = -7.8, line = 2, cex = 2, font = 2)
 
 dev.off()
 ```
+
+
+
+
+
+
+
+#### SINGLE ADMIXTURE PLOTS
+```{r}
+herd_order <- c("EINPP","WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD", "WBNPGR","WENT", "EINPW")
+master_cols <- c("#005000","#f5df93", "#3b96cf", "#ee964c", "#CC78A7FF", "#56B4E9FF",  "#009E73FF", "#000000")
+
+# Flip clusters so they plot correctly
+#a1.mk2$`2` <- a1.mk2$`2`[, c("Cluster2", "Cluster1")]
+#colnames(a1.mk2$`2`) <- c("Cluster1", "Cluster2")
+
+# STRUCTURE A1 with EINP outgroups
+admixture1 <- plotQ(a1.mk2,
+            #basesize = 50, 
+            grplab = loc_labels_a1, 
+            subsetgrp = herd_order, 
+            clustercol = master_cols,
+            ordergrp = TRUE,
+
+      # Side "K" Labels
+            splab = "K=2",
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+            useindlab = TRUE, 
+            returndata = TRUE,
+            barbordersize = 0.01,
+            barbordercolour = "lightgrey",
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+           titleface = "bold",
+      
+      # Plot settings
+            height = 10,             
+            width = 35,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "plota1.k2",
+            exportpath = "./output/plots/structure_plots/wbnp/")
+
+# Second Temporal Group
+
+# Flip clusters so they plot correctly
+#a2.mk2$`2` <- a2.mk2$`2`[, c("Cluster2", "Cluster1")]
+#colnames(a2.mk2$`2`) <- c("Cluster1", "Cluster2")
+
+# STRUCTURE A1 with EINP outgroups
+admixture2 <- plotQ(a2.mk2,
+            #basesize = 20, 
+            grplab = loc_labels_a2, 
+            subsetgrp = herd_order, 
+            clustercol = master_cols,
+            ordergrp = TRUE,
+
+      # Side "K" Labels
+            splab = "K=2",
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+            useindlab = TRUE, 
+            returndata = TRUE,
+            barbordersize = 0.01,
+            barbordercolour = "lightgrey",
+
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+      titleface = "bold",
+      
+      # Plot settings
+            height = 10,             
+            width = 35,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "plota2.k2",
+            exportpath = "./output/plots/structure_plots/wbnp/")
+```
+
 # Plains Admixture
 #### Assess Q-values (membership probabilities of assigning to clusters)
 ```{r}
@@ -1128,6 +1469,7 @@ write.csv(a2.wbnp.Q.sum, "./output/tables/structure/a2_PB_assignment.csv")
 
 ```
 
+
 #### JUST WBNP Plains (but grouped as all herds)
 ```{r}
 # Identify the names of the WBNP herds based on your subsetting (rows 3 to 8)
@@ -1158,179 +1500,6 @@ a2.wbnp.overall_stats
 ```
 
 
-
-
-# WBNP Split
-Based on clustering analyses, we see two putative genetic clusters. What herds assign to what cluster:
-```{r}
-w2.order <- data.frame(plotw2$data$grplab[[2]]) %>% 
-  rownames_to_column("Ind")
-
-w2.k2 <- data.frame(w2.mk2) %>% 
-  rownames_to_column("Ind") %>% 
-  left_join(w2.order, by = "Ind") %>% 
-  rename(Herd = ".",
-        North = X2.Cluster2,
-         Central = X2.Cluster1) %>% 
-  select(-Ind) %>% 
-  relocate(Herd, .before = North)
-  
-w2.Q.sum <- w2.k2 %>% 
-  group_by(Herd) %>% 
-  summarise(
-    QC1 = paste0(round(mean(North), 3), "±", round(sd(North), 3)),
-    QC2 = paste0(round(mean(Central), 3), "±", round(sd(Central), 3))
-  )
-
-# Summary per herd of Q assignments
-w2.Q.sum
-
-write.csv(w2.Q.sum, "./output/tables/WBNP.Cluster.assignment.csv")
-```
-
-#### SINGLE ADMIXTURE PLOTS
-```{r}
-herd_order <- c("EINPP","WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD", "WBNPGR","WENT", "EINPW")
-master_cols <- c("#755541", "#779877", "#7d2a7c","#4b9b46", "#e39bc1", "#e73f4e")
-
-# Flip clusters so they plot correctly
-a1.mk2$`2` <- a1.mk2$`2`[, c("Cluster2", "Cluster1")]
-colnames(a1.mk2$`2`) <- c("Cluster1", "Cluster2")
-
-# STRUCTURE A1 with EINP outgroups
-admixture1 <- plotQ(a1.mk2,
-            #basesize = 50, 
-            grplab = loc_labels_a1, 
-            subsetgrp = herd_order, 
-            clustercol = master_cols,
-            ordergrp = TRUE,
-
-      # Side "K" Labels
-            splab = "K=2",
-            splabsize = 20,
-            splabface = "bold",
-            sppos = "left",
-            splabcol = "black",
-            splabangle = 0,
-      
-      # Individual Label Settings
-            showindlab = F, 
-            indlabsize = 0,        
-            indlabangle = 90,
-            indlabheight = 0,
-      
-      # Group Label settings
-            grplabsize = 6.2, 
-            grplabangle = 45,
-            grplabpos = 0.85,
-            grplabheight = 0.6,      
-            grplabspacer = 0,
-            grplabcol = "black",
-      
-            linesize = 1,          
-            pointsize = 8,
-            linepos = 0.95,
-      
-      # Divider Line Settings
-            divcol = "white",
-            divsize = 1, 
-            divtype = NULL,
-            useindlab = TRUE, 
-            returndata = TRUE,
-            barbordersize = 0.01,
-            barbordercolour = "lightgrey",
-      
-      # Add title
-           showtitle = TRUE,
-           titlelab = NULL,
-           titlehjust = 0.5,
-           titlevjust = 0.5,
-           titlesize = 15,
-           titlecol = "black",
-           titleface = "bold",
-      
-      # Plot settings
-            height = 10,             
-            width = 35,
-            panelspacer = 0.2,
-            panelratio = c(1,2),
-      
-      # File settings
-            imgtype = "tiff",
-            returnplot = TRUE,
-            outputfilename = "plota1.k2",
-            exportpath = "./output/plots/structure_plots/wbnp/w_einp/")
-
-# Second Temporal Group
-
-# Flip clusters so they plot correctly
-a2.mk2$`2` <- a2.mk2$`2`[, c("Cluster2", "Cluster1")]
-colnames(a2.mk2$`2`) <- c("Cluster1", "Cluster2")
-
-# STRUCTURE A1 with EINP outgroups
-admixture2 <- plotQ(a2.mk2,
-            #basesize = 20, 
-            grplab = loc_labels_a2, 
-            subsetgrp = herd_order, 
-            clustercol = master_cols,
-            ordergrp = TRUE,
-
-      # Side "K" Labels
-            splab = "K=2",
-            splabsize = 20,
-            splabface = "bold",
-            sppos = "left",
-            splabcol = "black",
-            splabangle = 0,
-      
-      # Individual Label Settings
-            showindlab = F, 
-            indlabsize = 0,        
-            indlabangle = 90,
-            indlabheight = 0,
-      
-      # Group Label settings
-            grplabsize = 6.2, 
-            grplabangle = 45,
-            grplabpos = 0.85,
-            grplabheight = 0.6,      
-            grplabspacer = 0,
-            grplabcol = "black",
-      
-            linesize = 1,          
-            pointsize = 8,
-            linepos = 0.95,
-      
-      # Divider Line Settings
-            divcol = "white",
-            divsize = 1, 
-            divtype = NULL,
-            useindlab = TRUE, 
-            returndata = TRUE,
-            barbordersize = 0.01,
-            barbordercolour = "lightgrey",
-
-      # Add title
-           showtitle = TRUE,
-           titlelab = NULL,
-           titlehjust = 0.5,
-           titlevjust = 0.5,
-           titlesize = 15,
-           titlecol = "black",
-      titleface = "bold",
-      
-      # Plot settings
-            height = 10,             
-            width = 35,
-            panelspacer = 0.2,
-            panelratio = c(1,2),
-      
-      # File settings
-            imgtype = "tiff",
-            returnplot = TRUE,
-            outputfilename = "plota2.k2",
-            exportpath = "./output/plots/structure_plots/wbnp/w_einp/")
-```
 
 ######### DOWNSAMPLE WBNP T2
 ```{r}
@@ -1513,7 +1682,9 @@ ggsave("./output/plots/K_plots/subw2.k.svg",
        plot = evanno_wbnpsub2, 
        width = 27, 
        height = 11)
+```
 
+```{r}
 ## Structure Plots
 subw2.data <-  downsample_data %>% 
     rename(ID = Spreadsheet.ID) %>% 
@@ -1538,9 +1709,71 @@ locations_subw2 <- left_join(ind_label_subw2, subw2.data, by = "ID")
 loc_labels_subw2 <- locations_subw2$Herd %>% as.data.frame()
 
 herd_order_subw2 <- c("WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD", "WBNPGR","WENT")
-struct_subw2_cols <- c("#ee964c", "#3b96cf", "#4b9b46", "#7d2a7c", "#e39bc1", "#e73f4e")
+struct_subw2_cols <- c("#3b96cf","#ee964c",  "#4b9b46", "#7d2a7c", "#e39bc1", "#e73f4e")
 
-plotQ(subw2.merged.list, 
+# Set clusters for colour matching 
+#mk2
+#subw2.mk2$`2` <- subw2.mk2$`2`[, c("Cluster2", "Cluster1")]
+#colnames(subw2.mk2$`2`) <- c("Cluster1", "Cluster2")
+
+Cluster2 <- subw2.mk2$`2`$Cluster1 
+Cluster1 <- subw2.mk2$`2`$Cluster2 
+
+subw2.mk2$`2`$Cluster1 <- Cluster1
+subw2.mk2$`2`$Cluster2 <- Cluster2
+
+#mk3
+#subw2.mk3$`3` <- subw2.mk3$`3`[, c("Cluster2", "Cluster1", "Cluster3")]
+#colnames(subw2.mk3$`3`) <- c("Cluster1", "Cluster2", "Cluster3")
+
+Cluster2 <- subw2.mk3$`3`$Cluster1
+Cluster1 <- subw2.mk3$`3`$Cluster2 
+Cluster3 <- subw2.mk3$`3`$Cluster3 
+
+subw2.mk3$`3`$Cluster1 <- Cluster1
+subw2.mk3$`3`$Cluster2 <- Cluster2
+subw2.mk3$`3`$Cluster3 <- Cluster3
+
+#mk4
+Cluster2 <- subw2.mk4$`4`$Cluster1
+Cluster1 <- subw2.mk4$`4`$Cluster2 
+Cluster3 <- subw2.mk4$`4`$Cluster3 
+Cluster4 <- subw2.mk4$`4`$Cluster4 
+
+subw2.mk4$`4`$Cluster1 <- Cluster1
+subw2.mk4$`4`$Cluster2 <- Cluster2
+subw2.mk4$`4`$Cluster3 <- Cluster3
+subw2.mk4$`4`$Cluster4 <- Cluster4
+
+#mk5
+Cluster1 <- subw2.mk5$`5`$Cluster1
+Cluster2 <- subw2.mk5$`5`$Cluster2 
+Cluster3 <- subw2.mk5$`5`$Cluster3 
+Cluster4 <- subw2.mk5$`5`$Cluster4 
+Cluster5 <- subw2.mk5$`5`$Cluster5 
+
+subw2.mk5$`5`$Cluster1 <- Cluster1
+subw2.mk5$`5`$Cluster2 <- Cluster2
+subw2.mk5$`5`$Cluster3 <- Cluster3
+subw2.mk5$`5`$Cluster4 <- Cluster4
+subw2.mk5$`5`$Cluster5 <- Cluster5
+
+#mk6
+Cluster1 <- subw2.mk6$`6`$Cluster1
+Cluster2 <- subw2.mk6$`6`$Cluster2 
+Cluster3 <- subw2.mk6$`6`$Cluster3 
+Cluster4 <- subw2.mk6$`6`$Cluster4 
+Cluster5 <- subw2.mk6$`6`$Cluster5 
+Cluster6 <- subw2.mk6$`6`$Cluster6 
+
+subw2.mk6$`6`$Cluster1 <- Cluster1
+subw2.mk6$`6`$Cluster2 <- Cluster2
+subw2.mk6$`6`$Cluster3 <- Cluster3
+subw2.mk6$`6`$Cluster4 <- Cluster4
+subw2.mk6$`6`$Cluster5 <- Cluster5
+subw2.mk6$`6`$Cluster6 <- Cluster6
+
+plotQ(c(subw2.mk2, subw2.mk3, subw2.mk4, subw2.mk5, subw2.mk6), 
       imgoutput = "join",
             basesize = 10, 
             grplab = loc_labels_subw2, 
@@ -1592,7 +1825,6 @@ plotQ(subw2.merged.list,
             outputfilename = "subW2",
             exportpath = "./output/plots/structure_plots/wbnp")
 ```
-
 ## WBNP 2 clusters
 
 ```{r}
@@ -1636,8 +1868,8 @@ plotQ(w1.mk2,
             divtype = NULL,
             useindlab = TRUE, 
             returndata = TRUE,
-            barbordersize = 0.01,
-            barbordercolour = "lightgrey",
+            #barbordersize = 0.01,
+            #barbordercolour = "lightgrey",
       
       # Add title
            showtitle = TRUE,
@@ -1701,8 +1933,8 @@ plotQ(w2.mk2,
             divtype = NULL,
             useindlab = TRUE, 
             returndata = TRUE,
-            barbordersize = 0.01,
-            barbordercolour = "lightgrey",
+            #barbordersize = 0.01,
+            #barbordercolour = "lightgrey",
       
       # Add title
            showtitle = TRUE,
@@ -1729,8 +1961,8 @@ plotQ(w2.mk2,
 ## Downsampled W2
 
 # Flip clusters so they plot correctly
-subw2.mk2$`2` <- subw2.mk2$`2`[, c("Cluster2", "Cluster1")]
-colnames(subw2.mk2$`2`) <- c("Cluster1", "Cluster2")
+#subw2.mk2$`2` <- subw2.mk2$`2`[, c("Cluster2", "Cluster1")]
+#colnames(subw2.mk2$`2`) <- c("Cluster1", "Cluster2")
 
 plotQ(subw2.mk2, 
             basesize = 10, 
@@ -1772,8 +2004,8 @@ plotQ(subw2.mk2,
             divtype = NULL,
             useindlab = TRUE, 
             returndata = TRUE,
-            barbordersize = 0.01,
-            barbordercolour = "lightgrey",
+            #barbordersize = 0.01,
+            #barbordercolour = "lightgrey",
       
       # Add title
            showtitle = TRUE,
@@ -1796,6 +2028,33 @@ plotQ(subw2.mk2,
             exportpath = "./output/plots/structure_plots/wbnp")
 ```
 
+# WBNP Split
+Based on clustering analyses, we see two putative genetic clusters. What herds assign to what cluster:
+```{r}
+w2.order <- data.frame(plotw2$data$grplab[[2]]) %>% 
+  rownames_to_column("Ind")
+
+w2.k2 <- data.frame(w2.mk2) %>% 
+  rownames_to_column("Ind") %>% 
+  left_join(w2.order, by = "Ind") %>% 
+  rename(Herd = ".",
+        North = X2.Cluster2,
+         Central = X2.Cluster1) %>% 
+  select(-Ind) %>% 
+  relocate(Herd, .before = North)
+  
+w2.Q.sum <- w2.k2 %>% 
+  group_by(Herd) %>% 
+  summarise(
+    QC1 = paste0(round(mean(North), 3), "±", round(sd(North), 3)),
+    QC2 = paste0(round(mean(Central), 3), "±", round(sd(Central), 3))
+  )
+
+# Summary per herd of Q assignments
+w2.Q.sum
+
+write.csv(w2.Q.sum, "./output/tables/WBNP.Cluster.assignment.csv")
+```
 
 
 

@@ -76,7 +76,7 @@ w2 <- bison.genind[bison.genind@pop %in% c("WBNPGR", "WBNPHC",
 Visualize population structure without assumptions of HWE or LD, to identify clusters in the data.
 
 ```{r}
-wbnp_subherds <- c("WBNPGR", "WBNPHC", "WBNPLB", "WBNPNY", "WBNPPAD", "WENT")
+wbnp_subherds <- c("WBNPPAD", "WENT", "WBNPGR", "WBNPHC", "WBNPNY", "WBNPLB")
 
 wbnp_palette <- c("#cecece", 
                   "#a559aa", 
@@ -84,6 +84,14 @@ wbnp_palette <- c("#cecece",
                   "#f0c571", 
                   "#e02b35", 
                   "#082a54"
+                  )
+
+wbnp_palette <-  c("#C6DBEF",
+                   "#9ECAE1", 
+                   "#6BAED6", 
+                   "#4292C6", 
+                   "#2171B5", 
+                   "#084594"
                   )
 
 wbnp_cols <- setNames(as.character(wbnp_palette), wbnp_subherds)
@@ -136,7 +144,7 @@ pcaw1 <- fviz_pca_ind(pca.w1,
   geom_point(aes(colour = Groups),
              shape = 19,
              alpha = 0.75,
-             size = 1.2) + 
+             size = 2) + 
 coord_fixed(ratio = 1, xlim = xlims, ylim = ylims) +
   
 theme(
@@ -184,7 +192,7 @@ pcaw2 <- fviz_pca_ind(pca.w2,
   geom_point(aes(colour = w2@pop),
              shape = 19,
              alpha = 0.75,
-             size = 1.2) + 
+             size = 2) + 
   coord_fixed(ratio = 1, xlim = xlims, ylim = ylims) +
   
 theme(
@@ -214,8 +222,17 @@ ggsave("./output/plots/PCAs/wbnp/temp2_wbnp.svg",
 
 ### Arrange Plots together
 ```{r}
-pcaw1_nl <- pcaw1 + theme(legend.position = "none")
-pcaw2_nl <- pcaw2 + theme(legend.position = "none")
+pcaw1_nl <- pcaw1 + theme(legend.position = "none") +
+  labs(tag = "C") +
+   theme(
+    plot.tag.position = "topleft",
+    plot.tag = element_text(face = "bold", size = 25))
+    
+pcaw2_nl <- pcaw2 + theme(legend.position = "none") +
+  labs(tag = "D") +
+   theme(
+    plot.tag.position = "topleft",
+    plot.tag = element_text(face = "bold", size = 25))
 
 legendw1 <- get_legend(pcaw1)
 
@@ -393,8 +410,18 @@ ggsave("./output/plots/PCAs/wbnp/temp2_admix.svg",
 
 ### Arrange Plots together
 ```{r}
-pcaa1_nl <- pcaa1 + theme(legend.position = "none")
-pcaa2_nl <- pcaa2 + theme(legend.position = "none")
+pcaa1_nl <- pcaa1 + theme(legend.position = "none") +
+  labs(tag = "C") +
+   theme(
+    plot.tag.position = "topleft",
+    plot.tag = element_text(face = "bold", size = 25)
+  )
+pcaa2_nl <- pcaa2 + theme(legend.position = "none") +
+  labs(tag = "D") +
+   theme(
+    plot.tag.position = "topleft",
+    plot.tag = element_text(face = "bold", size = 25)
+  )
 
 legenda1 <- get_legend(pcaa1)
 
@@ -1309,8 +1336,8 @@ admixture1 <- plotQ(a1.mk2,
             divtype = NULL,
             useindlab = TRUE, 
             returndata = TRUE,
-            barbordersize = 0.01,
-            barbordercolour = "lightgrey",
+            #barbordersize = 0.01,
+            #barbordercolour = "lightgrey",
       
       # Add title
            showtitle = TRUE,
@@ -1379,8 +1406,8 @@ admixture2 <- plotQ(a2.mk2,
             divtype = NULL,
             useindlab = TRUE, 
             returndata = TRUE,
-            barbordersize = 0.01,
-            barbordercolour = "lightgrey",
+            #barbordersize = 0.01,
+            #barbordercolour = "lightgrey",
 
       # Add title
            showtitle = TRUE,
@@ -1893,7 +1920,7 @@ plotQ(w1.mk2,
             exportpath = "./output/plots/structure_plots/wbnp")
 
 
-plotQ(w2.mk2, 
+plotw2 <- plotQ(w2.mk2, 
             basesize = 10, 
             grplab = loc_labels_w2, 
             subsetgrp = herd_order_w2,
@@ -1950,6 +1977,7 @@ plotQ(w2.mk2,
             width = 35,
             panelspacer = 0.2,
             panelratio = c(1,2),
+      returnplot = TRUE,
       
       
       # File settings
@@ -2031,7 +2059,7 @@ plotQ(subw2.mk2,
 # WBNP Split
 Based on clustering analyses, we see two putative genetic clusters. What herds assign to what cluster:
 ```{r}
-w2.order <- data.frame(plotw2$data$grplab[[2]]) %>% 
+w2.order <- data.frame(plotw2$data$grplab[[1]]) %>% 
   rownames_to_column("Ind")
 
 w2.k2 <- data.frame(w2.mk2) %>% 
@@ -2053,8 +2081,200 @@ w2.Q.sum <- w2.k2 %>%
 # Summary per herd of Q assignments
 w2.Q.sum
 
-write.csv(w2.Q.sum, "./output/tables/WBNP.Cluster.assignment.csv")
+write.csv(w2.Q.sum, "./output/tables/structure/WBNP.Cluster.assignment.csv")
 ```
 
+### Combined plots 
+
+```{r}
+# With plains bison
+A_labeled <- arrangeGrob(admixture1$plot[[1]], 
+                         top = textGrob("A", x = unit(0.02, "npc"), just = "left", 
+                                        gp = gpar(fontsize = 25, fontface = "bold")))
+
+B_labeled <- arrangeGrob(admixture2$plot[[1]], 
+                         top = textGrob("B", x = unit(0.02, "npc"), just = "left",
+                                        gp = gpar(fontsize = 25, fontface = "bold")))
+
+# Combine Global no plains T1
+top2 <- grid.arrange(A_labeled,B_labeled,
+                      ncol = 1,
+                      widths = 1,
+                      padding = unit(0, "line"))
+
+w_plains <- arrangeGrob(top2, admix_pcas, 
+                        ncol = 1,
+                        heights = c(15, 15),
+                        widths = 1,
+                        padding = unit(0, "line")
+                        )
+
+ggsave("./output/plots/admixedwbnp_combined.png",
+      plot = w_plains,
+       height = 15,
+       width = 15,
+       bg = "white",
+       units = "in")
+
+
+### Without plains
+
+plotw1 <- plotQ(c(w1.mk2, w1.mk3, w1.mk4), 
+      imgoutput = "join",
+            basesize = 10, 
+            grplab = loc_labels_w1, 
+            subsetgrp = herd_order_w1, 
+            clustercol = struct_w1_cols,
+            ordergrp = TRUE,
+      
+      # Side "K" Labels
+            splab = c("K = 2", "K = 3", "K = 4"),
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+            useindlab = TRUE, 
+            returndata = TRUE,
+            #barbordersize = 0.01,
+            #barbordercolour = "lightgrey",
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+           titleface = "bold",
+      
+      # Plot settings
+            height = 10,             
+            width = 35,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      returnplot = TRUE,
+      
+      # File settings
+            imgtype = "tiff",
+            outputfilename = "W1.k2-4",
+            exportpath = "./output/plots/structure_plots/wbnp/")
+
+plotw2 <- plotQ(c(w2.mk2, w2.mk3, w2.mk4), 
+      imgoutput = "join",
+            basesize = 10, 
+            grplab = loc_labels_w2, 
+            subsetgrp = herd_order_w2, 
+            clustercol = struct_w2_cols,
+            ordergrp = TRUE,
+      
+      # Side "K" Labels
+            splab = c("K = 2", "K = 3", "K = 4"),
+            splabsize = 20,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 6.2, 
+            grplabangle = 45,
+            grplabpos = 0.85,
+            grplabheight = 0.6,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+            useindlab = TRUE, 
+            returndata = TRUE,
+            #barbordersize = 0.01,
+            #barbordercolour = "lightgrey",
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+           titleface = "bold",
+      
+      # Plot settings
+            height = 10,             
+            width = 35,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      returnplot = TRUE,
+      
+      # File settings
+            imgtype = "tiff",
+            outputfilename = "W2.k2-4",
+            exportpath = "./output/plots/structure_plots/wbnp/")
+
+
+A_labeled <- arrangeGrob(plotw1$plot[[1]],
+                         top = textGrob("A", x = unit(0.02, "npc"), just = "left", 
+                                        gp = gpar(fontsize = 25, fontface = "bold")))
+
+B_labeled <- arrangeGrob(plotw2$plot[[1]], 
+                         top = textGrob("B", x = unit(0.02, "npc"), just = "left",
+                                        gp = gpar(fontsize = 25, fontface = "bold")))
+
+# Combine Global no plains T1
+top3 <- grid.arrange(A_labeled,B_labeled,
+                      ncol = 1,
+                      widths = 1,
+                      padding = unit(0, "line"))
+
+no_plains <- arrangeGrob(top3, wbnp_pcas, 
+                        ncol = 1,
+                        heights = c(15, 15),
+                        widths = 1,
+                        padding = unit(0, "line")
+                        )
+
+ggsave("./output/plots/wbnp_combined.png",
+      plot = no_plains,
+       height = 20,
+       width = 15,
+       bg = "white",
+       units = "in")
+```
 
 

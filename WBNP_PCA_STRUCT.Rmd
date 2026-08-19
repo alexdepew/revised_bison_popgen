@@ -94,6 +94,8 @@ wbnp_palette <-  c("#C6DBEF",
                    "#084594"
                   )
 
+wbnp_palette <- c("#d9ed92", "#99d98c", "#52b69a", "#168aad", "#1a759f", "#184e77")
+
 wbnp_cols <- setNames(as.character(wbnp_palette), wbnp_subherds)
 
 # STRUCTURE colours
@@ -222,32 +224,62 @@ ggsave("./output/plots/PCAs/wbnp/temp2_wbnp.svg",
 
 ### Arrange Plots together
 ```{r}
-pcaw1_nl <- pcaw1 + theme(legend.position = "none") +
-  labs(tag = "C") +
-   theme(
-    plot.tag.position = "topleft",
-    plot.tag = element_text(face = "bold", size = 25))
+#pcaw1_nl <- pcaw1 + theme(legend.position = "none") +
+#  labs(tag = "C") +
+#   theme(
+#    plot.tag.position = "topleft",
+#    plot.tag = element_text(face = "bold", size = 25),
+#    plot.margin = margin(t = -25, r = 5, b = 0, l = 5, unit = "pt"))
     
-pcaw2_nl <- pcaw2 + theme(legend.position = "none") +
+#pcaw2_nl <- pcaw2 + theme(legend.position = "none") +
+#  labs(tag = "D") +
+#   theme(
+#    plot.tag.position = "topleft",
+#    plot.tag = element_text(face = "bold", size = 25),
+#    plot.margin = margin(t = -25, r = 5, b = 0, l = 5, unit = "pt"))
+
+#legendw1 <- get_legend(pcaw1)
+
+#pcaw1: Keep legend and place it inside the plot area
+pcaw1_nl <- pcaw1 + 
+  labs(tag = "C") +
+  theme(
+    plot.tag.position = c(0.06, 1.05),
+    plot.tag = element_text(face = "bold", size = 25),
+    plot.margin = margin(t = -35, r = 5, b = 0, l = 5, unit = "pt"),
+    legend.position = "none"
+  )
+
+# pcaw2: Hide legend completely
+pcaw2_nl <- pcaw2 + 
+  theme(legend.position = "none") +
   labs(tag = "D") +
-   theme(
-    plot.tag.position = "topleft",
-    plot.tag = element_text(face = "bold", size = 25))
+  theme(
+    plot.tag.position = c(0.06, 1.05),
+    plot.tag = element_text(face = "bold", size = 25),
+    plot.margin = margin(t = -35, r = 5, b = 0, l = 5, unit = "pt"),
+# Legend inside of Plot
+    legend.position = c(0.85, 0.74),             
+    legend.background = element_rect(fill = alpha("white", 0.6), color = NA), 
+    legend.key = element_blank(),
+    legend.title = element_text(face = "bold", size = 10),
+    legend.text = element_text(size = 9)
+  )
 
-legendw1 <- get_legend(pcaw1)
 
-wbnp_pcas <- grid.arrange(pcaw1_nl, legendw1, pcaw2_nl, # Set out grid
-                            ncol = 3, 
-                            widths = c(10, 2.5, 10)
+wbnp_pcas <- grid.arrange(pcaw1_nl, pcaw2_nl, 
+                            ncol = 2, 
+                            widths = c(10, 10)
                             )
                             
+
 # Save plot
 library(svglite)
 ggsave("./output/plots/PCAs/wbnp/wbnp_pcas.svg",
        plot = wbnp_pcas, 
        device = "svg", 
        width = 16, 
-       height = 12, 
+       height = 16, 
        units = "in")
 ```
 ## Add EINPW AND EINPP
@@ -269,15 +301,16 @@ Visualize population structure without assumptions of HWE or LD, to identify clu
 ```{r}
 admix_subherds <- c("EINPP", "EINPW", "WBNPPAD", "WENT", "WBNPGR", "WBNPHC", "WBNPNY", "WBNPLB")
 
+
+
 admix_palette <- c("#F5B355",
-                   "#005000",
-                   "#C6DBEF",
-                   "#9ECAE1", 
-                   "#6BAED6", 
-                   "#4292C6", 
-                   "#2171B5", 
-                   "#084594"
-                  )
+                   "#005000", 
+                   "#d9ed92", 
+                   "#99d98c", 
+                   "#52b69a", 
+                   "#168aad", 
+                   "#1a759f", 
+                   "#184e77")
 
 admix_cols <- setNames(as.character(admix_palette), admix_subherds)
 ```
@@ -363,7 +396,7 @@ a2@pop <- factor(a2@pop, levels = sort(unique(as.character(a2@pop))))
 levels_a2 <- levels(a2@pop)
 a2_cols <- admix_cols[levels_a2]
 
-pca.a2$li[ ,2] <- pca.a2$li[ ,2] * -1
+#pca.a2$li[ ,2] <- pca.a2$li[ ,2] * -1
 
 # Plot PCA object
 pcaa2 <- fviz_pca_ind(pca.a2,
@@ -403,8 +436,8 @@ pcaa2
 ggsave("./output/plots/PCAs/wbnp/temp2_admix.svg",
        plot = pcaa2, 
        device = "svg", 
-       width = 12, 
-       height = 12, 
+       width = 16, 
+       height = 16, 
        units = "in")
 ```
 
@@ -2116,6 +2149,7 @@ ggsave("./output/plots/admixedwbnp_combined.png",
        bg = "white",
        units = "in")
 
+wbnp_cols <- c("#1B3B6F", "#2191FB", "#8AC926", "#F5A623")
 
 ### Without plains
 
@@ -2124,12 +2158,12 @@ plotw1 <- plotQ(c(w1.mk2, w1.mk3, w1.mk4),
             basesize = 10, 
             grplab = loc_labels_w1, 
             subsetgrp = herd_order_w1, 
-            clustercol = struct_w1_cols,
+            clustercol = wbnp_cols,
             ordergrp = TRUE,
       
       # Side "K" Labels
-            splab = c("K = 2", "K = 3", "K = 4"),
-            splabsize = 20,
+            splab = c("K=2", "K=3", "K=4"),
+            splabsize = 15,
             splabface = "bold",
             sppos = "left",
             splabcol = "black",
@@ -2142,10 +2176,10 @@ plotw1 <- plotQ(c(w1.mk2, w1.mk3, w1.mk4),
             indlabheight = 0,
       
       # Group Label settings
-            grplabsize = 6.2, 
+            grplabsize = 5.0, 
             grplabangle = 45,
-            grplabpos = 0.85,
-            grplabheight = 0.6,      
+            grplabpos = 0.75,
+            grplabheight = 0.35,      
             grplabspacer = 0,
             grplabcol = "black",
       
@@ -2163,7 +2197,7 @@ plotw1 <- plotQ(c(w1.mk2, w1.mk3, w1.mk4),
             #barbordercolour = "lightgrey",
       
       # Add title
-           showtitle = TRUE,
+           showtitle = FALSE,
            titlelab = NULL,
            titlehjust = 0.5,
            titlevjust = 0.5,
@@ -2188,12 +2222,12 @@ plotw2 <- plotQ(c(w2.mk2, w2.mk3, w2.mk4),
             basesize = 10, 
             grplab = loc_labels_w2, 
             subsetgrp = herd_order_w2, 
-            clustercol = struct_w2_cols,
+            clustercol = wbnp_cols,
             ordergrp = TRUE,
       
       # Side "K" Labels
-            splab = c("K = 2", "K = 3", "K = 4"),
-            splabsize = 20,
+            splab = c("K=2", "K=3", "K=4"),
+            splabsize = 15,
             splabface = "bold",
             sppos = "left",
             splabcol = "black",
@@ -2206,10 +2240,10 @@ plotw2 <- plotQ(c(w2.mk2, w2.mk3, w2.mk4),
             indlabheight = 0,
       
       # Group Label settings
-            grplabsize = 6.2, 
+            grplabsize = 5.0, 
             grplabangle = 45,
-            grplabpos = 0.85,
-            grplabheight = 0.6,      
+            grplabpos = 0.75,
+            grplabheight = 0.35,      
             grplabspacer = 0,
             grplabcol = "black",
       
@@ -2227,7 +2261,7 @@ plotw2 <- plotQ(c(w2.mk2, w2.mk3, w2.mk4),
             #barbordercolour = "lightgrey",
       
       # Add title
-           showtitle = TRUE,
+           showtitle = FALSE,
            titlelab = NULL,
            titlehjust = 0.5,
            titlevjust = 0.5,
@@ -2262,19 +2296,24 @@ top3 <- grid.arrange(A_labeled,B_labeled,
                       widths = 1,
                       padding = unit(0, "line"))
 
+# Shrink margins for PCA
+
 no_plains <- arrangeGrob(top3, wbnp_pcas, 
                         ncol = 1,
-                        heights = c(15, 15),
+                        heights = c(1.2, 1),
                         widths = 1,
-                        padding = unit(0, "line")
+                        padding = unit(-1, "line")
                         )
 
-ggsave("./output/plots/wbnp_combined.png",
+ggsave("./output/plots/combined_plots/wbnp_combined.png",
       plot = no_plains,
-       height = 20,
-       width = 15,
+       height = 13.5,
+       width = 12,
        bg = "white",
        units = "in")
+
+
 ```
+
 
 

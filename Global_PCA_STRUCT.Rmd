@@ -474,37 +474,7 @@ theme(
 
 ```
 
-### Arrange Plots together (No EINPP)
-```{r}
-pca1_nl.noEINPP <- pca1.noEINPP + theme(legend.position = "none") +
-  labs(tag = "C") +
-   theme(
-    plot.tag.position = "topleft",
-    plot.tag = element_text(face = "bold", size = 25)
-  )
 
-pca2_nl.noEINPP <- pca2.noEINPP + theme(legend.position = "none") +
-  labs(tag = "D") +
-   theme(
-    plot.tag.position = "topleft",
-    plot.tag = element_text(face = "bold", size = 25)
-  )
-
-legend2 <- get_legend(pcag.noEINPP)
-
-global_pcas.noEINPP <- grid.arrange(pca1_nl.noEINPP, legend2, pca2_nl.noEINPP, # Set out grid
-                            ncol = 3, 
-                            widths = c(10, 2.5, 10)
-                            )
-                            
-# Save plot
-ggsave("./output/plots/PCAs/global/global_pcas.no_plains.svg",
-       plot = global_pcas.noEINPP, 
-       device = "svg", 
-       width = 16, 
-       height = 12, 
-       units = "in")
-```
 
 Global PCA's (Christina's code)
 ```{r}
@@ -1407,162 +1377,6 @@ plotQ(temp1.merged.list,
             exportpath = "./output/plots/structure_plots/global/no_plains/")
 ```
 
-```{r}
-# Align cluster colours (Only to K = 7)
-
-# Merge runs (average over 10 replicates)
-temp1_no_plains.mk2 <- mergeQ(slist_temp1_no_plains[11:20])
-temp1_no_plains.mk3 <- mergeQ(slist_temp1_no_plains[21:30])
-temp1_no_plains.mk4 <- mergeQ(slist_temp1_no_plains[31:40])
-temp1_no_plains.mk5 <- mergeQ(slist_temp1_no_plains[41:50])
-temp1_no_plains.mk6 <- mergeQ(slist_temp1_no_plains[51:60])
-temp1_no_plains.mk7 <- mergeQ(slist_temp1_no_plains[61:70])
-
-# Flip clusters so they plot correctly
-#temp1.mk1_no_plains$`2` <- temp1.mk2$`2`[, c("Cluster2", "Cluster1")]
-#colnames(temp1.mk2_no_plains$`2`) <- c("Cluster1", "Cluster2")
-
-# Set clusters for colour matching mk2
-#Cluster2 <- temp1.mk2$`2`$Cluster1 
-#Cluster1 <- temp1.mk2$`2`$Cluster2
-
-#temp1.mk2$`2`$Cluster1 <- Cluster1
-#temp1.mk2$`2`$Cluster2 <- Cluster2
-
-# Set clusters for colour matching mk3
-Cluster1 <- temp1_no_plains.mk3$`3`$Cluster1 
-Cluster2 <- temp1_no_plains.mk3$`3`$Cluster2
-Cluster3 <- temp1_no_plains.mk3$`3`$Cluster3
-
-temp1_no_plains.mk3$`3`$Cluster1 <- Cluster1
-temp1_no_plains.mk3$`3`$Cluster2 <- Cluster2
-temp1_no_plains.mk3$`3`$Cluster3 <- Cluster3
-
-# Set clusters for colour matching mk4
-Cluster4 <- temp1_no_plains.mk4$`4`$Cluster1 
-Cluster3 <- temp1_no_plains.mk4$`4`$Cluster2
-Cluster2 <- temp1_no_plains.mk4$`4`$Cluster3
-Cluster1 <- temp1_no_plains.mk4$`4`$Cluster4
-
-
-temp1_no_plains.mk4$`4`$Cluster1 <- Cluster1
-temp1_no_plains.mk4$`4`$Cluster2 <- Cluster2
-temp1_no_plains.mk4$`4`$Cluster3 <- Cluster3
-temp1_no_plains.mk4$`4`$Cluster4 <- Cluster4
-
-# Set clusters for colour matching mk5
-Cluster1 <- temp1_no_plains.mk5$`5`$Cluster1 
-Cluster3 <- temp1_no_plains.mk5$`5`$Cluster2
-Cluster2 <- temp1_no_plains.mk5$`5`$Cluster3
-Cluster5 <- temp1_no_plains.mk5$`5`$Cluster4
-Cluster4 <- temp1_no_plains.mk5$`5`$Cluster5
-
-temp1_no_plains.mk5$`5`$Cluster1 <- Cluster1
-temp1_no_plains.mk5$`5`$Cluster2 <- Cluster2
-temp1_no_plains.mk5$`5`$Cluster3 <- Cluster3
-temp1_no_plains.mk5$`5`$Cluster4 <- Cluster4
-temp1_no_plains.mk5$`5`$Cluster5 <- Cluster5
-
-
-# Set clusters for colour matching mk6
-Cluster1 <- temp1_no_plains.mk6$`6`$Cluster1 
-Cluster3 <- temp1_no_plains.mk6$`6`$Cluster2
-Cluster2 <- temp1_no_plains.mk6$`6`$Cluster3
-Cluster6 <- temp1_no_plains.mk6$`6`$Cluster4
-Cluster4 <- temp1_no_plains.mk6$`6`$Cluster5
-Cluster5 <- temp1_no_plains.mk6$`6`$Cluster6
-
-
-temp1_no_plains.mk6$`6`$Cluster1 <- Cluster1
-temp1_no_plains.mk6$`6`$Cluster2 <- Cluster2
-temp1_no_plains.mk6$`6`$Cluster3 <- Cluster3
-temp1_no_plains.mk6$`6`$Cluster4 <- Cluster4
-temp1_no_plains.mk6$`6`$Cluster5 <- Cluster5
-temp1_no_plains.mk6$`6`$Cluster6 <- Cluster6
-
-# Set clusters for colour matching mk7
-Cluster5 <- temp1_no_plains.mk7$`7`$Cluster1 
-Cluster3 <- temp1_no_plains.mk7$`7`$Cluster2
-Cluster2 <- temp1_no_plains.mk7$`7`$Cluster3
-Cluster7 <- temp1_no_plains.mk7$`7`$Cluster4
-Cluster4 <- temp1_no_plains.mk7$`7`$Cluster5
-Cluster1 <- temp1_no_plains.mk7$`7`$Cluster6
-Cluster6 <- temp1_no_plains.mk7$`7`$Cluster7
-
-
-temp1_no_plains.mk7$`7`$Cluster1 <- Cluster1
-temp1_no_plains.mk7$`7`$Cluster2 <- Cluster2
-temp1_no_plains.mk7$`7`$Cluster3 <- Cluster3
-temp1_no_plains.mk7$`7`$Cluster4 <- Cluster4
-temp1_no_plains.mk7$`7`$Cluster5 <- Cluster5
-temp1_no_plains.mk7$`7`$Cluster6 <- Cluster6
-temp1_no_plains.mk7$`7`$Cluster7 <- Cluster7
-
-struct_temp2_cols <- c("#E69F00FF", "#56B4E9FF", "#009E73FF", "#0072B2FF", "#D55E00FF", "#CC78A7FF", "#000000")
-
-plot3 <- plotQ(c(temp1_no_plains.mk2, temp1_no_plains.mk3, temp1_no_plains.mk4, temp1_no_plains.mk5, temp1_no_plains.mk6, temp1_no_plains.mk7), 
-      imgoutput = "join",
-            basesize = 10, 
-            grplab = loc_labels_temp1_no_plains, 
-            subsetgrp = herd_order_temp1_no_plains, 
-            clustercol = struct_temp1_cols,
-            ordergrp = TRUE,
-      
-       # Side "K" Labels
-            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6", "K = 7"),
-            splabsize = 13,
-            sppos = "left",
-            splabcol = "black",
-            splabangle = 0,
-            splabface = "bold",
-      
-            # Individual Label Settings
-            showindlab = F, 
-            indlabsize = 4,        
-            indlabangle = 90,
-            indlabheight = 0,
-      
-      # Group Label settings
-            grplabsize = 5, 
-            grplabangle =45,
-            grplabpos = 0.65,
-            grplabheight = 1,      
-            grplabspacer = 0.1,
-            grplabcol = "black",
-            linesize = 1,          
-            pointsize = 8,
-            linepos = 0.85,
-      
-      # Divider Line Settings
-            divcol = "white",
-            divsize = 1, 
-            divtype = NULL,
-      
-            useindlab = TRUE, 
-            returndata = TRUE,
-      
-      # Add title
-           showtitle = TRUE,
-           titlelab = NULL,
-           titlehjust = 0.5,
-           titlevjust = 0.5,
-           titlesize = 15,
-           titlecol = "black",
-      titleface = "bold",
-      
-      # Plot settings
-            height = 5,             
-            width = 50,
-            panelspacer = 0.2,
-            panelratio = c(1,2),
-      
-      
-      # File settings
-            imgtype = "tiff",
-            returnplot = TRUE,
-            outputfilename = "Temp1_no_plains_k2-7",
-            exportpath = "./output/plots/structure_plots/global/no_plains/")
-```
 #### Temp 2 (Without Plains)
 ```{r}
 temp2_no_plains.data <- cleaned.data %>% 
@@ -1665,8 +1479,208 @@ plot4 <- plotQ(temp2.merged.list,
             outputfilename = "Temp2_no_plains",
             exportpath = "./output/plots/structure_plots/global/no_plains/")
 ```
-Temp 2 No Plains
+
+# No EINPP outgroup Combined Plots
 ```{r}
+pca1_nl.noEINPP <- pca1.noEINPP +
+  labs(tag = "C") +
+  theme(
+    plot.tag.position = "topleft",
+    plot.tag = element_text(face = "bold", size = 25),
+    plot.margin = margin(t = 10, r = 10, b = 10, l = 10, unit = "pt"),
+    legend.position = "none"
+  )
+
+pca2_nl.noEINPP <- pca2.noEINPP +
+  labs(tag = "D") +
+  guides(colour = guide_legend(ncol = 3, override.aes = list(size = 3))) +
+  theme(
+    plot.tag.position = "topleft",
+    plot.tag = element_text(face = "bold", size = 25),
+    plot.margin = margin(t = 10, r = 10, b = 10, l = 10, unit = "pt"),
+    
+    # Legend settings
+    legend.position = c(0.02, 0.02),
+    legend.justification = c("left", "bottom"),
+    legend.background = element_rect(fill = alpha("white", 0.7), color = "grey80", size = 0.3),
+    legend.key = element_blank(),
+    legend.key.size = unit(0.35, "cm"),
+    legend.title = element_text(face = "bold", size = 8),
+    legend.text = element_text(size = 7),
+    legend.margin = margin(2, 4, 2, 4, "pt"),
+    legend.spacing.x = unit(0.05, "cm")
+  )
+
+global_pcas.noEINPP <- grid.arrange(
+  pca1_nl.noEINPP, 
+  pca2_nl.noEINPP, 
+  ncol = 2, 
+  widths = c(10, 10)
+)
+                            
+# Save plot
+ggsave("./output/plots/PCAs/global/global_pcas.no_plains.svg",
+       plot = global_pcas.noEINPP, 
+       device = "svg", 
+       width = 16, 
+       height = 12, 
+       units = "in") 
+# Align cluster colours (Only to K = 7)
+
+# Merge runs (average over 10 replicates)
+temp1_no_plains.mk2 <- mergeQ(slist_temp1_no_plains[11:20])
+temp1_no_plains.mk3 <- mergeQ(slist_temp1_no_plains[21:30])
+temp1_no_plains.mk4 <- mergeQ(slist_temp1_no_plains[31:40])
+temp1_no_plains.mk5 <- mergeQ(slist_temp1_no_plains[41:50])
+temp1_no_plains.mk6 <- mergeQ(slist_temp1_no_plains[51:60])
+temp1_no_plains.mk7 <- mergeQ(slist_temp1_no_plains[61:70])
+
+# Flip clusters so they plot correctly
+#temp1.mk1_no_plains$`2` <- temp1.mk2$`2`[, c("Cluster2", "Cluster1")]
+#colnames(temp1.mk2_no_plains$`2`) <- c("Cluster1", "Cluster2")
+
+# Set clusters for colour matching mk2
+#Cluster2 <- temp1.mk2$`2`$Cluster1 
+#Cluster1 <- temp1.mk2$`2`$Cluster2
+
+#temp1.mk2$`2`$Cluster1 <- Cluster1
+#temp1.mk2$`2`$Cluster2 <- Cluster2
+
+# Set clusters for colour matching mk3
+Cluster1 <- temp1_no_plains.mk3$`3`$Cluster1 
+Cluster2 <- temp1_no_plains.mk3$`3`$Cluster2
+Cluster3 <- temp1_no_plains.mk3$`3`$Cluster3
+
+temp1_no_plains.mk3$`3`$Cluster1 <- Cluster1
+temp1_no_plains.mk3$`3`$Cluster2 <- Cluster2
+temp1_no_plains.mk3$`3`$Cluster3 <- Cluster3
+
+# Set clusters for colour matching mk4
+Cluster4 <- temp1_no_plains.mk4$`4`$Cluster1 
+Cluster3 <- temp1_no_plains.mk4$`4`$Cluster2
+Cluster2 <- temp1_no_plains.mk4$`4`$Cluster3
+Cluster1 <- temp1_no_plains.mk4$`4`$Cluster4
+
+
+temp1_no_plains.mk4$`4`$Cluster1 <- Cluster1
+temp1_no_plains.mk4$`4`$Cluster2 <- Cluster2
+temp1_no_plains.mk4$`4`$Cluster3 <- Cluster3
+temp1_no_plains.mk4$`4`$Cluster4 <- Cluster4
+
+# Set clusters for colour matching mk5
+Cluster1 <- temp1_no_plains.mk5$`5`$Cluster1 
+Cluster3 <- temp1_no_plains.mk5$`5`$Cluster2
+Cluster2 <- temp1_no_plains.mk5$`5`$Cluster3
+Cluster5 <- temp1_no_plains.mk5$`5`$Cluster4
+Cluster4 <- temp1_no_plains.mk5$`5`$Cluster5
+
+temp1_no_plains.mk5$`5`$Cluster1 <- Cluster1
+temp1_no_plains.mk5$`5`$Cluster2 <- Cluster2
+temp1_no_plains.mk5$`5`$Cluster3 <- Cluster3
+temp1_no_plains.mk5$`5`$Cluster4 <- Cluster4
+temp1_no_plains.mk5$`5`$Cluster5 <- Cluster5
+
+
+# Set clusters for colour matching mk6
+Cluster1 <- temp1_no_plains.mk6$`6`$Cluster1 
+Cluster3 <- temp1_no_plains.mk6$`6`$Cluster2
+Cluster2 <- temp1_no_plains.mk6$`6`$Cluster3
+Cluster6 <- temp1_no_plains.mk6$`6`$Cluster4
+Cluster4 <- temp1_no_plains.mk6$`6`$Cluster5
+Cluster5 <- temp1_no_plains.mk6$`6`$Cluster6
+
+
+temp1_no_plains.mk6$`6`$Cluster1 <- Cluster1
+temp1_no_plains.mk6$`6`$Cluster2 <- Cluster2
+temp1_no_plains.mk6$`6`$Cluster3 <- Cluster3
+temp1_no_plains.mk6$`6`$Cluster4 <- Cluster4
+temp1_no_plains.mk6$`6`$Cluster5 <- Cluster5
+temp1_no_plains.mk6$`6`$Cluster6 <- Cluster6
+
+# Set clusters for colour matching mk7
+Cluster5 <- temp1_no_plains.mk7$`7`$Cluster1 
+Cluster3 <- temp1_no_plains.mk7$`7`$Cluster2
+Cluster2 <- temp1_no_plains.mk7$`7`$Cluster3
+Cluster7 <- temp1_no_plains.mk7$`7`$Cluster4
+Cluster4 <- temp1_no_plains.mk7$`7`$Cluster5
+Cluster1 <- temp1_no_plains.mk7$`7`$Cluster6
+Cluster6 <- temp1_no_plains.mk7$`7`$Cluster7
+
+
+temp1_no_plains.mk7$`7`$Cluster1 <- Cluster1
+temp1_no_plains.mk7$`7`$Cluster2 <- Cluster2
+temp1_no_plains.mk7$`7`$Cluster3 <- Cluster3
+temp1_no_plains.mk7$`7`$Cluster4 <- Cluster4
+temp1_no_plains.mk7$`7`$Cluster5 <- Cluster5
+temp1_no_plains.mk7$`7`$Cluster6 <- Cluster6
+temp1_no_plains.mk7$`7`$Cluster7 <- Cluster7
+
+struct_temp2_cols <- c("#E69F00FF", "#56B4E9FF", "#009E73FF", "#0072B2FF", "#D55E00FF", "#CC78A7FF", "#000000")
+
+plot3 <- plotQ(c(temp1_no_plains.mk2, temp1_no_plains.mk3, temp1_no_plains.mk4, temp1_no_plains.mk5, temp1_no_plains.mk6, temp1_no_plains.mk7), 
+      imgoutput = "join",
+            basesize = 10, 
+            grplab = loc_labels_temp1_no_plains, 
+            subsetgrp = herd_order_temp1_no_plains, 
+            clustercol = struct_temp1_cols,
+            ordergrp = TRUE,
+      
+       # Side "K" Labels
+            splab = c("K=2", "K=3", "K=4", "K=5", "K=6", "K=7"),
+            splabsize = 13,
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+            splabface = "bold",
+      
+            # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 4,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 4, 
+            grplabangle =25,
+            grplabpos = 0.65,
+            grplabheight = 1,      
+            grplabspacer = 0.1,
+            grplabcol = "black",
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.85,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Add title
+           showtitle = TRUE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+      titleface = "bold",
+      
+      # Plot settings
+            height = 5,             
+            width = 50,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      
+      
+      # File settings
+            imgtype = "tiff",
+            returnplot = TRUE,
+            outputfilename = "Temp1_no_plains_k2-7",
+            exportpath = "./output/plots/structure_plots/global/no_plains/")
+
+
 # Align cluster colours (Only to K = 7)
 
 # Merge runs (average over 10 replicates)
@@ -1768,7 +1782,7 @@ plot4 <- plotQ(c(temp2_no_plains.mk2, temp2_no_plains.mk3, temp2_no_plains.mk4, 
             ordergrp = TRUE,
       
       # Side "K" Labels
-            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6", "K = 7"),
+            splab = c("K =2", "K=3", "K=4", "K=5", "K=6", "K=7"),
             splabsize = 13,
             sppos = "left",
             splabcol = "black",
@@ -1782,15 +1796,15 @@ plot4 <- plotQ(c(temp2_no_plains.mk2, temp2_no_plains.mk3, temp2_no_plains.mk4, 
             indlabheight = 0,
       
       # Group Label settings
-            grplabsize = 5, 
-            grplabangle =45,
+            grplabsize = 4, 
+            grplabangle =25,
             grplabpos = 0.65,
             grplabheight = 1,      
             grplabspacer = 0.1,
             grplabcol = "black",
             linesize = 1,          
             pointsize = 8,
-            linepos = 0.95,
+            linepos = 0.85,
       
       # Divider Line Settings
             divcol = "white",
@@ -1820,6 +1834,43 @@ plot4 <- plotQ(c(temp2_no_plains.mk2, temp2_no_plains.mk3, temp2_no_plains.mk4, 
             returnplot = TRUE,
             outputfilename = "Temp2_no_plains_k2-7",
             exportpath = "./output/plots/structure_plots/global/no_plains/")
+
+
+## Without plains outgroup
+t3 <- plot3$plot[[1]]
+t4 <- plot4$plot[[1]]
+
+A_labeled <- arrangeGrob(t3, 
+                         top = textGrob("A", x = unit(0.02, "npc"), just = "left", 
+                                        gp = gpar(fontsize = 25, fontface = "bold")))
+
+B_labeled <- arrangeGrob(t4, 
+                         top = textGrob("B", x = unit(0.02, "npc"), just = "left",
+                                        gp = gpar(fontsize = 25, fontface = "bold")))
+
+#C_labeled <- arrangeGrob(D, 
+                         #top = textGrob("C", x = unit(0.02, "npc"), just = "left",
+                                       # gp = gpar(fontsize = 25, fontface = "bold")))
+
+
+# Combine Global no plains T1
+top2 <- grid.arrange(A_labeled,B_labeled,
+                      ncol = 1,
+                      widths = 1)
+
+no_plains <- arrangeGrob(top2, global_pcas.noEINPP, 
+                        ncol = 1,
+                        heights = c(1.4, 1),
+                        widths = 1,
+                        padding = unit(-1, "line")
+                        )
+
+ggsave("./output/plots/combined_plots/Wood_bison_structure.png",
+      plot = no_plains,
+       height = 13.5,
+       width = 12,
+       bg = "white",
+       units = "in")
 ```
 
 ```{r}
@@ -1850,40 +1901,7 @@ ggsave("./output/plots/top1.png",
        bg = "white",
        units = "in")
 
-## Without plains outgroup
-t3 <- plot3$plot[[1]]
-t4 <- plot4$plot[[1]]
-D <- global_pcas.noEINPP
 
-A_labeled <- arrangeGrob(t3, 
-                         top = textGrob("A", x = unit(0.02, "npc"), just = "left", 
-                                        gp = gpar(fontsize = 25, fontface = "bold")))
-
-B_labeled <- arrangeGrob(t4, 
-                         top = textGrob("B", x = unit(0.02, "npc"), just = "left",
-                                        gp = gpar(fontsize = 25, fontface = "bold")))
-
-#C_labeled <- arrangeGrob(D, 
-                         #top = textGrob("C", x = unit(0.02, "npc"), just = "left",
-                                       # gp = gpar(fontsize = 25, fontface = "bold")))
-
-
-# Combine Global no plains T1
-top2 <- grid.arrange(A_labeled,B_labeled,
-                      ncol = 1,
-                      widths = 1)
-
-no_plains <- arrangeGrob(top2, D, 
-                        ncol = 1,
-                        heights = c(30, 15),
-                        widths = 1)
-
-ggsave("./output/plots/top2.png",
-      plot = no_plains,
-       height = 15,
-       width = 15,
-       bg = "white",
-       units = "in")
 ```
 
 

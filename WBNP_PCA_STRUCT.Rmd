@@ -241,46 +241,7 @@ ggsave("./output/plots/PCAs/wbnp/temp2_wbnp.svg",
 #legendw1 <- get_legend(pcaw1)
 
 #pcaw1: Keep legend and place it inside the plot area
-pcaw1_nl <- pcaw1 + 
-  labs(tag = "C") +
-  theme(
-    plot.tag.position = c(0.06, 1.05),
-    plot.tag = element_text(face = "bold", size = 25),
-    plot.margin = margin(t = -35, r = 5, b = 0, l = 5, unit = "pt"),
-    legend.position = "none"
-  )
 
-# pcaw2: Hide legend completely
-pcaw2_nl <- pcaw2 + 
-  theme(legend.position = "none") +
-  labs(tag = "D") +
-  theme(
-    plot.tag.position = c(0.06, 1.05),
-    plot.tag = element_text(face = "bold", size = 25),
-    plot.margin = margin(t = -35, r = 5, b = 0, l = 5, unit = "pt"),
-# Legend inside of Plot
-    legend.position = c(0.85, 0.74),             
-    legend.background = element_rect(fill = alpha("white", 0.6), color = NA), 
-    legend.key = element_blank(),
-    legend.title = element_text(face = "bold", size = 10),
-    legend.text = element_text(size = 9)
-  )
-
-
-wbnp_pcas <- grid.arrange(pcaw1_nl, pcaw2_nl, 
-                            ncol = 2, 
-                            widths = c(10, 10)
-                            )
-                            
-
-# Save plot
-library(svglite)
-ggsave("./output/plots/PCAs/wbnp/wbnp_pcas.svg",
-       plot = wbnp_pcas, 
-       device = "svg", 
-       width = 16, 
-       height = 16, 
-       units = "in")
 ```
 ## Add EINPW AND EINPP
 #### Subset data 
@@ -2120,6 +2081,46 @@ write.csv(w2.Q.sum, "./output/tables/structure/WBNP.Cluster.assignment.csv")
 ### Combined plots 
 
 ```{r}
+pcaw1_nl <- pcaw1 + 
+  labs(tag = "C") +
+  theme(
+    plot.tag.position = c(0.02, 1.05),
+    plot.tag = element_text(face = "bold", size = 25),
+    plot.margin = margin(t = -25, r = 5, b = 0, l = 5, unit = "pt"),
+    legend.position = "none"
+  )
+
+# pcaw2: Hide legend completely
+pcaw2_nl <- pcaw2 + 
+  theme(legend.position = "none") +
+  labs(tag = "D") +
+  theme(
+    plot.tag.position = c(0.02, 1.05),
+    plot.tag = element_text(face = "bold", size = 25),
+    plot.margin = margin(t = -25, r = 5, b = 0, l = 5, unit = "pt"),
+# Legend inside of Plot
+    legend.position = c(0.85, 0.74),             
+    legend.background = element_rect(fill = alpha("white", 0.6), color = NA), 
+    legend.key = element_blank(),
+    legend.title = element_text(face = "bold", size = 10),
+    legend.text = element_text(size = 9)
+  )
+
+
+wbnp_pcas <- grid.arrange(pcaw1_nl, pcaw2_nl, 
+                            ncol = 2, 
+                            widths = c(10, 10)
+                            )
+                            
+
+# Save plot
+library(svglite)
+ggsave("./output/plots/PCAs/wbnp/wbnp_pcas.svg",
+       plot = wbnp_pcas, 
+       device = "svg", 
+       width = 16, 
+       height = 16, 
+       units = "in")
 # With plains bison
 A_labeled <- arrangeGrob(admixture1$plot[[1]], 
                          top = textGrob("A", x = unit(0.02, "npc"), just = "left", 
@@ -2176,10 +2177,10 @@ plotw1 <- plotQ(c(w1.mk2, w1.mk3, w1.mk4),
             indlabheight = 0,
       
       # Group Label settings
-            grplabsize = 5.0, 
-            grplabangle = 45,
+            grplabsize = 4.0, 
+            grplabangle = 25,
             grplabpos = 0.75,
-            grplabheight = 0.35,      
+            grplabheight = 0.15,      
             grplabspacer = 0,
             grplabcol = "black",
       
@@ -2240,10 +2241,10 @@ plotw2 <- plotQ(c(w2.mk2, w2.mk3, w2.mk4),
             indlabheight = 0,
       
       # Group Label settings
-            grplabsize = 5.0, 
-            grplabangle = 45,
+            grplabsize = 4.0, 
+            grplabangle = 25,
             grplabpos = 0.75,
-            grplabheight = 0.35,      
+            grplabheight = 0.15,      
             grplabspacer = 0,
             grplabcol = "black",
       

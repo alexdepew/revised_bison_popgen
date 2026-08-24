@@ -1,0 +1,230 @@
+---
+title: "WBNP_Complex_Structure"
+author: "Alex Depew"
+date: "2026-08-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# File information
+This script is used to evaluate the presence and extent of genetic substructure within the Wood Buffalo National Park complex. 
+
+Files used described below:
+
+- `Final_dataset_2026.06.28.csv`
+   - Contains all samples for population genetic analyses, post-filtering
+   
+## Load Required Packages
+```{r}
+rm(list = ls())
+library(adegenet)
+library(graph4lg)
+library(poppr)
+library(hierfstat)
+library(pophelper)
+library(tidyverse)
+library(gridExtra)
+library(factoextra)
+library(ggplot2)
+library(ggpubr)
+library(grid)
+```
+
+## Load Required Data
+```{r}
+cleaned.data <- read.csv("./datafiles/Final_dataset_2026.07.17.csv",
+                         check.names = F)
+```
+
+#### Convert data to Genind object
+```{r}
+# Make genind object
+bison.genind <- df2genind(X=cleaned.data[,c(15:ncol(cleaned.data))],
+                              sep = "/",
+                              ind.names = cleaned.data$Spreadsheet_ID,
+                              loc.names = NULL,
+                              pop = cleaned.data$Herd,
+                              NA.char = "NA",
+                              ploidy = 2,
+                              type = "codom",
+                              strata = NULL,
+                              hierarchy = NULL)
+
+# Attach collection year metadata
+bison.genind@other$year <- cleaned.data$Year.Collected
+```
+
+#### Subset data 
+Data is subset into two temporal groups. Temporal groups are: 1: pre-2016, and 3: post-2016
+```{r}
+# Create datasets containing samples of interest for temporal comparisons
+c1 <- bison.genind[bison.genind@pop %in% c("WBNPGR", "WBNPHC", 
+                                           "WBNPLB", "WBNPNY", 
+                                           "WBNPPAD", "WENT", 
+                                           "RL", "WAB", "MBS") &
+                   bison.genind@other$year <=2015,]
+
+c2 <- bison.genind[bison.genind@pop %in% c("WBNPGR", "WBNPHC", 
+                                           "WBNPLB", "WBNPNY", 
+                                           "WBNPPAD", "WENT", 
+                                           "RL", "WAB", "MBS") &
+                   bison.genind@other$year >=2016,]
+```
+
+# Principal Coordinate Analysis (PCA)
+Visualize population structure without assumptions of HWE or LD, to identify clusters in the data.
+```{r}
+herds <- c( "WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD","WBNPGR", "WENT", "RL", "WAB", "MBS")
+
+herd_palette <- c("#CCBB44","#228833", "#4477AA", "#EE6677",  "#66CCEE", "#AA3377", "#BBBBBB", "#EE7733", "#332288")
+
+herd_cols <- setNames(as.character(herd_palette), herds)
+
+```
+
+# PCA
+### Perform PCA on both datasets
+```{r}
+# Perform PCA
+x.c1 <- tab(c1, freq = TRUE, NA.method = "mean")
+pca.c1 <- dudi.pca(x.c1, center = T, scale = F, scannf = F, nf = 2)
+
+# Axes % Variance
+eig.perc.c1 <- 100*pca.c1$eig/sum(pca.c1$eig)
+
+x.c2 <- tab(c2, freq = TRUE, NA.method = "mean")
+pca.c2 <- dudi.pca(x.c2, center = T, scale = F, scannf = F, nf = 2)
+
+# Axes % Variance
+eig.perc.c2 <- 100*pca.c2$eig/sum(pca.c2$eig)
+
+#### axis limits
+xlims <- c(-2.5, 3.5)
+ylims <- c(-2, 2.1)
+```
+
+## PCA plot with ggplot
+#### WBNP Complex Temp1
+```{r}
+c1@pop <- factor(c1@pop, levels = sort(unique(as.character(c1@pop))))
+levels_c1 <- levels(c1@pop)
+c1_cols <- herd_cols[levels_c1]
+
+pca.c1$li[ ,1] <- pca.c1$li[ ,1] * -1
+
+# Plot PCA object
+pcac1 <- fviz_pca_ind(pca.c1,
+             axes = c(1, 2),
+             geom = "blank",
+             habillage = c1@pop,
+             repel = TRUE,
+             palette = c1_cols,
+             alpha.ind = 1,) + 
+  stat_ellipse(aes(color = c1@pop), type = "norm", level = 0.68) + 
+  geom_point(aes(colour = c1@pop),
+             shape = 19,
+             alpha = 0.75,
+             size = 2) + 
+#coord_fixed(ratio = 1, xlim = xlims, ylim = ylims) +
+  
+theme(
+    plot.title = element_blank(),
+    legend.title = element_text(face = "bold", size = 15),
+    legend.text = element_text(size = 15),
+    axis.title = element_text(face = "bold", size = 20),
+    text = element_text(size = 20),
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),  ) + 
+
+
+  labs(title = NULL,
+       # Fixed the placement of closing parentheses and commas below
+       x = paste0("PC1 (", round(eig.perc.c1[1], 2), "%)"),
+       y = paste0("PC2 (", round(eig.perc.c1[2], 2), "%)"),
+       colour = "Herd") + 
+    guides(colour = guide_legend(override.aes = list(size = 4, shape = 19)))
+
+       
+
+pcac1
+
+ggsave("./output/plots/PCAs/wbnp_complex//temp1.svg",
+       plot = pcac1, 
+       device = "svg", 
+       width = 12, 
+       height = 12, 
+       units = "in")
+```
+#### WBNP Complex Temp2
+```{r}
+c2@pop <- factor(c2@pop, levels = sort(unique(as.character(c2@pop))))
+levels_c2 <- levels(c2@pop)
+c2_cols <- herd_cols[levels_c2]
+
+pca.c2$li[ ,1] <- pca.c2$li[ ,1] * -1
+pca.c2$li[ ,2] <- pca.c2$li[ ,2] * -1
+
+
+# Plot PCA object
+pcac2 <- fviz_pca_ind(pca.c2,
+             axes = c(1, 2),
+             geom = "blank",
+             habillage = c2@pop,
+             repel = TRUE,
+             palette = c2_cols,
+             alpha.ind = 1,) + 
+  stat_ellipse(aes(color = c2@pop), type = "norm", level = 0.68) + 
+  geom_point(aes(colour = c2@pop),
+             shape = 19,
+             alpha = 0.75,
+             size = 2) + 
+#coord_fixed(ratio = 1, xlim = xlims, ylim = ylims) +
+  
+theme(
+    plot.title = element_blank(),
+    legend.title = element_text(face = "bold", size = 15),
+    legend.text = element_text(size = 15),
+    axis.title = element_text(face = "bold", size = 20),
+    text = element_text(size = 20),
+    panel.border = element_rect(colour = "black", fill = NA, linewidth = 1),  ) + 
+
+
+  labs(title = NULL,
+       # Fixed the placement of closing parentheses and commas below
+       x = paste0("PC1 (", round(eig.perc.c2[1], 2), "%)"),
+       y = paste0("PC2 (", round(eig.perc.c2[2], 2), "%)"),
+       colour = "Herd") + 
+    guides(colour = guide_legend(override.aes = list(size = 4, shape = 19)))
+
+       
+
+pcac2
+
+ggsave("./output/plots/PCAs/wbnp_complex//temp2.svg",
+       plot = pcac2, 
+       device = "svg", 
+       width = 12, 
+       height = 12, 
+       units = "in")
+```
+# Create STRUCTURE Files
+```{r}
+summary(c1)
+# W1 structure (202 individuals, 9 pops)
+c1.str <- c1 
+pop(c1.str) <- as.numeric(as.factor(pop(c1.str)))
+
+genind_to_structure(c1.str,
+                    output = "STRUCTURE/wbnp_complex/c1.structure.txt")
+
+summary(c2)
+# W2 structure (269 individuals, 9 pops)
+c2.str <- c2
+pop(c2.str) <- as.numeric(as.factor(pop(c2.str)))
+
+genind_to_structure(c2.str,
+                    output = "STRUCTURE/wbnp_complex/c2.structure.txt")
+```
+

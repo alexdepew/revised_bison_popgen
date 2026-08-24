@@ -277,27 +277,7 @@ theme(
 
 ```
 
-### Arrange Plots together
-```{r}
-pca1_nl <- pca1 + theme(legend.position = "none")
-pca2_nl <- pca2 + theme(legend.position = "none")
 
-legend1 <- get_legend(pcag)
-
-global_pcas <- grid.arrange(pca1_nl, legend1, pca2_nl, # Set out grid
-                            ncol = 3, 
-                            widths = c(10, 2.5, 10)
-                            )
-                            
-# Save plot
-library(svglite)
-ggsave("./output/plots/PCAs/global/global_pcas.svg",
-       plot = global_pcas, 
-       device = "svg", 
-       width = 16, 
-       height = 12, 
-       units = "in")
-```
 
 Remove Elk Island Plains for Structure Analyses
 ```{r}
@@ -887,7 +867,7 @@ temp1.mk7$`7`$Cluster5 <- Cluster5
 temp1.mk7$`7`$Cluster6 <- Cluster6
 temp1.mk7$`7`$Cluster7 <- Cluster7
 
-struct_temp1_cols <- c("#E69F00FF", "#56B4E9FF", "#009E73FF", "#0072B2FF", "#D55E00FF", "#CC78A7FF", "#000000")
+struct_temp1_cols <- c("#228833","#CCBB44", "#4477AA", "#EE6677",  "#66CCEE", "#AA3377", "#BBBBBB")
 
 plot1 <- plotQ(c(temp1.mk2, temp1.mk3, temp1.mk4, temp1.mk5, temp1.mk6, temp1.mk7), 
       imgoutput = "join",
@@ -1137,7 +1117,7 @@ temp2.mk7$`7`$Cluster5 <- Cluster5
 temp2.mk7$`7`$Cluster6 <- Cluster6
 temp2.mk7$`7`$Cluster7 <- Cluster7
 
-struct_temp2_cols <- c("#E69F00FF", "#56B4E9FF", "#009E73FF", "#0072B2FF", "#D55E00FF", "#CC78A7FF", "#000000")
+struct_temp2_cols <- c("#228833","#CCBB44", "#4477AA", "#EE6677",  "#66CCEE", "#AA3377", "#BBBBBB")
 
 plot2 <- plotQ(c(temp2.mk2, temp2.mk3, temp2.mk4, temp2.mk5, temp2.mk6, temp2.mk7), 
       imgoutput = "join",
@@ -1493,7 +1473,7 @@ pca1_nl.noEINPP <- pca1.noEINPP +
 
 pca2_nl.noEINPP <- pca2.noEINPP +
   labs(tag = "D") +
-  guides(colour = guide_legend(ncol = 3, override.aes = list(size = 3))) +
+  guides(colour = guide_legend(ncol = 3, override.aes = list(size = 4.15))) +
   theme(
     plot.tag.position = "topleft",
     plot.tag = element_text(face = "bold", size = 25),
@@ -1615,7 +1595,8 @@ temp1_no_plains.mk7$`7`$Cluster5 <- Cluster5
 temp1_no_plains.mk7$`7`$Cluster6 <- Cluster6
 temp1_no_plains.mk7$`7`$Cluster7 <- Cluster7
 
-struct_temp2_cols <- c("#E69F00FF", "#56B4E9FF", "#009E73FF", "#0072B2FF", "#D55E00FF", "#CC78A7FF", "#000000")
+struct_temp1_cols <- c("#228833","#CCBB44", "#4477AA", "#EE6677",  "#66CCEE", "#AA3377", "#BBBBBB")
+
 
 plot3 <- plotQ(c(temp1_no_plains.mk2, temp1_no_plains.mk3, temp1_no_plains.mk4, temp1_no_plains.mk5, temp1_no_plains.mk6, temp1_no_plains.mk7), 
       imgoutput = "join",
@@ -1771,7 +1752,7 @@ temp2_no_plains.mk7$`7`$Cluster5 <- Cluster5
 temp2_no_plains.mk7$`7`$Cluster6 <- Cluster6
 temp2_no_plains.mk7$`7`$Cluster7 <- Cluster7
 
-struct_temp2_cols <- c("#E69F00FF", "#56B4E9FF", "#009E73FF", "#0072B2FF", "#D55E00FF", "#CC78A7FF", "#000000")
+struct_temp2_cols <- c("#228833","#CCBB44", "#4477AA", "#EE6677",  "#66CCEE", "#AA3377", "#BBBBBB")
 
 plot4 <- plotQ(c(temp2_no_plains.mk2, temp2_no_plains.mk3, temp2_no_plains.mk4, temp2_no_plains.mk5, temp2_no_plains.mk6, temp2_no_plains.mk7), 
       imgoutput = "join",
@@ -1848,11 +1829,6 @@ B_labeled <- arrangeGrob(t4,
                          top = textGrob("B", x = unit(0.02, "npc"), just = "left",
                                         gp = gpar(fontsize = 25, fontface = "bold")))
 
-#C_labeled <- arrangeGrob(D, 
-                         #top = textGrob("C", x = unit(0.02, "npc"), just = "left",
-                                       # gp = gpar(fontsize = 25, fontface = "bold")))
-
-
 # Combine Global no plains T1
 top2 <- grid.arrange(A_labeled,B_labeled,
                       ncol = 1,
@@ -1873,36 +1849,6 @@ ggsave("./output/plots/combined_plots/Wood_bison_structure.png",
        units = "in")
 ```
 
-```{r}
-# Combine plots w/ plains outgroup
-library(gridExtra)
-
-pca_w_plains <- global_pcas
-
-t1 <- plot_temp1k2$plot[[1]]
-t2 <- plot_temp2k2$plot[[1]]
-
-
-# Combine Global w/ plains T1
-top1 <- grid.arrange(t1,t2,
-                      ncol = 1,
-                      widths = 10)
-
-
-w_plains <- arrangeGrob(top1, pca_w_plains, 
-                        ncol = 1,
-                        heights = c(10, 10),
-                        widths = 7)
-# Save plots
-ggsave("./output/plots/top1.png",
-       plot = w_plains,
-       height = 15,
-       width = 15,
-       bg = "white",
-       units = "in")
-
-
-```
 
 
 
@@ -1961,7 +1907,50 @@ write.csv(temp2.Q.sum, "./output/tables/structure/temp2.plains.Q.csv")
 
 ```
 
+With plains outgroup plots
 ```{r}
+pca1_nl <- pca1 + 
+  theme(
+    plot.tag.position = "topleft",
+    plot.tag = element_text(face = "bold", size = 25),
+    plot.margin = margin(t =0, r = 10, b = 10, l = 10, unit = "pt"),
+    legend.position = "none"
+  )
+
+pca2_nl <- pca2 + 
+  guides(colour = guide_legend(ncol = 3, override.aes = list(size = 3))) +
+  theme(
+    plot.tag.position = "topleft",
+    plot.tag = element_text(face = "bold", size = 25),
+    plot.margin = margin(t = 0, r = 10, b = 10, l = 10, unit = "pt"),
+  
+    # Legend settings
+    legend.position = c(0.98, 0.98),
+    legend.justification = c("right", "top"),
+    legend.background = element_rect(fill = alpha("white", 0.7), color = "grey80", size = 0.3),
+    legend.key = element_blank(),
+    legend.key.size = unit(0.35, "cm"),
+    legend.title = element_text(face = "bold", size = 8),
+    legend.text = element_text(size = 7),
+    legend.margin = margin(2, 4, 2, 4, "pt"),
+    legend.spacing.x = unit(0.05, "cm")
+  )
+
+global_pcas <- grid.arrange(pca1_nl, pca2_nl, # Set out grid
+                            ncol = 2, 
+                            widths = c(10,  10)
+                            )
+                            
+# Save plot
+library(svglite)
+ggsave("./output/plots/PCAs/global/global_pcas.svg",
+       plot = global_pcas, 
+       device = "svg", 
+       width = 16, 
+       height = 12, 
+       units = "in")
+
+
 custom_herd_order = c("EINPP", "RL", "WAB", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPGR", "WBNPPAD", "WENT", "MBS", "EINPW", "ETH", "HZ", "NORD")
 
 # STRUCTURE T1 w plains
@@ -1973,11 +1962,12 @@ plot_temp1k2 <- plotQ(temp1.mk2,
             ordergrp = TRUE,
       
       # Side "K" Labels
-            splab = "K = 2", 
+            splab = "K=2",
             splabsize = 13,
             sppos = "left",
             splabcol = "black",
             splabangle = 0,
+            splabface = "bold",
       
             # Individual Label Settings
             showindlab = F, 
@@ -1986,15 +1976,15 @@ plot_temp1k2 <- plotQ(temp1.mk2,
             indlabheight = 0,
       
       # Group Label settings
-            grplabsize = 5, 
-            grplabangle =45,
-            grplabpos = 0.65,
-            grplabheight = 1,      
-            grplabspacer = 0.1,
+            grplabsize = 4, 
+            grplabangle =25,
+            grplabpos = 0.75,
+            grplabheight = 0.2,      
+            grplabspacer = 0.01,
             grplabcol = "black",
             linesize = 1,          
             pointsize = 8,
-            linepos = 0.95,
+            linepos = 0.90,
       
       # Divider Line Settings
             divcol = "white",
@@ -2014,9 +2004,9 @@ plot_temp1k2 <- plotQ(temp1.mk2,
       titleface = "bold",
       
       # Plot settings
-            height = 10,             
-            width = 35,
-            panelspacer = 0.2,
+            height = 5,             
+            width = 25,
+            panelspacer = 0,
             panelratio = c(1,2),
       
       # File settings
@@ -2024,10 +2014,7 @@ plot_temp1k2 <- plotQ(temp1.mk2,
             returnplot = TRUE,
             outputfilename = "temp1.k2",
             exportpath = "./output/plots/structure_plots/global/w_plains/")
-```
 
-With plains outgroup plots
-```{r}
 custom_herd_order = c("EINPP", "RL", "WAB", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPGR", "WBNPPAD", "WENT", "MBS", "EINPW", "AISH", "CL", "ETH", "HZ", "NAH", "NORD")
 
 # Flip clusters so they plot correctly
@@ -2043,11 +2030,12 @@ plot_temp2k2 <- plotQ(temp2.mk2,
             ordergrp = TRUE,
 
      # Side "K" Labels
-            splab = "K = 2", 
+            splab = "K=2",
             splabsize = 13,
             sppos = "left",
             splabcol = "black",
             splabangle = 0,
+            splabface = "bold",
       
             # Individual Label Settings
             showindlab = F, 
@@ -2056,15 +2044,15 @@ plot_temp2k2 <- plotQ(temp2.mk2,
             indlabheight = 0,
       
       # Group Label settings
-            grplabsize = 5, 
-            grplabangle =45,
-            grplabpos = 0.65,
-            grplabheight = 1,      
-            grplabspacer = 0.1,
+            grplabsize = 4, 
+            grplabangle =25,
+            grplabpos = 0.75,
+            grplabheight = 0.2,      
+            grplabspacer = 0.01,
             grplabcol = "black",
             linesize = 1,          
             pointsize = 8,
-            linepos = 0.95,
+            linepos = 0.90,
       
       # Divider Line Settings
             divcol = "white",
@@ -2084,153 +2072,69 @@ plot_temp2k2 <- plotQ(temp2.mk2,
       titleface = "bold",
       
       # Plot settings
-            height =10,             
-            width = 35,
-            panelspacer = 0.2,
+            height = 5,             
+            width = 25,
+            panelspacer = 0,
             panelratio = c(1,2),
-      
       # File settings
             imgtype = "tiff",
             returnplot = TRUE,
             outputfilename = "temp2.k2",
             exportpath = "./output/plots/structure_plots/global/w_plains/")
+
+
+# Combine plots w/ plains outgroup
+library(gridExtra)
+
+pca_w_plains <- global_pcas
+
+t1 <- plot_temp1k2$plot[[1]]
+t2 <- plot_temp2k2$plot[[1]]
+
+A_labeled <- arrangeGrob(t1, 
+                         top = textGrob("A", x = unit(0.2, "cm"), just = "left", 
+                                        gp = gpar(fontsize = 25, fontface = "bold")))
+
+B_labeled <- arrangeGrob(t2, 
+                         top = textGrob("B", x = unit(0.2, "cm"), just = "left",
+                                        gp = gpar(fontsize = 25, fontface = "bold")))
+
+C_labeled <- arrangeGrob(pca1_nl, 
+                         top = textGrob("C", x = unit(0.2, "cm"), just = "left", 
+                                         gp = gpar(fontsize = 25, fontface = "bold")))
+D_labeled <- arrangeGrob(pca2_nl, 
+                         top = textGrob("D", x = unit(0.2, "cm"), just = "left", 
+                                         gp = gpar(fontsize = 25, fontface = "bold")))
+
+global_pcas <- grid.arrange(C_labeled, D_labeled, 
+                            ncol = 2, 
+                            widths = c(10, 10))
+
+
+# Combine Global w/ plains T1
+top1 <- arrangeGrob(
+  A_labeled, 
+  B_labeled,
+  ncol = 1,
+  heights = c(1, 1),
+  padding = unit(-1.5, "lines") # Pulls plot B closer to plot A
+)
+
+
+w_plains <- arrangeGrob(top1, global_pcas, 
+                        ncol = 1,
+                        heights = c(0.75, 1),
+                        widths = 1,
+                        padding = unit(-3, "lines")
+                        )
+# Save plots
+ggsave("./output/plots/combined_plots/Wood_and_plains_structure.tiff",
+       plot = w_plains,
+       height = 10,
+       width = 12.5,
+       bg = "white",
+       units = "in")
+
+
 ```
 
-
-
-```{r}
-custom_herd_order = c("RL", "WAB", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPGR", "WBNPPAD", "WENT", "MBS", "EINPW", "ETH", "HZ", "NORD")
-
-# STRUCTURE T2 w/o plains
-plotQ(c(temp1_no_plains.mk2, temp1_no_plains.mk3, temp1_no_plains.mk4, temp1_no_plains.mk5, temp1_no_plains.mk6),
-      imgoutput = "join",
-            basesize = 10, 
-            grplab = loc_labels_temp1_no_plains, 
-            subsetgrp = custom_herd_order, 
-            clustercol = struct_temp1_no_plains_cols,
-            ordergrp = TRUE,
-
-      # Side "K" Labels
-            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6"), 
-            splabsize = 20,
-            splabface = "bold",
-            sppos = "left",
-            splabcol = "black",
-            splabangle = 0,
-      
-      # Individual Label Settings
-            showindlab = F, 
-            indlabsize = 0,        
-            indlabangle = 90,
-            indlabheight = 0,
-      
-      # Group Label settings
-            grplabsize = 6.2, 
-            grplabangle = 45,
-            grplabpos = 0.93,
-            grplabheight = 0.6,      
-            grplabspacer = 0,
-            grplabcol = "black",
-      
-            linesize = 1,          
-            pointsize = 8,
-            linepos = 0.95,
-      
-      # Divider Line Settings
-            divcol = "white",
-            divsize = 1, 
-            divtype = NULL,
-            useindlab = TRUE, 
-            returndata = TRUE,
-
-      # Add title
-           showtitle = TRUE,
-           titlelab = NULL,
-           titlehjust = 0.5,
-           titlevjust = 0.5,
-           titlesize = 15,
-           titlecol = "black",
-      titleface = "bold",
-      
-      # Plot settings
-            height = 10,             
-            width = 35,
-            panelspacer = 0.2,
-            panelratio = c(1,6),
-      
-      # File settings
-            imgtype = "tiff",
-            returnplot = TRUE,
-            outputfilename = "temp1_no_plains.k3-5",
-            exportpath = "./output/plots/structure_plots/global/no_plains/")
-
-custom_herd_order = c("RL", "WAB", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPGR", "WBNPPAD", "WENT", "MBS", "EINPW", "AISH", "CL", "ETH", "HZ", "NAH", "NORD")
-
-# Flip clusters so they plot correctly
-temp2.mk2$`2` <- temp2_no_plains.mk2$`2`[, c("Cluster2", "Cluster1")]
-colnames(temp2.mk2$`2`) <- c("Cluster1", "Cluster2")
-
-# STRUCTURE T2 w/o plains
-plotQ(c(temp2_no_plains.mk2, temp2_no_plains.mk3, temp2_no_plains.mk4, temp2_no_plains.mk5, temp2_no_plains.mk6, temp2_no_plains.mk7),
-      imgoutput = "join",
-            basesize = 15, 
-            grplab = loc_labels_temp2_no_plains, 
-            subsetgrp = custom_herd_order, 
-            clustercol = struct_temp2_no_plains_cols,
-            ordergrp = TRUE,
-
-
-      # Side "K" Labels
-            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6", "K = 7"), 
-            splabsize = 20,
-            splabface = "bold",
-            sppos = "left",
-            splabcol = "black",
-            splabangle = 0,
-      
-      # Individual Label Settings
-            showindlab = F, 
-            indlabsize = 0,        
-            indlabangle = 90,
-            indlabheight = 0,
-      
-      # Group Label settings
-            grplabsize = 6.2, 
-            grplabangle = 45,
-            grplabpos = 0.93,
-            grplabheight = 0.6,      
-            grplabspacer = 0,
-            grplabcol = "black",
-      
-            linesize = 1,          
-            pointsize = 8,
-            linepos = 0.95,
-      
-      # Divider Line Settings
-            divcol = "white",
-            divsize = 1, 
-            divtype = NULL,
-            useindlab = TRUE, 
-            returndata = TRUE,
-
-      # Add title
-           showtitle = TRUE,
-           titlelab = NULL,
-           titlehjust = 0.5,
-           titlevjust = 0.5,
-           titlesize = 15,
-           titlecol = "black",
-      titleface = "bold",
-      
-      # Plot settings
-            height = 10,             
-            width = 35,
-            panelspacer = 0.2,
-            panelratio = c(1,6),
-      
-      # File settings
-            imgtype = "tiff",
-            returnplot = TRUE,
-            outputfilename = "temp2_no_plains.k3-7",
-            exportpath = "./output/plots/structure_plots/global/no_plains/")
-```

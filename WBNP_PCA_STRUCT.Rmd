@@ -814,7 +814,7 @@ locations_a1 <- left_join(ind_label_a1, a1.data, by = "ID")
 loc_labels_a1 <- locations_a1$Herd %>% as.data.frame()
 
 herd_order_a1 <- c("EINPP", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD", "WBNPGR","WENT", "EINPW")
-struct_a1_cols <- c( "#228833","#CCBB44","#4477AA","#EE6677",  "#66CCEE", "#AA3377", "#BBBBBB", "#EE7733")
+struct_a1_cols <- c("#228833","#CCBB44","#4477AA","#EE6677",  "#66CCEE", "#AA3377", "#BBBBBB", "#EE7733")
 
 # Cluster ordering (colour matching/label switching)
 

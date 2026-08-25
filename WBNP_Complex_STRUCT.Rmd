@@ -102,8 +102,11 @@ pca.c2 <- dudi.pca(x.c2, center = T, scale = F, scannf = F, nf = 2)
 eig.perc.c2 <- 100*pca.c2$eig/sum(pca.c2$eig)
 
 #### axis limits
-xlims <- c(-2.5, 3.5)
-ylims <- c(-2, 2.1)
+max_x <- max(abs(c(pca.c1$li[, 1], pca.c2$li[, 1]))) * 1.10
+max_y <- max(abs(c(pca.c1$li[, 2], pca.c2$li[, 2]))) * 1.10
+
+xlims <- c(-max_x, max_x)
+ylims <- c(-max_y, max_y)
 ```
 
 ## PCA plot with ggplot
@@ -128,7 +131,7 @@ pcac1 <- fviz_pca_ind(pca.c1,
              shape = 19,
              alpha = 0.75,
              size = 2) + 
-#coord_fixed(ratio = 1, xlim = xlims, ylim = ylims) +
+coord_fixed(ratio = 1, xlim = c(-1.5, 3), ylim = c(-2, 2)) +
   
 theme(
     plot.title = element_blank(),
@@ -163,7 +166,7 @@ c2@pop <- factor(c2@pop, levels = sort(unique(as.character(c2@pop))))
 levels_c2 <- levels(c2@pop)
 c2_cols <- herd_cols[levels_c2]
 
-pca.c2$li[ ,1] <- pca.c2$li[ ,1] * -1
+#pca.c2$li[ ,1] <- pca.c2$li[ ,1] * -1
 pca.c2$li[ ,2] <- pca.c2$li[ ,2] * -1
 
 
@@ -180,7 +183,7 @@ pcac2 <- fviz_pca_ind(pca.c2,
              shape = 19,
              alpha = 0.75,
              size = 2) + 
-#coord_fixed(ratio = 1, xlim = xlims, ylim = ylims) +
+#coord_fixed(ratio = 1, xlim = c(-1.5, 2.75), ylim = c(-1.8, 3.2)) +
   
 theme(
     plot.title = element_blank(),
@@ -227,4 +230,624 @@ pop(c2.str) <- as.numeric(as.factor(pop(c2.str)))
 genind_to_structure(c2.str,
                     output = "STRUCTURE/wbnp_complex/c2.structure.txt")
 ```
+# Load Structure Files
+```{r}
+# List files
+# Full datasets
+sfiles_c1 <- list.files("./STRUCTURE/wbnp_complex/results/temp1/", full.names = TRUE)
+sfiles_c2 <- list.files("./STRUCTURE/wbnp_complex/results/temp2/", full.names = TRUE)
 
+# Qlist (pophelper)
+slist_c1 <- readQ(files = sfiles_c1, filetype = "structure")
+slist_c2 <- readQ(files = sfiles_c2, filetype = "structure")
+
+# Summarise runs
+struct_sum_c1 <- summariseQ(tabulateQ(slist_c1))
+struct_sum_c2 <- summariseQ(tabulateQ(slist_c2))
+
+### Likelihood plots
+#### C1
+c1.k <- evannoMethodStructure(data = struct_sum_c1, exportplot = F,
+                           returnplot = T, returndata = F,
+                           basesize = 25, linesize = 0.7,
+                           height = 25, width = 25, units = "cm",
+                           outputfilename = "c1_K",
+                           exportpath = "./STRUCTURE_files/",
+                           imgtype = "pdf")
+
+p_lik <- c1.k$grobs[[1]]
+p_dk <- c1.k$grobs[[4]]
+
+
+# Label Likelihood as 'a'
+panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+                                             just = c("left", "top"), 
+                                             gp = gpar(fontsize = 35, fontface = "bold")))
+
+# Label Delta K as 'b'
+panel_b <- arrangeGrob(p_dk, top = textGrob("B", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+                                             just = c("left", "top"), 
+                                             gp = gpar(fontsize = 35, fontface = "bold")))
+
+evanno_c1 <- grid.arrange(panel_a, panel_b, 
+                         ncol = 2, 
+                         widths = c(1, 1))
+
+ggsave("./output/plots/K_plots/c1.k.svg", 
+       plot = evanno_c1, 
+       width = 27, 
+       height = 11)
+
+# WBNP2 ----
+# K plots
+c2.k <- evannoMethodStructure(data = struct_sum_c2, exportplot = F,
+                           returnplot = T, returndata = F,
+                           basesize = 25, linesize = 0.7,
+                           height = 25, width = 25, units = "cm",
+                           outputfilename = "c2_K",
+                           exportpath = "./STRUCTURE_files/",
+                           imgtype = "pdf")
+
+p_lik <- c2.k$grobs[[1]]
+p_dk <- c2.k$grobs[[4]]
+
+
+# Label Likelihood as 'a'
+panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+                                             just = c("left", "top"), 
+                                             gp = gpar(fontsize = 35, fontface = "bold")))
+
+# Label Delta K as 'b'
+panel_b <- arrangeGrob(p_dk, top = textGrob("B", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+                                             just = c("left", "top"), 
+                                             gp = gpar(fontsize = 35, fontface = "bold")))
+
+evanno_c2 <- grid.arrange(panel_a, panel_b, 
+                         ncol = 2, 
+                         widths = c(1, 1))
+
+ggsave("./output/plots/K_plots/c2.k.svg", 
+       plot = evanno_c2, 
+       width = 27, 
+       height = 11)
+
+```
+
+### Structure Plots
+```{r}
+# C1
+c1.data <- cleaned.data %>% 
+  filter(Year.Collected <=2015) %>%
+  rename(ID = Spreadsheet.ID) %>% 
+  mutate(ID = as.character(ID)) %>% 
+  filter(Herd %in% c("WBNPGR", "WBNPHC", 
+                     "WBNPLB", "WBNPNY", 
+                     "WBNPPAD", "WENT", 
+                     "RL", "WAB", "MBS"))
+# Align runs
+slist_c1 <- alignK(slist_c1, "auto")
+
+# Merge runs (average over 10 replicates)
+c1.mk2 <- mergeQ(slist_c1[11:20])
+c1.mk3 <- mergeQ(slist_c1[21:30])
+c1.mk4 <- mergeQ(slist_c1[31:40])
+c1.mk5 <- mergeQ(slist_c1[41:50])
+c1.mk6 <- mergeQ(slist_c1[51:60])
+c1.mk7 <- mergeQ(slist_c1[61:70])
+c1.mk8 <- mergeQ(slist_c1[71:80])
+c1.mk9 <- mergeQ(slist_c1[81:90])
+
+
+c1.merged.list <- as.qlist(list(c1.mk2[[1]], c1.mk3[[1]], 
+                                c1.mk4[[1]], c1.mk5[[1]], 
+                                c1.mk6[[1]], c1.mk7[[1]], 
+                                c1.mk8[[1]], c1.mk9[[1]]))
+
+ind_label_c1 <- readQ(files = sfiles_c1[1], indlabfrom = TRUE) %>% as.data.frame()
+ind_label_c1 <- rownames_to_column(ind_label_c1, "ID")
+locations_c1 <- left_join(ind_label_c1, c1.data, by = "ID")
+
+loc_labels_c1 <- locations_c1$Herd %>% as.data.frame()
+
+# C2
+c2.data <- cleaned.data %>% 
+  filter(Year.Collected >=2016) %>%
+  rename(ID = Spreadsheet.ID) %>% 
+  mutate(ID = as.character(ID)) %>% 
+  filter(Herd %in% c("WBNPGR", "WBNPHC", 
+                     "WBNPLB", "WBNPNY", 
+                     "WBNPPAD", "WENT", 
+                     "RL", "WAB", "MBS"))
+# Align runs
+slist_c2 <- alignK(slist_c2, "auto")
+
+# Merge runs (average over 10 replicates)
+c2.mk2 <- mergeQ(slist_c2[11:20])
+c2.mk3 <- mergeQ(slist_c2[21:30])
+c2.mk4 <- mergeQ(slist_c2[31:40])
+c2.mk5 <- mergeQ(slist_c2[41:50])
+c2.mk6 <- mergeQ(slist_c2[51:60])
+c2.mk7 <- mergeQ(slist_c2[61:70])
+c2.mk8 <- mergeQ(slist_c2[71:80])
+c2.mk9 <- mergeQ(slist_c2[81:90])
+
+
+c2.merged.list <- as.qlist(list(c2.mk2[[1]], c2.mk3[[1]], 
+                                c2.mk4[[1]], c2.mk5[[1]], 
+                                c2.mk6[[1]], c2.mk7[[1]], 
+                                c2.mk8[[1]], c2.mk9[[1]]))
+
+ind_label_c2 <- readQ(files = sfiles_c2[1], indlabfrom = TRUE) %>% as.data.frame()
+ind_label_c2 <- rownames_to_column(ind_label_c2, "ID")
+locations_c2 <- left_join(ind_label_c2, c2.data, by = "ID")
+
+loc_labels_c2 <- locations_c2$Herd %>% as.data.frame()
+
+
+# Set herd order and colour palette
+herd_order <- c("RL", "WAB", "WBNPLB", "WBNPNY", "WBNPHC", "WBNPPAD", "WBNPGR","WENT", "MBS")
+struct_cols <- c("#CCBB44","#228833","#66CCEE",  "#EE6677",  "#332288", "#EE7733","#4477AA","#AA3377", "#BBBBBB")
+```
+
+## C1
+```{r}
+# Merge runs (average over 10 replicates)
+c1.mk2 <- mergeQ(slist_c1[11:20])
+c1.mk3 <- mergeQ(slist_c1[21:30])
+c1.mk4 <- mergeQ(slist_c1[31:40])
+c1.mk5 <- mergeQ(slist_c1[41:50])
+c1.mk6 <- mergeQ(slist_c1[51:60])
+c1.mk7 <- mergeQ(slist_c1[61:70])
+c1.mk8 <- mergeQ(slist_c1[71:80])
+c1.mk9 <- mergeQ(slist_c1[81:90])
+
+#mk2
+Cluster2 <- c1.mk2$`2`$Cluster1 
+Cluster1 <- c1.mk2$`2`$Cluster2 
+
+c1.mk2$`2`$Cluster1 <- Cluster1
+c1.mk2$`2`$Cluster2 <- Cluster2
+
+#mk3
+Cluster3 <- c1.mk3$`3`$Cluster1
+Cluster2 <- c1.mk3$`3`$Cluster2 
+Cluster1 <- c1.mk3$`3`$Cluster3 
+
+c1.mk3$`3`$Cluster1 <- Cluster1
+c1.mk3$`3`$Cluster2 <- Cluster2
+c1.mk3$`3`$Cluster3 <- Cluster3
+
+#mk4
+Cluster1 <- c1.mk4$`4`$Cluster1
+Cluster4 <- c1.mk4$`4`$Cluster2 
+Cluster3 <- c1.mk4$`4`$Cluster3 
+Cluster2 <- c1.mk4$`4`$Cluster4 
+
+c1.mk4$`4`$Cluster1 <- Cluster1
+c1.mk4$`4`$Cluster2 <- Cluster2
+c1.mk4$`4`$Cluster3 <- Cluster3
+c1.mk4$`4`$Cluster4 <- Cluster4
+
+#mk5
+Cluster1 <- c1.mk5$`5`$Cluster1
+Cluster4 <- c1.mk5$`5`$Cluster2 
+Cluster3 <- c1.mk5$`5`$Cluster3 
+Cluster2 <- c1.mk5$`5`$Cluster4 
+Cluster5 <- c1.mk5$`5`$Cluster5 
+
+c1.mk5$`5`$Cluster1 <- Cluster1
+c1.mk5$`5`$Cluster2 <- Cluster2
+c1.mk5$`5`$Cluster3 <- Cluster3
+c1.mk5$`5`$Cluster4 <- Cluster4
+c1.mk5$`5`$Cluster5 <- Cluster5
+
+#mk6
+Cluster6 <- c1.mk6$`6`$Cluster1
+Cluster4 <- c1.mk6$`6`$Cluster2 
+Cluster3 <- c1.mk6$`6`$Cluster3 
+Cluster2 <- c1.mk6$`6`$Cluster4 
+Cluster5 <- c1.mk6$`6`$Cluster5 
+Cluster1 <- c1.mk6$`6`$Cluster6 
+
+c1.mk6$`6`$Cluster1 <- Cluster1
+c1.mk6$`6`$Cluster2 <- Cluster2
+c1.mk6$`6`$Cluster3 <- Cluster3
+c1.mk6$`6`$Cluster4 <- Cluster4
+c1.mk6$`6`$Cluster5 <- Cluster5
+c1.mk6$`6`$Cluster6 <- Cluster6
+
+
+plotQ(c(c1.mk2, c1.mk3, c1.mk4, c1.mk5, c1.mk6), 
+      imgoutput = "join",
+            basesize = 10, 
+            grplab = loc_labels_c1, 
+            subsetgrp = herd_order, 
+            clustercol = struct_cols,
+            ordergrp = TRUE,
+      
+      # Side "K" Labels
+            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6"),
+            splabsize = 35,
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+            # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 4,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 10, 
+            grplabangle =45,
+            grplabpos = 0.65,
+            grplabheight = 1,      
+            grplabspacer = 0.1,
+            grplabcol = "black",
+      
+            linesize = 2,          
+            pointsize = 15,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 3, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Plot settings
+            height = 7,             
+            width = 50,
+            panelspacer = 1,
+            panelratio = c(1,1),
+      
+      
+      # File settings
+            imgtype = "tiff",
+            outputfilename = "C1",
+            exportpath = "./output/plots/structure_plots/wbnp_complex")
+```
+
+## C2
+```{r}
+# Merge runs (average over 10 replicates)
+c2.mk2 <- mergeQ(slist_c2[11:20])
+c2.mk3 <- mergeQ(slist_c2[21:30])
+c2.mk4 <- mergeQ(slist_c2[31:40])
+c2.mk5 <- mergeQ(slist_c2[41:50])
+c2.mk6 <- mergeQ(slist_c2[51:60])
+c2.mk7 <- mergeQ(slist_c2[61:70])
+c2.mk8 <- mergeQ(slist_c2[71:80])
+c2.mk9 <- mergeQ(slist_c2[81:90])
+
+#mk2
+Cluster2 <- c2.mk2$`2`$Cluster1 
+Cluster1 <- c2.mk2$`2`$Cluster2 
+
+c2.mk2$`2`$Cluster1 <- Cluster1
+c2.mk2$`2`$Cluster2 <- Cluster2
+
+#mk3
+Cluster2 <- c2.mk3$`3`$Cluster1
+Cluster3 <- c2.mk3$`3`$Cluster2 
+Cluster1 <- c2.mk3$`3`$Cluster3 
+
+c2.mk3$`3`$Cluster1 <- Cluster1
+c2.mk3$`3`$Cluster2 <- Cluster2
+c2.mk3$`3`$Cluster3 <- Cluster3
+
+#mk4
+Cluster3 <- c2.mk4$`4`$Cluster1
+Cluster2 <- c2.mk4$`4`$Cluster2 
+Cluster4 <- c2.mk4$`4`$Cluster3 
+Cluster1 <- c2.mk4$`4`$Cluster4 
+
+c2.mk4$`4`$Cluster1 <- Cluster1
+c2.mk4$`4`$Cluster2 <- Cluster2
+c2.mk4$`4`$Cluster3 <- Cluster3
+c2.mk4$`4`$Cluster4 <- Cluster4
+
+#mk5
+Cluster4 <- c2.mk5$`5`$Cluster1
+Cluster2 <- c2.mk5$`5`$Cluster2 
+Cluster5 <- c2.mk5$`5`$Cluster3 
+Cluster1 <- c2.mk5$`5`$Cluster4 
+Cluster3 <- c2.mk5$`5`$Cluster5 
+
+c2.mk5$`5`$Cluster1 <- Cluster1
+c2.mk5$`5`$Cluster2 <- Cluster2
+c2.mk5$`5`$Cluster3 <- Cluster3
+c2.mk5$`5`$Cluster4 <- Cluster4
+c2.mk5$`5`$Cluster5 <- Cluster5
+
+#mk6
+Cluster4 <- c2.mk6$`6`$Cluster1
+Cluster1 <- c2.mk6$`6`$Cluster2 
+Cluster2 <- c2.mk6$`6`$Cluster3 
+Cluster3 <- c2.mk6$`6`$Cluster4 
+Cluster5 <- c2.mk6$`6`$Cluster5 
+Cluster6 <- c2.mk6$`6`$Cluster6 
+
+c2.mk6$`6`$Cluster1 <- Cluster1
+c2.mk6$`6`$Cluster2 <- Cluster2
+c2.mk6$`6`$Cluster3 <- Cluster3
+c2.mk6$`6`$Cluster4 <- Cluster4
+c2.mk6$`6`$Cluster5 <- Cluster5
+c2.mk6$`6`$Cluster6 <- Cluster6
+
+
+plotQ(c(c2.mk2, c2.mk3, c2.mk4, c2.mk5, c2.mk6), 
+      imgoutput = "join",
+            basesize = 10, 
+            grplab = loc_labels_c2, 
+            subsetgrp = herd_order, 
+            clustercol = struct_cols,
+            ordergrp = TRUE,
+      
+      # Side "K" Labels
+            splab = c("K = 2", "K = 3", "K = 4", "K = 5", "K = 6"),
+            splabsize = 35,
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+            # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 4,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 10, 
+            grplabangle =45,
+            grplabpos = 0.65,
+            grplabheight = 1,      
+            grplabspacer = 0.1,
+            grplabcol = "black",
+      
+            linesize = 2,          
+            pointsize = 15,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 3, 
+            divtype = NULL,
+      
+            useindlab = TRUE, 
+            returndata = TRUE,
+      
+      # Plot settings
+            height = 7,             
+            width = 50,
+            panelspacer = 1,
+            panelratio = c(1,1),
+      
+      
+      # File settings
+            imgtype = "tiff",
+            outputfilename = "C2",
+            exportpath = "./output/plots/structure_plots/wbnp_complex")
+```
+
+
+### Combined PCA and Structure Plots
+```{r}
+pcac1_nl <- pcac1 + 
+  theme(
+    plot.tag.position = "topleft",
+    plot.tag = element_text(face = "bold", size = 25),
+    plot.margin = margin(t = 0, r = 5, b = 0, l = 5, unit = "pt"),
+    legend.position = "none"
+  )
+
+pcac2_nl <- pcac2 + 
+  guides(colour = guide_legend(ncol = 3, override.aes = list(size = 6.5))) +
+  theme(
+    plot.tag.position = "topleft",
+    plot.tag = element_text(face = "bold", size = 25),
+    plot.margin = margin(t = 0, r = 10, b = 10, l = 10, unit = "pt"),
+  
+    # Legend settings
+    legend.position = c(0.02, 0.98),
+    legend.justification = c("left", "top"),
+    legend.background = element_rect(fill = alpha("white", 0.7), color = "grey80", size = 0.3),
+    legend.key = element_blank(),
+    legend.key.size = unit(0.35, "cm"),
+    legend.title = element_text(face = "bold", size = 8),
+    legend.text = element_text(size = 7),
+    legend.margin = margin(2, 4, 2, 4, "pt"),
+    legend.spacing.x = unit(0.05, "cm")
+    
+  )
+
+
+wbnp_complex_pcas <- grid.arrange(pcac1_nl, pcac2_nl, 
+                            ncol = 2, 
+                            widths = c(10, 10)
+                            )
+                            
+
+# Save plot
+library(svglite)
+ggsave("./output/plots/PCAs/wbnp_complex/wbnp_complex_pcas.svg",
+       plot = wbnp_complex_pcas, 
+       device = "svg", 
+       width = 15, 
+       height = 7, 
+       units = "in")
+
+
+# C1 Temp1
+plotc1 <- plotQ(c(c1.mk2, c1.mk3, c1.mk4, c1.mk5), 
+      imgoutput = "join",
+            basesize = 10, 
+            grplab = loc_labels_c1, 
+            subsetgrp = herd_order, 
+            clustercol = struct_cols,
+            ordergrp = TRUE,
+      
+      # Side "K" Labels
+            splab = c("K=2", "K=3", "K=4", "K=5"),
+            splabsize = 15,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 4.0, 
+            grplabangle = 25,
+            grplabpos = 0.75,
+            grplabheight = 0.15,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+            useindlab = TRUE, 
+            returndata = TRUE,
+            #barbordersize = 0.01,
+            #barbordercolour = "lightgrey",
+      
+      # Add title
+           showtitle = FALSE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+           titleface = "bold",
+      
+      # Plot settings
+            height = 10,             
+            width = 35,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      returnplot = TRUE,
+      
+      # File settings
+            imgtype = "tiff",
+            outputfilename = "C1.k2-5",
+            exportpath = "./output/plots/structure_plots/wbnp_complex//")
+
+plotc2 <- plotQ(c(c2.mk2, c2.mk3, c2.mk4, c2.mk5), 
+      imgoutput = "join",
+            basesize = 10, 
+            grplab = loc_labels_c2, 
+            subsetgrp = herd_order, 
+            clustercol = struct_cols,
+            ordergrp = TRUE,
+      
+      # Side "K" Labels
+            splab = c("K=2", "K=3", "K=4", "K=5"),
+            splabsize = 15,
+            splabface = "bold",
+            sppos = "left",
+            splabcol = "black",
+            splabangle = 0,
+      
+      # Individual Label Settings
+            showindlab = F, 
+            indlabsize = 0,        
+            indlabangle = 90,
+            indlabheight = 0,
+      
+      # Group Label settings
+            grplabsize = 4.0, 
+            grplabangle = 25,
+            grplabpos = 0.75,
+            grplabheight = 0.15,      
+            grplabspacer = 0,
+            grplabcol = "black",
+      
+            linesize = 1,          
+            pointsize = 8,
+            linepos = 0.95,
+      
+      # Divider Line Settings
+            divcol = "white",
+            divsize = 1, 
+            divtype = NULL,
+            useindlab = TRUE, 
+            returndata = TRUE,
+            #barbordersize = 0.01,
+            #barbordercolour = "lightgrey",
+      
+      # Add title
+           showtitle = FALSE,
+           titlelab = NULL,
+           titlehjust = 0.5,
+           titlevjust = 0.5,
+           titlesize = 15,
+           titlecol = "black",
+           titleface = "bold",
+      
+      # Plot settings
+            height = 10,             
+            width = 35,
+            panelspacer = 0.2,
+            panelratio = c(1,2),
+      returnplot = TRUE,
+      
+      # File settings
+            imgtype = "tiff",
+            outputfilename = "C2.k2-5",
+            exportpath = "./output/plots/structure_plots/wbnp_complex//")
+
+
+A_labeled <- arrangeGrob(plotc1$plot[[1]], 
+                         top = textGrob("A", x = unit(0.2, "cm"), just = "left", 
+                                        gp = gpar(fontsize = 25, fontface = "bold")))
+
+B_labeled <- arrangeGrob(plotc2$plot[[1]], 
+                         top = textGrob("B", x = unit(0.2, "cm"), just = "left",
+                                        gp = gpar(fontsize = 25, fontface = "bold")))
+
+C_labeled <- arrangeGrob(pcac1_nl, 
+                         top = textGrob("C", x = unit(0.2, "cm"), just = "left", 
+                                         gp = gpar(fontsize = 25, fontface = "bold")))
+D_labeled <- arrangeGrob(pcac2_nl, 
+                         top = textGrob("D", x = unit(0.2, "cm"), just = "left", 
+                                         gp = gpar(fontsize = 25, fontface = "bold")))
+
+wbnp_complex_pcas <- grid.arrange(C_labeled, D_labeled, 
+                            ncol = 2, 
+                            widths = c(10, 10))
+# Combine Global no plains T1
+top3 <- grid.arrange(A_labeled,B_labeled,
+                      ncol = 1,
+                      widths = 1,
+                      padding = unit(0, "line"))
+
+# Shrink margins for PCA
+
+wbnp_complex <- arrangeGrob(top3, wbnp_complex_pcas, 
+                        ncol = 1,
+                        heights = c(1, 0.8),
+                        widths = 1,
+                        padding = unit(-1, "line")
+                        )
+
+ggsave("./output/plots/combined_plots/wbnp_complex_combined.png",
+      plot = wbnp_complex,
+       height = 12,
+       width = 12,
+       bg = "white",
+       units = "in")
+
+
+```

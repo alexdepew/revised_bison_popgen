@@ -67,7 +67,7 @@ target_herds <- c("EINPP",
                   "WBNPNY",
                   "WBNPPAD",
                   "WBNPLB",
-                  "NORD",
+                  "NORD
                   "NAH",
                   "ETH",
                   "MBS",
@@ -310,6 +310,8 @@ usuable_data <- herd_fix %>%
   filter(
     !is.na(Year.Collected),
     !Herd == "WBNP")
+
+write.csv(usuable_data, "./datafiles/Full_Samples_Used.csv", row.names = F)
 ```
 
 
@@ -452,7 +454,7 @@ final_dataset <- wb_non_dup_ids_screened %>%
   relocate(Spreadsheet.ID, .before = Year.Genotyped)
 
 # Write out cleaned dataset to csv file
-write.csv(final_dataset, "./datafiles/Cleaned_data_2026.07.16.csv",
+write.csv(final_dataset, "./datafiles/Cleaned_data_2026.10.08.csv",
           row.names = FALSE)
 ```
  

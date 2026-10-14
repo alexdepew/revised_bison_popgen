@@ -301,6 +301,14 @@ genind_to_genepop(temp2,
                   output = "./FreeNA/temp2.genepop.txt")
 
 # *Despite FreeNA taking "genepop" input files, the Locus labels must be stacked as a column instead of as a row. This can be done by a) copying each of the files in the FreeNA file folder to a new "tempX.FreeNA.txt" file, b) editing the locus names from being in row format to stacked, with no comma separation.
+
+nulls(
+  inputFile = "./FreeNA/temp1.genepop.txt",
+  outputFile = "./genepop/temp1.nulls.txt",
+  nullAlleleMethod = "B96",
+  CIcoverage = 0.95,
+  verbose = interactive()
+)
 ```
 
 ### Obtain null allele frequency

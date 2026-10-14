@@ -1,0 +1,8 @@
+Genepop
+GenepopInputFile=./FreeNA/temp1.genepop.txt
+MenuOptions=8:1
+NullAlleleMethod=B96
+CIcoverage=0.95
+RandomSeed=67144630
+Mode=Batch
+

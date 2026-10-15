@@ -408,83 +408,12 @@ table(compiled_patterns$Locus)
 
 write.csv(compiled_patterns, "./output/tables/QC/Sig.Nulls.csv", row.names = F)
 ```
-#### Visualize Null Allele Frequency
-Averaged at Loci
+
+### Sensitivity analysis
 ```{r}
-temp1.null.avg <- temp1.FreeNA.nulls %>%
-  group_by(Locus) %>%
-  summarise(
-    Mean = mean(FreeNA, na.rm = TRUE),
-    SD = sd(FreeNA, na.rm = TRUE)
-  ) %>%
-  rename(Temp1_mean = Mean, Temp1_sd = SD)
-
-temp2.null.avg <- temp2.FreeNA.nulls %>%
-  group_by(Locus) %>%
-  summarise(
-    Mean = mean(FreeNA, na.rm = TRUE),
-    SD = sd(FreeNA, na.rm = TRUE)
-  ) %>%
-  rename(Temp2_mean = Mean, Temp2_sd = SD)
-
-avg.nulls <- temp1.null.avg %>%
-  left_join(temp2.null.avg, by = "Locus") %>%
-  pivot_longer(
-    cols = -Locus, 
-    names_to = c("Timepoint", ".value"), 
-    names_sep = "_"
-  )
-  
-
-ggplot(avg.nulls, aes(x = fct_rev(Locus), y = mean, fill = fct_rev(Timepoint))) + 
-  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
-  geom_errorbar(
-    aes(ymin = pmax(0, mean - sd), ymax = mean + sd),
-    position = position_dodge(width = 0.8), 
-    width = 0.4, 
-    alpha = 0.7
-  ) +
-  coord_flip() +  
-  scale_fill_manual(
-    values = c("Temp1" = "steelblue", "Temp2" = "darkorange"),
-    breaks = c("Temp1", "Temp2"), 
-    labels = c("Temp1" = "T1", "Temp2" = "T2")
-  ) +
-  theme_minimal() +
-  labs(
-    x = "Locus", 
-    y = "Mean Null Allele Rate (+SD)",
-    fill = "Cohort" 
-  ) +
-  theme(
-    # 1. Bold and Large Locus Names (Y-axis)
-    axis.text.y = element_text(size = 9, face = "bold", color = "black"), 
-    
-    # 2. Bold and Large Rates (X-axis)
-    axis.text.x = element_text(size = 9, face = "bold", color = "black"),
-    
-    # 3. Bold Axis Titles
-    axis.title = element_text(size = 12, face = "bold"),
-    
-    # 4. Bold Legend Title and Text
-    legend.title = element_text(size = 10, face = "bold"),
-    legend.text = element_text(size = 10, face = "bold"),
-    
-    panel.grid.major.y = element_blank(),
-    legend.position = "right"
-  )
-
-ggsave(
-  filename = "./output/plots/QC/Locus_Nulls.svg", 
-  plot = last_plot(),
-  device = "svg",
-  width = 10,      
-  height = 14,    
-  units = "in",
-  dpi = 300,     
-  bg = "white" 
-)
+read_lines
 ```
+
 
 ## Test for allelic dropout
 Microdrop requires structure input files, yet the st ructure input files do not work unless they are delimited with EXACTLY one space. Note: you must delete the "POP" and "IND" column headers in nano text editor prior to running the program, as the input requires N-2 column names (colnames = locnames = 49).

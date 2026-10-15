@@ -346,6 +346,8 @@ levels_a2 <- levels(a2@pop)
 a2_cols <- admix_cols[levels_a2]
 
 pca.a2$li[ ,1] <- pca.a2$li[ ,1] * -1
+pca.a2$li[ ,2] <- pca.a2$li[ ,2] * -1
+
 
 # Plot PCA object
 pcaa2 <- fviz_pca_ind(pca.a2,
@@ -498,6 +500,8 @@ w1.k <- evannoMethodStructure(data = struct_sum_w1, exportplot = F,
 p_lik <- w1.k$grobs[[1]]
 p_dk <- w1.k$grobs[[4]]
 
+p_lik$grobs[[which(p_lik$layout$name == "title")]] <- nullGrob()
+p_dk$grobs[[which(p_dk$layout$name == "title")]] <- nullGrob()
 
 # Label Likelihood as 'a'
 panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
@@ -513,10 +517,10 @@ evanno_wbnp1 <- grid.arrange(panel_a, panel_b,
                          ncol = 2, 
                          widths = c(1, 1))
 
-ggsave("./output/plots/K_plots/w1.k.svg", 
-       plot = evanno_wbnp1, 
-       width = 27, 
-       height = 11)
+evanno_wbnp1 <- arrangeGrob(evanno_wbnp1, top = textGrob("Temporal Cohort 1: (1986 - 2015)", 
+                                                 x = unit(0, "npc"), just = c("left", "center"), 
+                                                 gp = gpar(fontsize = 35, fontface = "bold")))
+
 
 # WBNP2 ----
 # K plots
@@ -531,14 +535,17 @@ w2.k <- evannoMethodStructure(data = struct_sum_w2, exportplot = F,
 p_lik <- w2.k$grobs[[1]]
 p_dk <- w2.k$grobs[[4]]
 
+p_lik$grobs[[which(p_lik$layout$name == "title")]] <- nullGrob()
+p_dk$grobs[[which(p_dk$layout$name == "title")]] <- nullGrob()
+
 
 # Label Likelihood as 'a'
-panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+panel_a <- arrangeGrob(p_lik, top = textGrob("C", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
                                              just = c("left", "top"), 
                                              gp = gpar(fontsize = 35, fontface = "bold")))
 
 # Label Delta K as 'b'
-panel_b <- arrangeGrob(p_dk, top = textGrob("B", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+panel_b <- arrangeGrob(p_dk, top = textGrob("D", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
                                              just = c("left", "top"), 
                                              gp = gpar(fontsize = 35, fontface = "bold")))
 
@@ -546,11 +553,9 @@ evanno_wbnp2 <- grid.arrange(panel_a, panel_b,
                          ncol = 2, 
                          widths = c(1, 1))
 
-ggsave("./output/plots/K_plots/w2.k.svg", 
-       plot = evanno_wbnp2, 
-       width = 27, 
-       height = 11)
-
+evanno_wbnp2 <- arrangeGrob(evanno_wbnp2, top = textGrob("Temporal Cohort 2: (2016 - 2025)", 
+                                                 x = unit(0, "npc"), just = c("left", "bottom"), 
+                                                 gp = gpar(fontsize = 35, fontface = "bold")))
 ## ADMIX1 ----
 # K plots
 a1.k <- evannoMethodStructure(data = struct_sum_a1, exportplot = F,
@@ -564,6 +569,8 @@ a1.k <- evannoMethodStructure(data = struct_sum_a1, exportplot = F,
 p_lik <- a1.k$grobs[[1]]
 p_dk <- a1.k$grobs[[4]]
 
+p_lik$grobs[[which(p_lik$layout$name == "title")]] <- nullGrob()
+p_dk$grobs[[which(p_dk$layout$name == "title")]] <- nullGrob()
 
 # Label Likelihood as 'a'
 panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
@@ -579,10 +586,9 @@ evanno_admix1 <- grid.arrange(panel_a, panel_b,
                          ncol = 2, 
                          widths = c(1, 1))
 
-ggsave("./output/plots/K_plots/a1.k.svg", 
-       plot = evanno_admix1, 
-       width = 27, 
-       height = 11)
+evanno_admix1 <- arrangeGrob(evanno_admix1, top = textGrob("Temporal Cohort 1: (1986 - 2015)", 
+                                                 x = unit(0, "npc"), just = c("left", "center"), 
+                                                 gp = gpar(fontsize = 35, fontface = "bold")))
 
 ## ADMIX2 ----
 # K plots
@@ -597,14 +603,16 @@ a2.k <- evannoMethodStructure(data = struct_sum_a2, exportplot = F,
 p_lik <- a2.k$grobs[[1]]
 p_dk <- a2.k$grobs[[4]]
 
+p_lik$grobs[[which(p_lik$layout$name == "title")]] <- nullGrob()
+p_dk$grobs[[which(p_dk$layout$name == "title")]] <- nullGrob()
 
 # Label Likelihood as 'a'
-panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+panel_a <- arrangeGrob(p_lik, top = textGrob("C", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
                                              just = c("left", "top"), 
                                              gp = gpar(fontsize = 35, fontface = "bold")))
 
 # Label Delta K as 'b'
-panel_b <- arrangeGrob(p_dk, top = textGrob("B", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+panel_b <- arrangeGrob(p_dk, top = textGrob("D", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
                                              just = c("left", "top"), 
                                              gp = gpar(fontsize = 35, fontface = "bold")))
 
@@ -612,10 +620,20 @@ evanno_admix2 <- grid.arrange(panel_a, panel_b,
                          ncol = 2, 
                          widths = c(1, 1))
 
-ggsave("./output/plots/K_plots/a2.k.svg", 
-       plot = evanno_admix2, 
-       width = 27, 
-       height = 11)
+evanno_admix2 <- arrangeGrob(evanno_admix2, top = textGrob("Temporal Cohort 2: (2016 - 2025)", 
+                                                 x = unit(0, "npc"), just = c("left", "bottom"), 
+                                                 gp = gpar(fontsize = 35, fontface = "bold")))
+
+wbnp_admix_k <- grid.arrange(evanno_admix1, 
+                         nullGrob(),
+                         evanno_admix2,
+                         ncol = 1,
+                         heights = c(1, 0.1, 1))
+
+ggsave("./output/plots/K_plots/wbnp_admix_k.svg", 
+       plot = wbnp_admix_k, 
+       width = 25, 
+       height = 25)
 ```
 
 #### WBNP 1
@@ -1184,7 +1202,7 @@ grp2 <- find.clusters(w2, max.n.clust = 8, n.pca = (nInd(w2) -1))
 # Print BIC plot
 svg(file = "./output/plots/DAPC/w2_BIC.svg", width = 7, height = 5)
 plot(grp2$Kstat, type = "o", xlab = "Number of clusters (K)", 
-     ylab = "BIC", main = "Value of BIC \n versus number of clusters \n WBNP: 2016 - 2026" ,
+     ylab = "BIC", main = "Value of BIC \n versus number of clusters \n WBNP: 2016 - 2025" ,
      col = "blue", pch = 1)
 dev.off()
 
@@ -1210,7 +1228,7 @@ dapc2
 ```{r}
 ####### Plot ----
 # Plot
-svg(file = "./output/plots/DAPC/wbnp_BIC_merged.svg", width = 10, height = 5) 
+png(file = "./output/plots/DAPC/wbnp_BIC_merged.png", width = 12, height = 6, units = "in", res = 300) 
 
 # Set up  grid 1 row, 2 columns
 par(mfrow = c(1, 2)) 
@@ -1222,7 +1240,7 @@ plot(grp1$Kstat, type = "o", xlab = "Number of clusters (K)",
 
 # Temp2
 plot(grp2$Kstat, type = "o", xlab = "Number of clusters (K)", 
-     ylab = "BIC", main = "Value of BIC \n versus number of clusters \n WBNP: 2016 - 2026" ,
+     ylab = "BIC", main = "Value of BIC \n versus number of clusters \n WBNP: 2016 - 2025" ,
      col = "blue", pch = 1)
 
 
@@ -1232,30 +1250,25 @@ dev.off()
 
 ```{r}
 ####### Plot ----
-dapc_palette <- c("#cecece", 
-                  "#a559aa", 
-                  "#59a89c", 
-                  "#f0c571", 
-                  "#e02b35", 
-                  "#082a54"
+dapc_palette <- c("#228833","#CCBB44","#4477AA","#EE6677",  "#66CCEE", "#AA3377"
                   )
 
 # Plot
-svg(file = "./output/plots/DAPC/wbnp_DAPC_stacked.svg", width = 20, height = 10) 
+png(file = "./output/plots/DAPC/wbnp_DAPC_stacked.png", width = 20, height = 10, res = 300, units = "in") 
 
 # Set up  grid 1 row, 2 columns
 par(mfrow = c(1, 2)) 
 
 # Plot 1
 scatter(dapc1,posi.da="bottomright", bg="white",
-pch=17:22,cstar=0, cex = 2, col=dapc_palette,scree.pca=TRUE,
+pch=17:22,cstar=0, cex = 2, col=wbnp_palette,scree.pca=TRUE,
 posi.pca = "topright", ratio.da = 0.20, ratio.pca = 0.13, csub = 2,
 sub = paste0("DA1: ", round(dapc1$eig[1], 1), "% | DA2: ", round(dapc1$eig[2], 1), "%"))
 mtext("A", side = 3, adj = -7.8, line = 2, cex = 2, font = 2)
 
 # Plot 2
 scatter(dapc2,posi.da="bottomright", bg="white",
-pch=17:22,cstar=0, cex = 2,col=dapc_palette,scree.pca=TRUE,
+pch=17:22,cstar=0, cex = 2,col=wbnp_palette,scree.pca=TRUE,
 posi.pca = "topright", ratio.da = 0.20, ratio.pca = 0.13, csub = 2,
 sub = paste0("DA1: ", round(dapc2$eig[1], 1), "% | DA2: ", round(dapc2$eig[2], 1), "%"))
 mtext("B", side = 3, adj = -7.8, line = 2, cex = 2, font = 2)
@@ -1673,14 +1686,16 @@ subw2.k <- evannoMethodStructure(data = struct_sum_subw2, exportplot = F,
 p_lik <- subw2.k$grobs[[1]]
 p_dk <- subw2.k$grobs[[4]]
 
+p_lik$grobs[[which(p_lik$layout$name == "title")]] <- nullGrob()
+p_dk$grobs[[which(p_dk$layout$name == "title")]] <- nullGrob()
 
 # Label Likelihood as 'a'
-panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+panel_a <- arrangeGrob(p_lik, top = textGrob("E", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
                                              just = c("left", "top"), 
                                              gp = gpar(fontsize = 35, fontface = "bold")))
 
 # Label Delta K as 'b'
-panel_b <- arrangeGrob(p_dk, top = textGrob("B", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+panel_b <- arrangeGrob(p_dk, top = textGrob("F", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
                                              just = c("left", "top"), 
                                              gp = gpar(fontsize = 35, fontface = "bold")))
 
@@ -1688,10 +1703,24 @@ evanno_wbnpsub2 <- grid.arrange(panel_a, panel_b,
                          ncol = 2, 
                          widths = c(1, 1))
 
-ggsave("./output/plots/K_plots/subw2.k.svg", 
-       plot = evanno_wbnpsub2, 
-       width = 27, 
-       height = 11)
+
+evanno_wbnpsub2 <- arrangeGrob(evanno_wbnpsub2, top = textGrob("Temporal Cohort 2 (Downsampled): (2016 - 2025)", 
+                                                 x = unit(0, "npc"), just = c("left", "bottom"), 
+                                                 gp = gpar(fontsize = 35, fontface = "bold")))
+
+wbnp_k <- grid.arrange(evanno_wbnp1, 
+                         nullGrob(),
+                         evanno_wbnp2,
+                         nullGrob(),
+                         evanno_wbnpsub2,
+                         ncol = 1,
+                         heights = c(1, 0.1, 1, 0.1, 1))
+
+ggsave("./output/plots/K_plots/wbnp_k.svg", 
+       plot = wbnp_k, 
+       width = 25, 
+       height = 35
+       )
 ```
 
 ```{r}
@@ -1832,7 +1861,7 @@ plotQ(c(subw2.mk2, subw2.mk3, subw2.mk4, subw2.mk5, subw2.mk6),
       
       
       # File settings
-            imgtype = "tiff",
+            imgtype = "png",
             outputfilename = "subW2",
             exportpath = "./output/plots/structure_plots/wbnp")
 ```
@@ -2068,7 +2097,7 @@ w2.Q.sum
 write.csv(w2.Q.sum, "./output/tables/structure/WBNP.Cluster.assignment.csv")
 ```
 
-### Combined plots 
+## Combined plots 
 
 ```{r}
 pcaw1_nl <- pcaw1 + 
@@ -2526,7 +2555,7 @@ wbnp_einp <- arrangeGrob(top1, global_pcas,
                         padding = unit(-3, "lines")
                         )
 # Save plots
-ggsave("./output/plots/combined_plots/WBNP_EINP_outgroup.tiff",
+ggsave("./output/plots/combined_plots/WBNP_EINP_outgroup.png",
        plot = wbnp_einp,
        height = 10,
        width = 12.5,

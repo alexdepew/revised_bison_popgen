@@ -628,11 +628,13 @@ p1 <- evannoMethodStructure(data = struct_sum_temp1, exportplot = F,
                            height = 25, width = 25, units = "cm",
                            outputfilename = "Temp1_K",
                            exportpath = "./output/plots/K_plots/",
-                           imgtype = "pdf")
+                           imgtype = "pdf") 
 
 p_lik <- p1$grobs[[1]]
 p_dk <- p1$grobs[[4]]
 
+p_lik$grobs[[which(p_lik$layout$name == "title")]] <- nullGrob()
+p_dk$grobs[[which(p_dk$layout$name == "title")]] <- nullGrob()
 
 # Label Likelihood as 'a'
 panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.80, "npc"), 
@@ -648,10 +650,14 @@ evanno_w1 <- grid.arrange(panel_a, panel_b,
                          ncol = 2, 
                          widths = c(1, 1))
 
-ggsave("./output/plots/K_plots/temp1.k.svg", 
-       plot = evanno_w1, 
-       width = 27, 
-       height = 11)
+evanno_w1 <- arrangeGrob(evanno_w1, top = textGrob("Temporal Cohort 1: (1986 - 2015)", 
+                                                 x = unit(0, "npc"), just = c("left", "center"), 
+                                                 gp = gpar(fontsize = 35, fontface = "bold")))
+
+#ggsave("./output/plots/K_plots/temp1.k.svg", 
+#       plot = evanno_w1, 
+#       width = 27, 
+#       height = 11)
 
 # Temp2 With Plains ----
 # K plots
@@ -666,14 +672,16 @@ p2 <- evannoMethodStructure(data = struct_sum_temp2, exportplot = F,
 p_lik <- p2$grobs[[1]]
 p_dk <- p2$grobs[[4]]
 
+p_lik$grobs[[which(p_lik$layout$name == "title")]] <- nullGrob()
+p_dk$grobs[[which(p_dk$layout$name == "title")]] <- nullGrob()
 
 # Label Likelihood as 'a'
-panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+panel_a <- arrangeGrob(p_lik, top = textGrob("C", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
                                              just = c("left", "top"), 
                                              gp = gpar(fontsize = 35, fontface = "bold")))
 
 # Label Delta K as 'b'
-panel_b <- arrangeGrob(p_dk, top = textGrob("B", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+panel_b <- arrangeGrob(p_dk, top = textGrob("D", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
                                              just = c("left", "top"), 
                                              gp = gpar(fontsize = 35, fontface = "bold")))
 
@@ -681,10 +689,25 @@ evanno_w2 <- grid.arrange(panel_a, panel_b,
                          ncol = 2, 
                          widths = c(1, 1))
 
-ggsave("./output/plots/K_plots/temp2.k.svg", 
-       plot = evanno_w2, 
-       width = 27, 
-       height = 11)
+evanno_w2 <- arrangeGrob(evanno_w2, top = textGrob("Temporal Cohort 2: (2016 - 2025)", 
+                                                 x = unit(0, "npc"), just = c("left", "bottom"), 
+                                                 gp = gpar(fontsize = 35, fontface = "bold")))
+
+#ggsave("./output/plots/K_plots/temp2.k.svg", 
+#       plot = evanno_w2, 
+#       width = 27, 
+#       height = 11)
+
+global_K <- grid.arrange(evanno_w1, 
+                         nullGrob(),
+                         evanno_w2,
+                         ncol = 1,
+                         heights = c(1, 0.1, 1))
+
+ggsave("./output/plots/K_plots/global_k.svg", 
+       plot = global_K, 
+       width = 25, 
+       height = 25)
 ```
 
 ## STRUCTURE Plots (All K)
@@ -1202,28 +1225,33 @@ t1 <- evannoMethodStructure(data = struct_sum_temp1_no_plains, exportplot = F,
                            exportpath = "./output/plots/K_plots/",
                            imgtype = "pdf")
 
+# Pull relevant plots from t1 object
 p_lik <- t1$grobs[[1]]
 p_dk <- t1$grobs[[4]]
 
+p_lik$grobs[[which(p_lik$layout$name == "title")]] <- nullGrob()
+p_dk$grobs[[which(p_dk$layout$name == "title")]] <- nullGrob()
 
-# Label Likelihood as 'a'
+#Likelihood method 
 panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
                                              just = c("left", "top"), 
                                              gp = gpar(fontsize = 35, fontface = "bold")))
 
-# Label Delta K as 'b'
+# Delta K method
 panel_b <- arrangeGrob(p_dk, top = textGrob("B", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
                                              just = c("left", "top"), 
                                              gp = gpar(fontsize = 35, fontface = "bold")))
-
+# Arrange methods together
 evanno_t1 <- grid.arrange(panel_a, panel_b, 
                          ncol = 2, 
                          widths = c(1, 1))
 
-ggsave("./output/plots/K_plots/temp1_no_plains.k.svg", 
-       plot = evanno_t1, 
-       width = 27, 
-       height = 11)
+# Label temporal cohort
+evanno_t1 <- arrangeGrob(evanno_t1, top = textGrob("Temporal Cohort 1: (1986 - 2015)", 
+                                                 x = unit(0, "npc"), just = c("left", "center"), 
+                                                 gp = gpar(fontsize = 35, fontface = "bold")))
+
+
 
 # Temp2 Without Plains ----
 # K plots
@@ -1238,14 +1266,17 @@ t2 <- evannoMethodStructure(data = struct_sum_temp2_no_plains, exportplot = F,
 p_lik <- t2$grobs[[1]]
 p_dk <- t2$grobs[[4]]
 
+p_lik$grobs[[which(p_lik$layout$name == "title")]] <- nullGrob()
+p_dk$grobs[[which(p_dk$layout$name == "title")]] <- nullGrob()
+
 
 # Label Likelihood as 'a'
-panel_a <- arrangeGrob(p_lik, top = textGrob("A", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+panel_a <- arrangeGrob(p_lik, top = textGrob("C", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
                                              just = c("left", "top"), 
                                              gp = gpar(fontsize = 35, fontface = "bold")))
 
 # Label Delta K as 'b'
-panel_b <- arrangeGrob(p_dk, top = textGrob("B", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
+panel_b <- arrangeGrob(p_dk, top = textGrob("D", x = unit(0.5, "line"), y = unit(0.8, "npc"), 
                                              just = c("left", "top"), 
                                              gp = gpar(fontsize = 35, fontface = "bold")))
 
@@ -1253,10 +1284,20 @@ evanno_t2 <- grid.arrange(panel_a, panel_b,
                          ncol = 2, 
                          widths = c(1, 1))
 
-ggsave("./output/plots/K_plots/temp2_no_plains.k.svg", 
-       plot = evanno_t2, 
-       width = 27, 
-       height = 11)
+evanno_t2 <- arrangeGrob(evanno_t2, top = textGrob("Temporal Cohort 2: (2016 - 2025)", 
+                                                 x = unit(0, "npc"), just = c("left", "bottom"), 
+                                                 gp = gpar(fontsize = 35, fontface = "bold")))
+
+
+global_no_plains_k <- grid.arrange(evanno_t1, nullGrob(),evanno_t2,
+                                   ncol = 1,
+                                   heights = c(1, 0.1, 1),
+                                   top = 0.25)
+                                   
+ggsave("./output/plots/K_plots/global_no_plains_k.svg", 
+       plot = global_no_plains_k, 
+       width = 25, 
+       height = 25)
 ```
 
 ## STRUCTURE Plots (All K)
@@ -2128,7 +2169,7 @@ w_plains <- arrangeGrob(top1, global_pcas,
                         padding = unit(-3, "lines")
                         )
 # Save plots
-ggsave("./output/plots/combined_plots/Wood_and_plains_structure.tiff",
+ggsave("./output/plots/combined_plots/Wood_and_plains_structure.png",
        plot = w_plains,
        height = 10,
        width = 12.5,

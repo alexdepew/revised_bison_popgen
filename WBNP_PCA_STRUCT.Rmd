@@ -1787,10 +1787,10 @@ subw2.mk4$`4`$Cluster4 <- Cluster4
 
 #mk5
 Cluster1 <- subw2.mk5$`5`$Cluster1
-Cluster2 <- subw2.mk5$`5`$Cluster2 
+Cluster5 <- subw2.mk5$`5`$Cluster2 
 Cluster3 <- subw2.mk5$`5`$Cluster3 
 Cluster4 <- subw2.mk5$`5`$Cluster4 
-Cluster5 <- subw2.mk5$`5`$Cluster5 
+Cluster2 <- subw2.mk5$`5`$Cluster5 
 
 subw2.mk5$`5`$Cluster1 <- Cluster1
 subw2.mk5$`5`$Cluster2 <- Cluster2
@@ -1799,11 +1799,11 @@ subw2.mk5$`5`$Cluster4 <- Cluster4
 subw2.mk5$`5`$Cluster5 <- Cluster5
 
 #mk6
-Cluster1 <- subw2.mk6$`6`$Cluster1
-Cluster2 <- subw2.mk6$`6`$Cluster2 
+Cluster2 <- subw2.mk6$`6`$Cluster1
+Cluster1 <- subw2.mk6$`6`$Cluster2 
 Cluster3 <- subw2.mk6$`6`$Cluster3 
-Cluster4 <- subw2.mk6$`6`$Cluster4 
-Cluster5 <- subw2.mk6$`6`$Cluster5 
+Cluster5 <- subw2.mk6$`6`$Cluster4 
+Cluster4 <- subw2.mk6$`6`$Cluster5 
 Cluster6 <- subw2.mk6$`6`$Cluster6 
 
 subw2.mk6$`6`$Cluster1 <- Cluster1
